@@ -1,11 +1,29 @@
 import markdownit from "markdown-it";
+import hljs from "highlight.js";
 import fs from "node:fs";
 import path from "path";
 import { last } from "./utils.mjs";
 
 console.info("init engine...");
 
-const md = markdownit();
+const md = markdownit({
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return (
+          '<pre><code class="hljs">' +
+          hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+          "</code></pre>"
+        );
+      } catch (__) {}
+    }
+
+    return (
+      '<pre><code class="hljs">' + md.utils.escapeHtml(str) + "</code></pre>"
+    );
+  },
+});
+
 const basePath = path.join(import.meta.dirname, "../../src");
 console.log("basePath=" + basePath);
 const buildDirPath = path.join(basePath, "../build");
@@ -35,6 +53,10 @@ export const engine = () => {
     pageGeneration(pagePath);
   }
 
+  fs.copyFileSync(
+    path.join(basePath, "../node_modules/highlight.js/styles/default.min.css"),
+    buildDirPath + "/highlight-default.min.css"
+  );
   fs.copyFileSync(basePath + "/pages/main.js", buildDirPath + "/main.js");
   fs.copyFileSync(basePath + "/pages/style.css", buildDirPath + "/style.css");
   generateIndex();
@@ -74,9 +96,16 @@ function pageGeneration(pagePath) {
   console.log("resultFileName=", resultFileName);
   const resultFolderName = path.join(buildDirPath, "pages", resultFileName);
   fs.mkdirSync(resultFolderName);
+
+  let htmlWrap = fs.readFileSync(
+    basePath + "/pages/page-template.html",
+    "utf8"
+  );
+  htmlWrap = htmlWrap.replace("<!--@blogEngine:paper_id-->", result);
+
   fs.writeFileSync(
     path.join(resultFolderName, resultFileName + ".html"),
-    result,
+    htmlWrap,
     "utf-8"
   );
 
