@@ -1,0 +1,8 @@
+.blogEngine {
+    background-color: aqua;
+}
+
+.blogImage_container {
+    display: flex;
+    justify-content: center;
+}

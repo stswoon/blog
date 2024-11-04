@@ -24,6 +24,14 @@ const md = markdownit({
   },
 });
 
+//https://publishing-project.rivendellweb.net/customizing-markdown-it/
+md.renderer.rules.image = function (tokens, idx, options, env, slf) {
+  //   const token = tokens[idx];
+  //   token.attrSet("class", "blogImage");
+  const original = slf.renderToken(tokens, idx, options);
+  return `<div class="blogImage_container">${original}</div>`;
+};
+
 const basePath = path.join(import.meta.dirname, "../../src");
 console.log("basePath=" + basePath);
 const buildDirPath = path.join(basePath, "../build");
