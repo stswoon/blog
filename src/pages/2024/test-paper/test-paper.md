@@ -10,4 +10,6 @@ function question() {
 }
 ```
 
-[img](image.png)
+[link yandex](https://yandex.ru)
+
+![img](image.png)
