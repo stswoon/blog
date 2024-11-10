@@ -10,11 +10,13 @@ export function generateIndex() {
   copyStaticAssets();
 
   const tocHtml = generateTocHtml();
+  const last5Html = generateLast5Html();
 
   let data = fs.readFileSync(
     path.join(srcDirName, "templates/index.html"),
     "utf8"
   );
+  data = data.replaceAll("<!--@blogEngine:last_5-->", last5Html);
   data = data.replaceAll("<!--@blogEngine:toc-->", tocHtml);
   data = data.replaceAll("<!--@blogEngine:title-->", BLOG_RESULT.meta.title);
   data = data.replaceAll(
@@ -38,11 +40,32 @@ export function generateIndex() {
   console.info("generateIndex: finish");
 }
 
+function generateLast5Html() {
+  const paperItem = fs.readFileSync(
+    path.join(srcDirName, "templates/index-paper-item.html"),
+    "utf8"
+  );
+
+  let result = "";
+
+  for (let i = 0; i < Math.min(BLOG_RESULT.pages.length, 5); ++i) {
+    const shortHtml = BLOG_RESULT.pages[i].shortHtml;
+    result +=
+      paperItem.replaceAll("<!--@blogEngine:page_short_html-->", shortHtml) +
+      "\n";
+  }
+
+  console.log("result=", result);
+
+  return result;
+}
+
 function generateTocHtml() {
   //console.log("blogResultModel=", blogResultModel);
   let tocMd = "";
   for (const page of BLOG_RESULT.pages) {
-    tocMd += `* [${page.title}](${page.link})` + "\n";
+    const title = new Date(page.date).getFullYear() + ": " + page.title;
+    tocMd += `* [${title}](${page.link})` + "\n";
   }
   const tocHtml = md.render(tocMd);
   //console.log("tocHtml=", tocHtml);
@@ -61,6 +84,12 @@ function copyStaticAssets() {
   fs.copyFileSync(
     path.join(srcDirName, "templates/style.css"),
     path.join(buildDirName, "style.css")
+  );
+  fs.mk;
+  fs.cpSync(
+    path.join(srcDirName, "templates/assets"),
+    path.join(buildDirName, "assets"),
+    { recursive: true }
   );
 }
 

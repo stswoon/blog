@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import path from "path";
 import { clearBlogResult } from "./globals.mjs";
 import { buildDirName } from "./constants.mjs";
 import { generatePages } from "./processPages.mjs";
@@ -26,5 +27,5 @@ function clearAndCreateBuildDir() {
     fs.rmSync(buildDirName, { recursive: true, force: true });
   }
   fs.mkdirSync(buildDirName);
-  // fs.mkdirSync(path.join(buildDirName, "pages"));
+  fs.mkdirSync(path.join(buildDirName, "assets"));
 }

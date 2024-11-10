@@ -7,4 +7,16 @@
 
 ## Plan
 
-[]
+[] make sync to promise all for performance watch
+[] last 5 with more
+[] search toc
+[] move 7 paper to here 
+[] mobile view
+[] ad
+[] docker
+[] publish
+[] move all papers to here (except vpn)
+[] clear reset css
+[] page markup
+[] new markup
+

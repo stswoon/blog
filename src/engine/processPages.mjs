@@ -43,6 +43,10 @@ function pageGeneration(srcPageDirName) {
 
   const pageHtml = generatePageHtml(path.join(srcPageDirName, meta.fileName));
   meta.html = pageHtml;
+  meta.shortHtml = generatePageHtml(
+    path.join(srcPageDirName, meta.fileName),
+    true
+  );
 
   let data = fs.readFileSync(
     path.join(srcDirName, "templates/page.html"),
@@ -71,9 +75,16 @@ function pageGeneration(srcPageDirName) {
   BLOG_RESULT.pages.push(meta);
 }
 
-function generatePageHtml(srcPageFileName) {
-  const pageData = fs.readFileSync(srcPageFileName, "utf8");
-  const pageHtml = md.render(pageData);
+function generatePageHtml(srcPageFileName, short) {
+  let pageData = fs.readFileSync(srcPageFileName, "utf8");
+  let pageHtml;
+  if (short) {
+    //TODO:remove images and etc, use only paragraph
+    pageData = pageData.substring(0, 100) + "...";
+    pageHtml = md.render(pageData);
+  } else {
+    pageHtml = md.render(pageData);
+  }
   // console.log("pageHtml:", pageHtml);
   return pageHtml;
 }

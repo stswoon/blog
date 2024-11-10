@@ -6,7 +6,8 @@
     "node": "20.17.0"
   },
   "scripts": {
-    "build": "node blogengine.mjs"
+    "build": "node blogengine.mjs",
+    "serve": "node --watch-path=./src blogengine.mjs"
   },
   "dependencies": {
     "markdown-it": "14.1.0",

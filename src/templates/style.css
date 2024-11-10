@@ -1,8 +1,63 @@
 .blogEngine {
-    background-color: aqua;
+  background-color: #f3b86d;
+  margin: 0;
+}
+
+.blogEngine .leftRight {
+  min-height: calc(100vh - 30px);
+  display: flex;
+}
+
+.blogEngine .menu {
+  background-color: rgb(228, 228, 236);
+  width: 200px;
+}
+
+.blogEngine .content {
+  width: calc(100vw - 200px);
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items: center;
+}
+
+.blogEngine .content .header {
+  color: white;
+  padding: 50px;
+  font-size: 50px;
+  font-weight: 700;
+}
+
+.blogEngine .content .header-img {
+  background: url("assets/background.jpg") no-repeat;
+  height: 600px;
+  width: 100%;
+  left: 200px;
+  z-index: -1;
+  position: fixed;
+}
+
+.blogEngine .content .papers {
+  padding: 50px 0;
+  width: 100%;
+}
+
+.blogEngine .index-paper-item {
+    padding: 20px;
+    margin: 30px 100px;
+    background-color: rgb(250, 250, 249);
+}
+
+.blogEngine .contacts {
+  background-color: rgb(3, 3, 36);
+  height: 30px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .blogImage_container {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
