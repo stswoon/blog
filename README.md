@@ -14,9 +14,10 @@
 [] mobile view
 [] ad
 [] docker
-[] publish
+[] publish on server
 [] move all papers to here (except vpn)
 [] clear reset css
 [] page markup
 [] new markup
+[] separate md generation and html
 

@@ -47,19 +47,17 @@ function generateLast5Html() {
   );
 
   let result = "";
-
   for (let i = 0; i < Math.min(BLOG_RESULT.pages.length, 5); ++i) {
     const shortHtml = BLOG_RESULT.pages[i].shortHtml;
     result +=
       paperItem.replaceAll("<!--@blogEngine:page_short_html-->", shortHtml) +
       "\n";
   }
-
-  console.log("result=", result);
-
+  // console.log("result=", result);
   return result;
 }
 
+//TODO: make md generation, then html replace because this function also need in page
 function generateTocHtml() {
   //console.log("blogResultModel=", blogResultModel);
   let tocMd = "";
