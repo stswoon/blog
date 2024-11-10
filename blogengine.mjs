@@ -1,3 +1,3 @@
-import { engine } from "./src/engine/index.mjs";
+import { runBlogEngine } from "./src/engine/index.mjs";
 
-engine();
+runBlogEngine();

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title><!--@blogEngine:title--></title>
+  <meta name="description" content="<!--@blogEngine:description-->" />
+
+  <link rel="stylesheet" href="./highlight-default.min.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script src="./main.js" defer></script>
+  <!-- <script src="highlight.min.js" defer></script> -->
+
+  <!-- Yandex.RTB -->
+  <script>
+    window.yaContextCb = window.yaContextCb || [];
+    window.yaContextCb.push(() => {
+      window.Ya.Context.AdvManager.render({
+        blockId: "<!--@blogEngine:ad_blockId-->",
+        renderTo: "<!--@blogEngine:ad_renderTo-->",
+      });
+    });
+  </script>
+  <script src="https://yandex.ru/ads/system/context.js" async></script>
+</head>
+
+<body class="blogEngine">
+  <div class="menu">
+    <div class="toc">
+      <!--@blogEngine:toc-->
+    </div>
+  </div>
+  <div class="content">
+    <!--@blogEngine:last_10-->
+    <!--show last 10 with show more-->
+  </div>
+  <div class="ad">
+    <!-- Yandex.RTB -->
+    <div class="opa-ads_yandex" id="<!--@blogEngine:ad_blockId-->">
+      <!--@blogEngine:ad_description-->
+    </div>
+  </div>
+  <div class="contacts"></div>
+</body>
+
+</html>
