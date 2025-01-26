@@ -7,17 +7,13 @@
 
 ## Plan
 
-[] separate md generation and html
-[] last 5 with more
 [] move 7 paper to here
 [] footer
-[] menu
 [] ad
 [] docker
 [] publish on server
 
 [] move all papers to here (except vpn)
-[] search toc
 [] mobile view
 [] make sync to promise all for performance watch
 [] clear reset css

@@ -26,10 +26,13 @@ export function generateIndex() {
     data = resolveSpecificMacros(data, "ad_head", BLOG_RESULT.adHeadHtml);
     // data = resolveSpecificMacros(data, "ad_block", BLOG_RESULT.adBlockHtml);
     data = resolveSpecificMacros(data, "footer", BLOG_RESULT.footerHtml);
+    data = resolveSpecificMacros(data, "papersSearchData", generatePaperSearchData());
     fs.writeFileSync(path.join(buildDirName, "index.html"), data, "utf-8");
 
     console.info("generateIndex: finish");
 }
+
+const AFTER_PAPER_AD = 5;
 
 function generateAllShortHtml() {
     const paperItem = fs.readFileSync(path.join(srcDirName, "templates/index_paper-item.html"), "utf8");
@@ -38,12 +41,13 @@ function generateAllShortHtml() {
     for (let i = 0; i < BLOG_RESULT.pages.length; ++i) {
         const pageData = BLOG_RESULT.pages[i]
         const paperMacrosData = {
+            "page_id": pageData.link,
             "page_short_html": pageData.shortHtml,
             "page_link": pageData.link
         }
         result += resolveSeveralMacros(paperItem, paperMacrosData) + "\n";
 
-        if (i === 5 || i === BLOG_RESULT.pages.length - 1) {
+        if (i === AFTER_PAPER_AD || i === BLOG_RESULT.pages.length - 1) {
             let adHtml = '<div class="paper-item ad">{@blogEngine:ad_block}</div>';
             adHtml = resolveSpecificMacros(adHtml, "ad_block", BLOG_RESULT.adBlockHtml);
             result += adHtml + "\n";
@@ -53,21 +57,22 @@ function generateAllShortHtml() {
     return result;
 }
 
-function generateLast5Html() {
-    const paperItem = fs.readFileSync(path.join(srcDirName, "templates/index_paper-item.html"), "utf8");
-
-    let result = "";
-    for (let i = 0; i < Math.min(BLOG_RESULT.pages.length, 5); ++i) {
-        const pageData = BLOG_RESULT.pages[i]
-        const paperMacrosData = {
-            "page_short_html": pageData.shortHtml,
-            "page_link": pageData.link
-        }
-        result += resolveSeveralMacros(paperItem, paperMacrosData) + "\n";
-    }
-    // console.log("result=", result);
-    return result;
-}
+// function generateLast5Html() {
+//     const paperItem = fs.readFileSync(path.join(srcDirName, "templates/index_paper-item.html"), "utf8");
+//
+//     let result = "";
+//     for (let i = 0; i < Math.min(BLOG_RESULT.pages.length, 5); ++i) {
+//         const pageData = BLOG_RESULT.pages[i]
+//         const paperMacrosData = {
+//             "page_id": pageData.link,
+//             "page_short_html": pageData.shortHtml,
+//             "page_link": pageData.link
+//         }
+//         result += resolveSeveralMacros(paperItem, paperMacrosData) + "\n";
+//     }
+//     // console.log("result=", result);
+//     return result;
+// }
 
 // //TODO: make md generation, then html replace because this function also need in page
 // function generateTocHtml() {
@@ -109,4 +114,19 @@ function copyStaticAssets() {
 export function getBlogMeta() {
     const meta = fs.readFileSync(path.join(srcDirName, "pages/blog-meta.json"), "utf8");
     return JSON.parse(meta);
+}
+
+function generatePaperSearchData() {
+    const papersSearchData = BLOG_RESULT.pages.map(page => {
+        return {
+            id: page.link,
+            link: page.link,
+            title: page.title,
+            description: page.description,
+            tags: page.tags,
+            html: encodeURI(page.html),
+            // source: page.source,
+        }
+    });
+    return JSON.stringify(papersSearchData);
 }

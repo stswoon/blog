@@ -50,7 +50,11 @@ function pageGeneration(srcPageDirName) {
         meta,
         link,
         html: pageHtml,
-        shortHtml: shortHtml
+        shortHtml: shortHtml,
+        title: meta.title,
+        description: meta.description,
+        id: link
+        // source: getSource(srcPageFileName)
     });
 
     let data = fs.readFileSync(path.join(srcDirName, "templates/paper.html"), "utf8");
@@ -88,6 +92,10 @@ function generatePageHtml(srcPageFileName) {
     let pageHtml = md.render(pageData);
     // console.log("pageHtml:", pageHtml);
     return pageHtml;
+}
+
+function getSource(srcPageFileName) {
+    return fs.readFileSync(srcPageFileName, "utf8");
 }
 
 function copyStaticAssets(pageDirName, buildPageDirName) {
