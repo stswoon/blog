@@ -1,0 +1,11 @@
+<!-- Yandex.RTB -->
+<script>
+    window.yaContextCb = window.yaContextCb || [];
+    window.yaContextCb.push(() => {
+        window.Ya.Context.AdvManager.render({
+            blockId: "{@blogEngine:ad_blockId}",
+            renderTo: "{@blogEngine:ad_renderTo}",
+        });
+    });
+</script>
+<script src="https://yandex.ru/ads/system/context.js" async></script>

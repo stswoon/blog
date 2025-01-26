@@ -1,49 +1,61 @@
+* {
+    --debug-border: 0px;
+    /*--debug-border: 6px;*/
+    /*border: 1px red solid;*/
+}
+
 .blogEngine {
-  background-color: #f3b86d;
-  margin: 0;
+    --menu-width: 10vw;
+    background: #f3b86d;
 }
 
-.blogEngine .leftRight {
-  min-height: calc(100vh - 30px);
-  display: flex;
+.blogEngine .layout {
+    min-height: calc(100vh - var(--debug-border));
+    display: grid;
+    grid-template-columns: var(--menu-width) auto;
+    grid-template-rows: auto 100px;
+    grid-template-areas:
+          "menu content"
+          "menu footer";
 }
 
-.blogEngine .menu {
-  background-color: rgb(228, 228, 236);
-  width: 200px;
+/* -----HEADER----- */
+
+.blogEngine .header-title {
+    color: white;
+    padding: 50px;
+    font-size: 50px;
+    font-weight: 700;
 }
+
+.blogEngine .header-background {
+    height: 600px;
+    left: var(--menu-width);
+    position: absolute;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.blogEngine .header-background .header-background_image {
+    /*background: url("assets/background.jpg") no-repeat;*/
+    /*background-image: url("assets/background.jpg");*/
+    width: 100%;
+    height: auto;
+}
+
+/* -----CONTENT----- */
 
 .blogEngine .content {
-  width: calc(100vw - 200px);
-  display: flex;
-  flex-direction: column;
-  /* justify-content: center; */
-  align-items: center;
-}
+    grid-area: content;
 
-.blogEngine .content .header {
-  color: white;
-  padding: 50px;
-  font-size: 50px;
-  font-weight: 700;
-}
-
-.blogEngine .content .header .small {
-    font-size: 30px;
-  }
-
-.blogEngine .content .header-img {
-  background: url("assets/background.jpg") no-repeat;
-  height: 600px;
-  width: 100%;
-  left: 200px;
-  z-index: -1;
-  position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .blogEngine .content .papers {
-  padding: 50px 0;
-  width: 100%;
+    padding: 50px 0;
+    width: 100%;
 }
 
 .blogEngine .index-paper-item {
@@ -58,16 +70,33 @@
     background-color: rgb(250, 250, 249);
 }
 
-.blogEngine .contacts {
-  background-color: rgb(3, 3, 36);
-  height: 30px;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* -----FOOTER----- */
+
+.blogEngine .footer {
+    grid-area: footer;
 }
 
+.blogEngine .contacts {
+    background-color: rgb(3, 3, 36);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+/* -----MENU----- */
+
+.blogEngine .menu {
+    grid-area: menu;
+
+    background-color: rgba(209, 209, 248, 0.7);
+    width: var(--menu-width);
+}
+
+/* -----MARKDOWN_MODIFICATION----- */
+
 .blogImage_container {
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
 }

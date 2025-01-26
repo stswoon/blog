@@ -7,11 +7,13 @@
   },
   "scripts": {
     "build": "node blogengine.mjs",
-    "serve": "node --watch-path=./src blogengine.mjs"
+    "serve": "node --watch-path=./src blogengine.mjs --open=false"
   },
   "dependencies": {
     "markdown-it": "14.1.0",
     "highlight.js": "11.10.0",
-    "glob": "11.0.0"
+    "glob": "11.0.0",
+    "open": "10.1.0",
+    "minimist": "1.2.8"
   }
 }
