@@ -14,7 +14,7 @@ export function generatePages() {
     console.log("fileNames:", fileNames);
 
     for (let fileName of fileNames) {
-        fileName = fileName.substring(3); //cut 'src'
+        fileName = fileName.substring(fileName.indexOf("src") + 3) //cut all to first 'src' for Windows and for Docker
         fileName = path.join(srcDirName, fileName);
         pageGeneration(path.join(fileName, ".."));
     }
