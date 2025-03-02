@@ -9,6 +9,7 @@ import {generateIndex, getBlogMeta} from "./processIndex.mjs";
 import {openInBrowser} from "./openInBrowser.mjs";
 import {generateFooter} from "./processFooter.mjs";
 import {generateAd} from "./processAd.mjs";
+import {styleText} from "node:util";
 
 export const runBlogEngine = async () => {
     console.info("runBlogEngine: start");
@@ -26,6 +27,7 @@ export const runBlogEngine = async () => {
     generateIndex();
 
     console.info("runBlogEngine: finish");
+    console.info(styleText('green',`Open in browser file://${buildDirName.replaceAll('\\', '/')}/index.html`));
 
     if (!(args.open === 'false')) {
         console.info("runBlogEngine: open in browser");

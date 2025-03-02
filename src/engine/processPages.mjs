@@ -22,6 +22,18 @@ export function generatePages() {
     console.info("generatePages: finish");
 }
 
+function getFirstImgLink(pageHtml, link) {
+    const regex = /<img.*src="(.*?)".*>/;
+    const result = regex.exec(pageHtml);
+    const firstImgLink = result && result[1];
+    console.log("firstImgLink=", firstImgLink);
+    if (!firstImgLink) {
+        return "./assets/fallbackBlogImg.png";
+    }
+    const baseLink = link.substring(0, link.lastIndexOf("/"));
+    return `${baseLink}/${firstImgLink}`;
+}
+
 function pageGeneration(srcPageDirName) {
     console.info("generating " + srcPageDirName);
 
@@ -46,6 +58,7 @@ function pageGeneration(srcPageDirName) {
     const srcPageFileName = path.join(srcPageDirName, meta.fileName)
     const pageHtml = generatePageHtml(srcPageFileName);
     const shortHtml = generatePageShortHtml(srcPageFileName);
+    const shortImageSrc = getFirstImgLink(pageHtml, link);
     BLOG_RESULT.pages.push({
         meta,
         link,
@@ -53,7 +66,8 @@ function pageGeneration(srcPageDirName) {
         shortHtml: shortHtml,
         title: meta.title,
         description: meta.description,
-        id: link
+        id: link,
+        shortImage: shortImageSrc
         // source: getSource(srcPageFileName)
     });
 
@@ -72,15 +86,16 @@ function generatePageShortHtml(srcPageFileName) {
     let pageData = fs.readFileSync(srcPageFileName, "utf8");
     let pageShortHtml;
     pageData = pageData.replaceAll("\r\n", "\n");
-    let secondParagraphEnd = pageData.indexOf("\n\n");
-    secondParagraphEnd = pageData.indexOf("\n\n", secondParagraphEnd + 1);
-    if (secondParagraphEnd === -1) {
+    let firstParagraphEnd = pageData.indexOf("\n\n");
+    let secondParagraphEnd = pageData.indexOf("\n\n", firstParagraphEnd + 1);
+    let thirdParagraphEnd = pageData.indexOf("\n\n", secondParagraphEnd + 1);
+    if (thirdParagraphEnd === -1) {
         console.warn(styleText(
             'yellowBright',
-            `Cannot find first paragraph in parer so it cause display all paper in index page. Warning for paper: ${srcPageFileName}`
+            `Cannot find third paragraph in parer so it cause display all paper in index page. Warning for paper: ${srcPageFileName}`
         ));
     } else {
-        pageData = pageData.substring(0, secondParagraphEnd);
+        pageData = pageData.substring(0, thirdParagraphEnd);
     }
     pageShortHtml = md.render(pageData);
     // console.log("pageShortHtml:", pageHtml);

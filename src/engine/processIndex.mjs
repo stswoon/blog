@@ -43,7 +43,8 @@ function generateAllShortHtml() {
         const paperMacrosData = {
             "page_id": pageData.link,
             "page_short_html": pageData.shortHtml,
-            "page_link": pageData.link
+            "page_link": pageData.link,
+            "page_short_image": pageData.shortImage,
         }
         result += resolveSeveralMacros(paperItem, paperMacrosData) + "\n";
 

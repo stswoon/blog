@@ -1,3 +1,7 @@
 import { runBlogEngine } from "./src/engine/index.mjs";
 
-runBlogEngine();
+try {
+    await runBlogEngine();
+} catch (e) {
+    console.error("Fail to execute runBlogEngine()", e);
+}

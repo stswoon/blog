@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="../../../reset.css"/>
     <link rel="stylesheet" href="../../../highlight-default.min.css"/>
     <link rel="stylesheet" href="../../../style.css"/>
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+    <script src="../../../highlight.min.js" defer></script>
     <script src="../../../main.js" defer></script>
 
     {@blogEngine:ad_head}
@@ -19,17 +23,28 @@
 <body class="blogEngine">
 
 <div class="layout">
-<!--    <div class="menu">{@blogEngine:menu}</div>-->
+    <!--    <div class="menu">{@blogEngine:menu}</div>-->
     <div class="content">
         <div class="header-background">
             <img src="../../../assets/background-original.jpg" class="header-background_image"/>
         </div>
-        <div class="header-title">{@blogEngine:title}</div>
-        <div class="papers">
-            <div class="paper-item">{@blogEngine:page_html}</div>
+
+        <div class="header-title">
+            <a class="home-link" href="/">&#8701;</a>
+            {@blogEngine:title}
         </div>
+
+        <div class="papers">
+            <div class="paper-item">
+                <div class="paper-text">
+                    {@blogEngine:page_html}
+                </div>
+            </div>
+        </div>
+
         <div class="ad">{@blogEngine:ad_block}</div>
     </div>
+
     <div class="footer">{@blogEngine:footer}</div>
 </div>
 

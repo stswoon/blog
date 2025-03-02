@@ -11,7 +11,10 @@
     <link rel="stylesheet" href="./reset.css"/>
     <link rel="stylesheet" href="./style.css"/>
     <link rel="stylesheet" href="./highlight-default.min.css"/>
-    <!-- <script src="highlight.min.js" defer></script> -->
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+    <script src="./highlight.min.js" defer></script>
     <script src="./main.js" defer></script>
 
     {@blogEngine:ad_head}
@@ -26,13 +29,14 @@
             <img src="assets/background-original.jpg" class="header-background_image"/>
         </div>
 
-        <div class="header-title">{@blogEngine:title}</div>
+        <div class="header-title">
+            My<s>Class</s>Blog
+        </div>
         <div class="header-subtitle">{@blogEngine:description}</div>
         <div class="search">
             <input type="text" class="search-input" id="search-input"
                    placeholder="Введите для поиска по статьям..."
                    onkeyup="blogEngineSearch(this.value)">
-            >
         </div>
         <div class="papers">{@blogEngine:allShortHtml}</div>
         <!--        <div class="papers">{@blogEngine:last_5}</div>-->
