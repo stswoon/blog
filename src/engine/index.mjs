@@ -2,10 +2,8 @@ import fs from "node:fs";
 import path from "path";
 import minimist from "minimist";
 import {buildDirName} from "./constants.mjs";
-import {BLOG_RESULT} from "./globals.mjs";
-import {clearBlogResult} from "./globals.mjs";
 import {generatePages} from "./processPages.mjs";
-import {generateIndex, getBlogMeta} from "./processIndex.mjs";
+import {generateIndex, readBlogMeta} from "./processIndex.mjs";
 import {openInBrowser} from "./openInBrowser.mjs";
 import {generateFooter} from "./processFooter.mjs";
 import {generateAd} from "./processAd.mjs";
@@ -13,28 +11,29 @@ import {styleText} from "node:util";
 
 export const runBlogEngine = async () => {
     console.info("runBlogEngine: start");
+    try {
+        const args = minimist(process.argv.slice(2));
+        console.debug("args:", args);
 
-    const args = minimist(process.argv.slice(2));
-    console.debug("args:", args);
+        clearAndCreateBuildDir();
 
-    clearBlogResult();
-    clearAndCreateBuildDir();
+        readBlogMeta();
+        generateFooter();
+        generateAd();
+        generatePages();
+        generateIndex();
 
-    BLOG_RESULT.meta = getBlogMeta();
-    generateFooter();
-    generateAd();
-    generatePages();
-    generateIndex();
+        console.info(styleText('green', `You can open result in browser file://${buildDirName.replaceAll('\\', '/')}/index.html`));
+        if (!(args.open === 'false')) {
+            console.info("runBlogEngine: opening in browser");
+            await openInBrowser();
+        }
 
-    console.info("runBlogEngine: finish");
-    console.info(styleText('green',`Open in browser file://${buildDirName.replaceAll('\\', '/')}/index.html`));
-
-    if (!(args.open === 'false')) {
-        console.info("runBlogEngine: open in browser");
-        await openInBrowser();
+        console.info("runBlogEngine: finish");
+        console.info(styleText('green', "runBlogEngine: SUCCESS"));
+    } catch (e) {
+        console.error(styleText('red', "Fail to execute runBlogEngine()"), e);
     }
-
-    console.info("runBlogEngine: SUCCESS");
 };
 
 function clearAndCreateBuildDir() {

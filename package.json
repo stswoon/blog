@@ -1,10 +1,7 @@
 {
-  "name": "blog",
+  "name": "myblog",
   "version": "0.0.1",
   "private": true,
-  "engines": {
-    "node": "20.17.0"
-  },
   "scripts": {
     "build:prod": "node blogengine.mjs --open=false",
     "build": "node blogengine.mjs",
@@ -15,6 +12,7 @@
     "highlight.js": "11.10.0",
     "glob": "11.0.0",
     "open": "10.1.0",
-    "minimist": "1.2.8"
+    "minimist": "1.2.8",
+    "lodash.property": "4.4.2"
   }
 }

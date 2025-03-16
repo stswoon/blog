@@ -2,24 +2,131 @@ import fs from "node:fs";
 import path from "path";
 import {globSync} from "glob";
 import {styleText} from 'node:util';
-import {md} from "./init-md.mjs";
+import {md} from "./initMdEngine.mjs";
 import {srcDirName, buildDirName} from "./constants.mjs";
-import {BLOG_RESULT} from "./globals.mjs";
-import {resolveSpecificMacros} from "./resolveMacros.mjs";
+import {BLOG} from "./globals.mjs";
+import {readFile, resolveMacrosAuto, resolveSpecificMacros, writeFile} from "./utils.mjs";
+import fsp from "node:fs/promises";
 
-export function generatePages() {
+export async function generatePages() {
     console.info("generatePages: start");
-
-    const fileNames = globSync(srcDirName + "/pages/*/*/meta.json", {});
-    console.log("fileNames:", fileNames);
-
-    for (let fileName of fileNames) {
-        fileName = fileName.substring(fileName.indexOf("src") + 3) //cut all to first 'src' for Windows and for Docker
-        fileName = path.join(srcDirName, fileName);
-        pageGeneration(path.join(fileName, ".."));
+    BLOG.pageTemplateHtml = readFile(srcDirName, "templates/index-page.html");
+    await readPages();
+    for (let page of BLOG.pages) {
+        pageGeneration(page);
     }
-
+    await writePages();
     console.info("generatePages: finish");
+}
+
+function readPages() {
+    const fileNames = globSync(srcDirName + "/pages/*/*/index.md", {});
+    // console.debug("fileNames:", fileNames);
+
+    return Promise.all(fileNames.map(fileName => {
+        console.log(`read ${fileName}`);
+        let srcPageFileName = fileName.substring(fileName.indexOf("src") + 3) //cut all to first 'src' for Windows and for Docker
+        srcPageFileName = path.join(srcDirName, srcPageFileName);
+        return readFile(fileName).then(data => {
+            BLOG.pages.push({
+                raw: {data, srcPageFileName}
+            });
+        });
+    }));
+}
+
+function writePages() {
+    return Promise.all(BLOG.pages.map(page => {
+        console.log(`write ${page.buildPageFileName}`);
+        if (page.meta.draft) {
+            return Promise.resolve();
+        }
+        fsp.mkdir(page.buildPageDirName, {recursive: true})
+            .then(() => copyStaticAssets(page.srcPageDirName, page.buildPageDirName))
+            .then(() => writeFile(page.pageHtml, page.buildPageFileName))
+    }));
+}
+
+function copyStaticAssets(srcPageDirName, buildPageDirName) {
+    // fs.copyFileSync(sourcePageFolderName + "/*.*", resultFolderName);
+    return fsp.cp(srcPageDirName, buildPageDirName, {
+        recursive: true,
+        filter: (src, dest) => {
+            return !src.endsWith(".md");
+        }
+    });
+}
+
+function pageGeneration(page) {
+    try {
+        console.log(`generating ${page.srcPageDirName}`);
+        fillMeta(page);
+        if (page.meta.draft) {
+            console.warn(styleText('yellow', `Page ${page.srcPageDirName} is skipped because of draft flag`));
+            return;
+        }
+        fillPageDirs(page);
+        fillPageLink(page);
+        fillHtml(page);
+    } catch (e) {
+        console.error(`Fail in ${page}`, e);
+        throw e;
+    }
+}
+
+function fillPageDirs(page) {
+    page.srcPageDirName = path.join(page.srcPageFileName, "..");
+    page.buildPageFileName = page.srcPageFileName
+        .replace(srcDirName, buildDirName)
+        .replace(".md", ".html")
+    page.buildPageDirName = path.join(buildPageFileName, "..");
+}
+
+function fillPageLink(page) {
+    const link = page.buildPageDirName
+        .replace(buildDirName, "")
+        .substring(1)
+        .replaceAll("\\", "/");
+    console.log("link=" + link);
+    page.link = link;
+}
+
+function fillMeta(page) {
+    const meta = getPageMeta(page.raw.data);
+    page.meta = {
+        draft: meta.draft,
+        tags: meta.tags
+    }
+}
+
+function getPageMeta(text) {
+    const match = text.match(/<!--(.*?)-->/gs);
+    if (!match) {
+        console.debug("no meta for page");
+        return {};
+    } else {
+        return JSON.parse(match[1]);
+    }
+}
+
+function removeComments(text) {
+    return text.replace(/<!--.*?-->/gs, "");
+}
+
+function fillHtml(page) {
+    const pageData = removeComments(page.raw.data);
+
+    page.meta.title
+    page.meta.description
+
+    page.pageHtml = md.render(pageData);
+    // console.debug("pageHtml:",  page.pageHtml);
+    page.meta.firstImageSrc = getFirstImgLink(page.pageHtml, page.link);
+    page.meta.date = getDate(page.pageHtml);
+    page.meta.description = getFirstParagraph(page.pageHtml);
+    // page.meta.description = generatePageShortHtml(page.pageHtml);
+
+    page.pageHtml = resolveMacrosAuto(BLOG.pageTemplateHtml, {...BLOG, GEN_page: page});
 }
 
 function getFirstImgLink(pageHtml, link) {
@@ -34,56 +141,8 @@ function getFirstImgLink(pageHtml, link) {
     return `${baseLink}/${firstImgLink}`;
 }
 
-function pageGeneration(srcPageDirName) {
-    console.info("generating " + srcPageDirName);
-
-    const meta = getMeta(srcPageDirName);
-
-    const buildPageDirName = srcPageDirName.replace(srcDirName, buildDirName);
-    const buildPageFileName = path.join(
-        buildPageDirName,
-        meta.fileName.replace(".md", ".html")
-    );
-
-    const link = buildPageFileName
-        .replaceAll(buildDirName, "")
-        .substring(1)
-        .replaceAll("\\", "/");
-    console.log("link=" + link);
-
-    fs.mkdirSync(buildPageDirName, {recursive: true});
-
-    copyStaticAssets(srcPageDirName, buildPageDirName);
-
-    const srcPageFileName = path.join(srcPageDirName, meta.fileName)
-    const pageHtml = generatePageHtml(srcPageFileName);
-    const shortHtml = generatePageShortHtml(srcPageFileName);
-    const shortImageSrc = getFirstImgLink(pageHtml, link);
-    BLOG_RESULT.pages.push({
-        meta,
-        link,
-        html: pageHtml,
-        shortHtml: shortHtml,
-        title: meta.title,
-        description: meta.description,
-        id: link,
-        shortImage: shortImageSrc
-        // source: getSource(srcPageFileName)
-    });
-
-    let data = fs.readFileSync(path.join(srcDirName, "templates/paper.html"), "utf8");
-    data = resolveSpecificMacros(data, "title", BLOG_RESULT.meta.title);
-    data = resolveSpecificMacros(data, "page_title", meta.title);
-    data = resolveSpecificMacros(data, "page_description", meta.description);
-    data = resolveSpecificMacros(data, "page_html", pageHtml);
-    data = resolveSpecificMacros(data, "ad_head", BLOG_RESULT.adHeadHtml);
-    data = resolveSpecificMacros(data, "ad_block", BLOG_RESULT.adBlockHtml);
-    data = resolveSpecificMacros(data, "footer", BLOG_RESULT.footerHtml);
-    fs.writeFileSync(buildPageFileName, data, "utf-8");
-}
-
-function generatePageShortHtml(srcPageFileName) {
-    let pageData = fs.readFileSync(srcPageFileName, "utf8");
+function generatePageShortHtml(pageData) {
+    //TODO:anneq
     let pageShortHtml;
     pageData = pageData.replaceAll("\r\n", "\n");
     let firstParagraphEnd = pageData.indexOf("\n\n");
@@ -100,30 +159,4 @@ function generatePageShortHtml(srcPageFileName) {
     pageShortHtml = md.render(pageData);
     // console.log("pageShortHtml:", pageHtml);
     return pageShortHtml;
-}
-
-function generatePageHtml(srcPageFileName) {
-    let pageData = fs.readFileSync(srcPageFileName, "utf8");
-    let pageHtml = md.render(pageData);
-    // console.log("pageHtml:", pageHtml);
-    return pageHtml;
-}
-
-function getSource(srcPageFileName) {
-    return fs.readFileSync(srcPageFileName, "utf8");
-}
-
-function copyStaticAssets(pageDirName, buildPageDirName) {
-    // fs.copyFileSync(sourcePageFolderName + "/*.*", resultFolderName);
-    fs.cpSync(pageDirName, buildPageDirName, {
-        recursive: true,
-        filter: (src, dest) => {
-            return !src.endsWith(".md") && !src.endsWith("meta.json");
-        },
-    });
-}
-
-function getMeta(pageDirName) {
-    const meta = fs.readFileSync(path.join(pageDirName, "meta.json"), "utf8");
-    return JSON.parse(meta);
 }

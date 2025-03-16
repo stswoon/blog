@@ -5,5 +5,6 @@
     "blockId": "QWERTY::R-A-2572196-1",
     "renderTo": "QWERTY::yandex_rtb_R-A-2572196-1",
     "description": "Пожалуйста, отключите ад-блок, чтобы я смог окупить оплату сервера - $10."
-  }
+  },
+  "AD_AFTER_EVERY_N_PAPER": 5
 }

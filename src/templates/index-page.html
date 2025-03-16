@@ -5,8 +5,8 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>{@blogEngine:page_title}</title>
-    <meta name="description" content="{@blogEngine:page_description}"/>
+    <title>{@blogEngine:GEN_page_title}</title>
+    <meta name="description" content="{@blogEngine:GEN_page_description}"/>
 
     <link rel="stylesheet" href="../../../reset.css"/>
     <link rel="stylesheet" href="../../../highlight-default.min.css"/>
@@ -17,13 +17,12 @@
     <script src="../../../highlight.min.js" defer></script>
     <script src="../../../main.js" defer></script>
 
-    {@blogEngine:ad_head}
+    {@blogEngine:ad.adHeadHtml}
 </head>
 
 <body class="blogEngine">
 
 <div class="layout">
-    <!--    <div class="menu">{@blogEngine:menu}</div>-->
     <div class="content">
         <div class="header-background">
             <img src="../../../assets/background-original.jpg" class="header-background_image"/>
@@ -31,21 +30,21 @@
 
         <div class="header-title">
             <a class="home-link" href="/">&#8701;</a>
-            {@blogEngine:title}
+            {@blogEngine:index.meta.title}
         </div>
 
         <div class="papers">
             <div class="paper-item">
                 <div class="paper-text">
-                    {@blogEngine:page_html}
+                    {@blogEngine:GEN_page.pageHtml}
                 </div>
             </div>
         </div>
 
-        <div class="ad">{@blogEngine:ad_block}</div>
+        <div class="ad">{@blogEngine:ad.adBlockHtml}</div>
     </div>
 
-    <div class="footer">{@blogEngine:footer}</div>
+    <div class="footer">{@blogEngine:footerHtml}</div>
 </div>
 
 </body>

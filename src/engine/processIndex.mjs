@@ -1,9 +1,10 @@
 import path from "path";
 import fs from "node:fs";
-import {BLOG_RESULT} from "./globals.mjs";
+import {BLOG} from "./globals.mjs";
 import {srcDirName, nodeModulesDirName, buildDirName} from "./constants.mjs";
-import {md} from "./init-md.mjs";
+import {md} from "./initMdEngine.mjs";
 import {resolveSeveralMacros, resolveSpecificMacros} from "./resolveMacros.mjs";
+import {readFileSync} from "./utils.mjs";
 
 export function generateIndex() {
     console.info("generateIndex: start");
@@ -21,11 +22,11 @@ export function generateIndex() {
     data = resolveSpecificMacros(data, "allShortHtml", allShortHtml);
     // data = resolveSpecificMacros(data, "last_5", last5Html);
     // data = resolveSpecificMacros(data, "menu", tocHtml);
-    data = resolveSpecificMacros(data, "title", BLOG_RESULT.meta.title);
-    data = resolveSpecificMacros(data, "description", BLOG_RESULT.meta.description);
-    data = resolveSpecificMacros(data, "ad_head", BLOG_RESULT.adHeadHtml);
+    data = resolveSpecificMacros(data, "title", BLOG.meta.title);
+    data = resolveSpecificMacros(data, "description", BLOG.meta.description);
+    data = resolveSpecificMacros(data, "ad_head", BLOG.adHeadHtml);
     // data = resolveSpecificMacros(data, "ad_block", BLOG_RESULT.adBlockHtml);
-    data = resolveSpecificMacros(data, "footer", BLOG_RESULT.footerHtml);
+    data = resolveSpecificMacros(data, "footer", BLOG.footerHtml);
     data = resolveSpecificMacros(data, "papersSearchData", generatePaperSearchData());
     fs.writeFileSync(path.join(buildDirName, "index.html"), data, "utf-8");
 
@@ -35,11 +36,11 @@ export function generateIndex() {
 const AFTER_PAPER_AD = 5;
 
 function generateAllShortHtml() {
-    const paperItem = fs.readFileSync(path.join(srcDirName, "templates/index_paper-item.html"), "utf8");
+    const paperItem = fs.readFileSync(path.join(srcDirName, "templates/index_short-page-list-item.html"), "utf8");
 
     let result = "";
-    for (let i = 0; i < BLOG_RESULT.pages.length; ++i) {
-        const pageData = BLOG_RESULT.pages[i]
+    for (let i = 0; i < BLOG.pages.length; ++i) {
+        const pageData = BLOG.pages[i]
         const paperMacrosData = {
             "page_id": pageData.link,
             "page_short_html": pageData.shortHtml,
@@ -48,9 +49,9 @@ function generateAllShortHtml() {
         }
         result += resolveSeveralMacros(paperItem, paperMacrosData) + "\n";
 
-        if (i === AFTER_PAPER_AD || i === BLOG_RESULT.pages.length - 1) {
+        if (i === AFTER_PAPER_AD || i === BLOG.pages.length - 1) {
             let adHtml = '<div class="paper-item ad">{@blogEngine:ad_block}</div>';
-            adHtml = resolveSpecificMacros(adHtml, "ad_block", BLOG_RESULT.adBlockHtml);
+            adHtml = resolveSpecificMacros(adHtml, "ad_block", BLOG.adBlockHtml);
             result += adHtml + "\n";
         }
     }
@@ -59,7 +60,7 @@ function generateAllShortHtml() {
 }
 
 // function generateLast5Html() {
-//     const paperItem = fs.readFileSync(path.join(srcDirName, "templates/index_paper-item.html"), "utf8");
+//     const paperItem = fs.readFileSync(path.join(srcDirName, "templates/index_short-page-list-item.html"), "utf8");
 //
 //     let result = "";
 //     for (let i = 0; i < Math.min(BLOG_RESULT.pages.length, 5); ++i) {
@@ -112,13 +113,18 @@ function copyStaticAssets() {
     );
 }
 
-export function getBlogMeta() {
-    const meta = fs.readFileSync(path.join(srcDirName, "pages/blog-meta.json"), "utf8");
-    return JSON.parse(meta);
+export function readBlogMeta() {
+    const meta = JSON.parse(readFileSync(srcDirName, "pages/meta.json"));
+    BLOG.index.meta.title = meta.title;
+    BLOG.index.meta.description = meta.description;
+    BLOG.ad.AD_AFTER_EVERY_N_PAPER = meta.AD_AFTER_EVERY_N_PAPER;
+    BLOG.ad.yandexAd.blockId = meta.blockId;
+    BLOG.ad.yandexAd.renderTo = meta.renderTo;
+    BLOG.ad.yandexAd.fallbackTitle = meta.fallbackTitle;
 }
 
 function generatePaperSearchData() {
-    const papersSearchData = BLOG_RESULT.pages.map(page => {
+    const papersSearchData = BLOG.pages.map(page => {
         return {
             id: page.link,
             link: page.link,

@@ -1,19 +1,12 @@
-import fs from "node:fs";
-import path from "path";
 import {srcDirName} from "./constants.mjs";
-import {BLOG_RESULT} from "./globals.mjs";
-import {resolveSeveralMacros} from "./resolveMacros.mjs";
+import {BLOG} from "./globals.mjs";
+import {readFileSync, resolveMacrosAuto} from "./utils.mjs";
 
 export function generateAd() {
     console.info("generateAd: start");
-    const adMacrosData = {
-        "ad_description": BLOG_RESULT.meta.yandexAd.description,
-        "ad_blockId": BLOG_RESULT.meta.yandexAd.blockId,
-        "ad_renderTo": BLOG_RESULT.meta.yandexAd.renderTo
-    }
-    BLOG_RESULT.adHeadHtml = fs.readFileSync(path.join(srcDirName, "templates/ad-head.html"), "utf8");
-    BLOG_RESULT.adHeadHtml = resolveSeveralMacros(BLOG_RESULT.adHeadHtml, adMacrosData);
-    BLOG_RESULT.adBlockHtml = fs.readFileSync(path.join(srcDirName, "templates/ad-block.html"), "utf8");
-    BLOG_RESULT.adBlockHtml = resolveSeveralMacros(BLOG_RESULT.adBlockHtml, adMacrosData);
+    BLOG.adHeadHtml = readFileSync(srcDirName, "templates/ad-head.html");
+    BLOG.adHeadHtml = resolveMacrosAuto(BLOG.adHeadHtml, BLOG);
+    BLOG.adBlockHtml = readFileSync(srcDirName, "templates/ad-block.html");
+    BLOG.adBlockHtml = resolveMacrosAuto(BLOG.adBlockHtml, BLOG);
     console.info("generateAd: finish");
 }

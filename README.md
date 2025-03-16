@@ -21,3 +21,7 @@
 [] improve styling
 [] split logic onto 2 stages - read, render
 [] links open in new page
+[] metatags in messagers
+[] transliteration for humab readable links
+[] less\ts
+[] log
