@@ -5,5 +5,5 @@ import {readFileSync} from "./utils.mjs";
 export function generateFooter() {
     console.info("generateFooter: start");
     BLOG.footerHtml = readFileSync(srcDirName, "templates/footer.html");
-    console.info("generateIndex: finish");
+    console.info("generateFooter: finish");
 }

@@ -23,7 +23,6 @@
 <body class="blogEngine">
 
 <div class="layout">
-    <!--    <div class="menu">{@blogEngine:toc}</div>-->
     <div class="content">
         <div class="header-background">
             <img src="assets/background-original.jpg" class="header-background_image"/>
@@ -39,14 +38,14 @@
                    onkeyup="blogEngineSearch(this.value)">
         </div>
 
-        <div class="papers">{@blogEngine:GEN_allShortHtml}</div>
+        <div class="papers">{@blogEngine:allShortPagesHtml}</div>
     </div>
 
     <div class="footer">{@blogEngine:footerHtml}</div>
 </div>
 
 <script>
-    window.papersSearchData = JSON.parse('{@blogEngine:GEN_papersSearchData}');
+    window.papersSearchData = JSON.parse('{@blogEngine:papersSearchData}');
 </script>
 
 </body>

@@ -26,10 +26,14 @@ export const BLOG = {
             title: undefined,
             description: undefined,
         },
-        indexHtml: undefined,
-        indexShortPageListItemTemplateHtml: undefined,
+        allShortPagesHtml: [], //string[]
+        pagesSearchData: undefined
     },
+
+    pages: [], //PageType[]
+
     footerHtml: undefined,
+
     ad: {
         AD_AFTER_EVERY_N_PAPER: 0,
         yandexAd: {
@@ -39,7 +43,5 @@ export const BLOG = {
         },
         adBlockHtml: undefined,
         adHeadHtml: undefined,
-    },
-    pageTemplateHtml: undefined,
-    pages: [],
+    }
 };

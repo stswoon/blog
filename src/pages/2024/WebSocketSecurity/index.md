@@ -1,3 +1,10 @@
+<!--
+{
+  "draft": false,
+  "tags": ["Путешествие"]
+}
+-->
+
 # WebSocket Security
 
 > 22 апреля 2024

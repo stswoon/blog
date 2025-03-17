@@ -1,19 +1,19 @@
-import fs from "node:fs";
 import path from "path";
 import {globSync} from "glob";
 import {styleText} from 'node:util';
 import {md} from "./initMdEngine.mjs";
 import {srcDirName, buildDirName} from "./constants.mjs";
 import {BLOG} from "./globals.mjs";
-import {readFile, resolveMacrosAuto, resolveSpecificMacros, writeFile} from "./utils.mjs";
+import {readFile, readFileSync, resolveMacrosAuto, writeFile} from "./utils.mjs";
 import fsp from "node:fs/promises";
+import {JSDOM} from "jsdom";
 
 export async function generatePages() {
     console.info("generatePages: start");
-    BLOG.pageTemplateHtml = readFile(srcDirName, "templates/index-page.html");
     await readPages();
+    const pageTemplateHtml = readFileSync(srcDirName, "templates/index-page.html");
     for (let page of BLOG.pages) {
-        pageGeneration(page);
+        pageGeneration(page, pageTemplateHtml);
     }
     await writePages();
     console.info("generatePages: finish");
@@ -37,13 +37,13 @@ function readPages() {
 
 function writePages() {
     return Promise.all(BLOG.pages.map(page => {
-        console.log(`write ${page.buildPageFileName}`);
+        console.log(`write ${page.raw.buildPageFileName}`);
         if (page.meta.draft) {
             return Promise.resolve();
         }
-        fsp.mkdir(page.buildPageDirName, {recursive: true})
-            .then(() => copyStaticAssets(page.srcPageDirName, page.buildPageDirName))
-            .then(() => writeFile(page.pageHtml, page.buildPageFileName))
+        fsp.mkdir(page.raw.buildPageDirName, {recursive: true})
+            .then(() => copyStaticAssets(page.raw.srcPageDirName, page.raw.buildPageDirName))
+            .then(() => writeFile(page.pageHtml, page.raw.buildPageFileName))
     }));
 }
 
@@ -57,17 +57,17 @@ function copyStaticAssets(srcPageDirName, buildPageDirName) {
     });
 }
 
-function pageGeneration(page) {
+function pageGeneration(page, pageTemplateHtml) {
     try {
-        console.log(`generating ${page.srcPageDirName}`);
+        console.log(`generating ${page.raw.srcPageFileName}`);
         fillMeta(page);
         if (page.meta.draft) {
-            console.warn(styleText('yellow', `Page ${page.srcPageDirName} is skipped because of draft flag`));
+            console.warn(styleText('yellow', `Page ${page.raw.srcPageDirName} is skipped because of draft flag`));
             return;
         }
         fillPageDirs(page);
         fillPageLink(page);
-        fillHtml(page);
+        fillHtml(page, pageTemplateHtml);
     } catch (e) {
         console.error(`Fail in ${page}`, e);
         throw e;
@@ -75,15 +75,15 @@ function pageGeneration(page) {
 }
 
 function fillPageDirs(page) {
-    page.srcPageDirName = path.join(page.srcPageFileName, "..");
-    page.buildPageFileName = page.srcPageFileName
+    page.raw.srcPageDirName = path.join(page.raw.srcPageFileName, "..");
+    page.raw.buildPageFileName = page.raw.srcPageFileName
         .replace(srcDirName, buildDirName)
         .replace(".md", ".html")
-    page.buildPageDirName = path.join(buildPageFileName, "..");
+    page.raw.buildPageDirName = path.join(page.raw.buildPageFileName, "..");
 }
 
 function fillPageLink(page) {
-    const link = page.buildPageDirName
+    const link = page.raw.buildPageDirName
         .replace(buildDirName, "")
         .substring(1)
         .replaceAll("\\", "/");
@@ -100,12 +100,14 @@ function fillMeta(page) {
 }
 
 function getPageMeta(text) {
+    text = text.replaceAll("\r\n", "\n");
     const match = text.match(/<!--(.*?)-->/gs);
     if (!match) {
         console.debug("no meta for page");
         return {};
     } else {
-        return JSON.parse(match[1]);
+        // return JSON.parse(match[1]);
+        return JSON.parse(match[0].replace("<!--","").replaceAll("-->",""));
     }
 }
 
@@ -113,50 +115,28 @@ function removeComments(text) {
     return text.replace(/<!--.*?-->/gs, "");
 }
 
-function fillHtml(page) {
+function fillHtml(page, pageTemplateHtml) {
     const pageData = removeComments(page.raw.data);
+    const pageContentHtml = md.render(pageData);
+    // console.debug("pageContentHtml:",  pageContentHtml);
 
-    page.meta.title
-    page.meta.description
+    const jsDom = new JSDOM("<!DOCTYPE html>" + pageContentHtml);
+    const jsDomDocument = jsDom.window.document;
+    page.meta.title = jsDomDocument.querySelector('h1').innerHTML;
+    page.meta.description = jsDomDocument.querySelector('p').innerHTML;
+    page.meta.firstImageSrc = getSafeImgLink(jsDomDocument.querySelector('img')?.src, page.link);
+    page.meta.date = jsDomDocument.querySelector('.language-blogEnginePageDate')?.innerHTML;
 
-    page.pageHtml = md.render(pageData);
-    // console.debug("pageHtml:",  page.pageHtml);
-    page.meta.firstImageSrc = getFirstImgLink(page.pageHtml, page.link);
-    page.meta.date = getDate(page.pageHtml);
-    page.meta.description = getFirstParagraph(page.pageHtml);
-    // page.meta.description = generatePageShortHtml(page.pageHtml);
-
-    page.pageHtml = resolveMacrosAuto(BLOG.pageTemplateHtml, {...BLOG, GEN_page: page});
+    page.pageHtml = resolveMacrosAuto(pageTemplateHtml, {
+        ...BLOG,
+        GEN_page: {...page, pageContent: pageContentHtml}
+    });
 }
 
-function getFirstImgLink(pageHtml, link) {
-    const regex = /<img.*src="(.*?)".*>/;
-    const result = regex.exec(pageHtml);
-    const firstImgLink = result && result[1];
-    console.log("firstImgLink=", firstImgLink);
-    if (!firstImgLink) {
+function getSafeImgLink(imgSrc, pageLink) {
+    if (!imgSrc) {
         return "./assets/fallbackBlogImg.png";
     }
-    const baseLink = link.substring(0, link.lastIndexOf("/"));
-    return `${baseLink}/${firstImgLink}`;
-}
-
-function generatePageShortHtml(pageData) {
-    //TODO:anneq
-    let pageShortHtml;
-    pageData = pageData.replaceAll("\r\n", "\n");
-    let firstParagraphEnd = pageData.indexOf("\n\n");
-    let secondParagraphEnd = pageData.indexOf("\n\n", firstParagraphEnd + 1);
-    let thirdParagraphEnd = pageData.indexOf("\n\n", secondParagraphEnd + 1);
-    if (thirdParagraphEnd === -1) {
-        console.warn(styleText(
-            'yellowBright',
-            `Cannot find third paragraph in parer so it cause display all paper in index page. Warning for paper: ${srcPageFileName}`
-        ));
-    } else {
-        pageData = pageData.substring(0, thirdParagraphEnd);
-    }
-    pageShortHtml = md.render(pageData);
-    // console.log("pageShortHtml:", pageHtml);
-    return pageShortHtml;
+    const baseLink = pageLink.substring(0, pageLink.lastIndexOf("/"));
+    return `${baseLink}/${imgSrc}`;
 }

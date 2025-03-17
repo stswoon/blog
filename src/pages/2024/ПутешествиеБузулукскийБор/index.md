@@ -1,13 +1,13 @@
 <!--
 {
-  "draft": "false",
+  "draft": false,
   "tags": ["Путешествие"]
 }
 -->
 
 # Путешествие: Бузулукский Бор
 
-```@blogEngine:pageDate
+```blogEnginePageDate
 04 ноября 2024
 ```
 
