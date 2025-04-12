@@ -72,3 +72,7 @@ export function parseRussianDate(dateStr) {
 
     return new Date(year, month, day);
 }
+
+export function removeTags(str) {
+    return str.replace(/<[^>]*>/g, '');
+}

@@ -2,9 +2,9 @@ import path from "path";
 import {globSync} from "glob";
 import {styleText} from 'node:util';
 import {md} from "./initMdEngine.mjs";
-import {srcDirName, buildDirName} from "./constants.mjs";
+import {buildDirName, srcDirName} from "./constants.mjs";
 import {BLOG} from "./globals.mjs";
-import {readFile, readFileSync, resolveMacrosAuto, writeFile} from "./utils.mjs";
+import {readFile, readFileSync, removeTags, resolveMacrosAuto, writeFile} from "./utils.mjs";
 import fsp from "node:fs/promises";
 import {JSDOM} from "jsdom";
 
@@ -118,8 +118,7 @@ function removeComments(text) {
 }
 
 function fillSearchData(page) {
-    const pageSearchData = removeComments(page.raw.data);
-    page.pageSearchData = pageSearchData;
+    page.pageSearchData = removeComments(page.raw.data);
 }
 
 function fillHtml(page, pageTemplateHtml) {
@@ -130,13 +129,13 @@ function fillHtml(page, pageTemplateHtml) {
     const jsDom = new JSDOM("<!DOCTYPE html>" + pageContentHtml);
     const jsDomDocument = jsDom.window.document;
     page.meta.title = jsDomDocument.querySelector('h1').innerHTML;
-    page.meta.description = jsDomDocument.querySelectorAll('p')?.[1].innerHTML;
+    page.meta.description = removeTags(jsDomDocument.querySelectorAll('p')?.[1].innerHTML);
     page.meta.firstImageSrc = getSafeImgLink(jsDomDocument.querySelector('img')?.src, page.link);
     page.meta.date = jsDomDocument.querySelector('.language-blogEnginePageDate')?.innerHTML;
 
     page.pageHtml = resolveMacrosAuto(pageTemplateHtml, {
         ...BLOG,
-        GEN_page: {...page, pageContent: pageContentHtml}
+        GEN_page: {...page, pageContentHtml}
     });
 }
 

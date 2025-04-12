@@ -5,8 +5,8 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>{@blogEngine:GEN_page.title}</title>
-    <meta name="description" content="{@blogEngine:GEN_page.description}"/>
+    <title>{@blogEngine:GEN_page.meta.title}</title>
+    <meta name="description" content="{@blogEngine:GEN_page.meta.description}"/>
 
     <link rel="stylesheet" href="../../../reset.css"/>
     <link rel="stylesheet" href="../../../highlight-default.min.css"/>
@@ -29,19 +29,20 @@
         </div>
 
         <div class="header-title">
-            <a class="home-link" href="/">&#8701;</a>
-            {@blogEngine:index.meta.title}
+            <a class="home-link" href="/">&#8701; {@blogEngine:index.meta.title}</a>
         </div>
 
         <div class="papers">
             <div class="paper-item">
                 <div class="paper-text">
-                    {@blogEngine:GEN_page.pageHtml}
+                    {@blogEngine:GEN_page.pageContentHtml}
                 </div>
             </div>
-        </div>
 
-        <div class="ad">{@blogEngine:ad.adBlockHtml}</div>
+            <div class="paper-item ad">
+                {@blogEngine:ad.adBlockHtml}
+            </div>
+        </div>
     </div>
 
     <div class="footer">{@blogEngine:footerHtml}</div>
