@@ -5,8 +5,8 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>{@blogEngine:title}</title>
-    <meta name="description" content="{@blogEngine:description}"/>
+    <title>{@blogEngine:index.meta.title}</title>
+    <meta name="description" content="{@blogEngine:index.meta.description}"/>
 
     <link rel="stylesheet" href="./reset.css"/>
     <link rel="stylesheet" href="./style.css"/>
@@ -14,39 +14,38 @@
 
     <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
 
-    <script src="./highlight.min.js" defer></script>
+    <!--<script src="./highlight.min.js" defer></script>-->
     <script src="./main.js" defer></script>
 
-    {@blogEngine:ad_head}
+    {@blogEngine:ad.adHeadHtml}
 </head>
 
 <body class="blogEngine">
 
 <div class="layout">
-    <!--    <div class="menu">{@blogEngine:toc}</div>-->
     <div class="content">
         <div class="header-background">
             <img src="assets/background-original.jpg" class="header-background_image"/>
         </div>
 
-        <div class="header-title">
-            My<s>Class</s>Blog
-        </div>
-        <div class="header-subtitle">{@blogEngine:description}</div>
+        <div class="header-title">My <s>Class</s> Blog</div>
+
+        <div class="header-subtitle">{@blogEngine:index.meta.description}</div>
+
         <div class="search">
             <input type="text" class="search-input" id="search-input"
                    placeholder="Введите для поиска по статьям..."
                    onkeyup="blogEngineSearch(this.value)">
         </div>
-        <div class="papers">{@blogEngine:allShortHtml}</div>
-        <!--        <div class="papers">{@blogEngine:last_5}</div>-->
-        <!--        <div class="ad">{@blogEngine:ad_block}</div>-->
+
+        <div class="papers">{@blogEngine:index.allShortPagesHtml}</div>
     </div>
-    <div class="footer">{@blogEngine:footer}</div>
+
+    <div class="footer">{@blogEngine:footerHtml}</div>
 </div>
 
 <script>
-    window.papersSearchData = JSON.parse('{@blogEngine:papersSearchData}');
+    window.pagesSearchData = JSON.parse('{@blogEngine:index.pagesSearchData}');
 </script>
 
 </body>

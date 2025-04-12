@@ -1,94 +1,39 @@
 import path from "path";
 import fs from "node:fs";
-import {BLOG_RESULT} from "./globals.mjs";
+import {BLOG} from "./globals.mjs";
 import {srcDirName, nodeModulesDirName, buildDirName} from "./constants.mjs";
-import {md} from "./init-md.mjs";
-import {resolveSeveralMacros, resolveSpecificMacros} from "./resolveMacros.mjs";
+import {parseRussianDate, readFileSync, resolveMacrosAuto, writeFileSync} from "./utils.mjs";
+
+export function readBlogMeta() {
+    const meta = JSON.parse(readFileSync(srcDirName, "pages/meta.json"));
+    BLOG.index.meta.title = meta.title;
+    BLOG.index.meta.description = meta.description;
+    BLOG.ad.AD_AFTER_EVERY_N_PAPER = meta.AD_AFTER_EVERY_N_PAPER;
+    BLOG.ad.yandexAd.blockId = meta.blockId;
+    BLOG.ad.yandexAd.renderTo = meta.renderTo;
+    BLOG.ad.fallbackTitle = meta.adFallbackTitle;
+}
 
 export function generateIndex() {
     console.info("generateIndex: start");
 
     copyStaticAssets();
+    generateAllShortHtml();
+    insertAdInShortPages();
+    BLOG.index.allShortPagesHtml = BLOG.index.allShortPagesHtml.join("\n");
 
-    // const tocHtml = generateTocHtml();
-    // const last5Html = generateLast5Html();
-    const allShortHtml = generateAllShortHtml();
-
-    let data = fs.readFileSync(
-        path.join(srcDirName, "templates/index.html"),
-        "utf8"
-    );
-    data = resolveSpecificMacros(data, "allShortHtml", allShortHtml);
-    // data = resolveSpecificMacros(data, "last_5", last5Html);
-    // data = resolveSpecificMacros(data, "menu", tocHtml);
-    data = resolveSpecificMacros(data, "title", BLOG_RESULT.meta.title);
-    data = resolveSpecificMacros(data, "description", BLOG_RESULT.meta.description);
-    data = resolveSpecificMacros(data, "ad_head", BLOG_RESULT.adHeadHtml);
-    // data = resolveSpecificMacros(data, "ad_block", BLOG_RESULT.adBlockHtml);
-    data = resolveSpecificMacros(data, "footer", BLOG_RESULT.footerHtml);
-    data = resolveSpecificMacros(data, "papersSearchData", generatePaperSearchData());
-    fs.writeFileSync(path.join(buildDirName, "index.html"), data, "utf-8");
+    let data = readFileSync(srcDirName, "templates/index.html");
+    data = resolveMacrosAuto(data, BLOG);
+    writeFileSync(data, buildDirName, "index.html");
 
     console.info("generateIndex: finish");
 }
 
-const AFTER_PAPER_AD = 5;
-
-function generateAllShortHtml() {
-    const paperItem = fs.readFileSync(path.join(srcDirName, "templates/index_paper-item.html"), "utf8");
-
-    let result = "";
-    for (let i = 0; i < BLOG_RESULT.pages.length; ++i) {
-        const pageData = BLOG_RESULT.pages[i]
-        const paperMacrosData = {
-            "page_id": pageData.link,
-            "page_short_html": pageData.shortHtml,
-            "page_link": pageData.link,
-            "page_short_image": pageData.shortImage,
-        }
-        result += resolveSeveralMacros(paperItem, paperMacrosData) + "\n";
-
-        if (i === AFTER_PAPER_AD || i === BLOG_RESULT.pages.length - 1) {
-            let adHtml = '<div class="paper-item ad">{@blogEngine:ad_block}</div>';
-            adHtml = resolveSpecificMacros(adHtml, "ad_block", BLOG_RESULT.adBlockHtml);
-            result += adHtml + "\n";
-        }
-    }
-    // console.log("result=", result);
-    return result;
-}
-
-// function generateLast5Html() {
-//     const paperItem = fs.readFileSync(path.join(srcDirName, "templates/index_paper-item.html"), "utf8");
-//
-//     let result = "";
-//     for (let i = 0; i < Math.min(BLOG_RESULT.pages.length, 5); ++i) {
-//         const pageData = BLOG_RESULT.pages[i]
-//         const paperMacrosData = {
-//             "page_id": pageData.link,
-//             "page_short_html": pageData.shortHtml,
-//             "page_link": pageData.link
-//         }
-//         result += resolveSeveralMacros(paperItem, paperMacrosData) + "\n";
-//     }
-//     // console.log("result=", result);
-//     return result;
-// }
-
-// //TODO: make md generation, then html replace because this function also need in page
-// function generateTocHtml() {
-//     //console.log("blogResultModel=", blogResultModel);
-//     let tocMd = "";
-//     for (const page of BLOG_RESULT.pages) {
-//         const title = new Date(page.date).getFullYear() + ": " + page.title;
-//         tocMd += `* [${title}](${page.link})` + "\n";
-//     }
-//     const tocHtml = md.render(tocMd);
-//     //console.log("tocHtml=", tocHtml);
-//     return tocHtml;
-// }
-
 function copyStaticAssets() {
+    fs.copyFileSync(
+        path.join(nodeModulesDirName, "highlight.js/styles/default.min.css"),
+        path.join(buildDirName, "highlight-default.min.css")
+    );
     fs.copyFileSync(
         path.join(nodeModulesDirName, "highlight.js/styles/default.min.css"),
         path.join(buildDirName, "highlight-default.min.css")
@@ -112,22 +57,36 @@ function copyStaticAssets() {
     );
 }
 
-export function getBlogMeta() {
-    const meta = fs.readFileSync(path.join(srcDirName, "pages/blog-meta.json"), "utf8");
-    return JSON.parse(meta);
+function generateAllShortHtml() {
+    const pageShortItemTemplate = readFileSync(srcDirName, "templates/index_short-page-list-item.html");
+
+    const sortedPages = BLOG.pages.sort((a, b) => {
+        return parseRussianDate(a.meta.date) - parseRussianDate(a.meta.date);
+    })
+
+    const pagesSearchData = []
+    for (let page of sortedPages) {
+        const pageShortHtml = resolveMacrosAuto(pageShortItemTemplate, {...BLOG, GEN_page: page})
+        BLOG.index.allShortPagesHtml.push(pageShortHtml);
+        pagesSearchData.push({...page, raw: undefined, pageHtml: undefined});
+    }
+    BLOG.index.pagesSearchData = JSON.stringify(pagesSearchData)
+        .replaceAll("\\n", " ")
+        .replaceAll("\\r", " ")
+        .replaceAll('\\"', " ")
+        .replaceAll('\\', " ");
 }
 
-function generatePaperSearchData() {
-    const papersSearchData = BLOG_RESULT.pages.map(page => {
-        return {
-            id: page.link,
-            link: page.link,
-            title: page.title,
-            description: page.description,
-            tags: page.tags,
-            html: encodeURI(page.html),
-            // source: page.source,
+function insertAdInShortPages() {
+    let pageShortItemAd = readFileSync(srcDirName, "templates/index_short-page-ad-list-item.html");
+    pageShortItemAd = resolveMacrosAuto(pageShortItemAd, BLOG);
+
+    const tmpArray = [];
+    for (let i = 0; i < BLOG.index.allShortPagesHtml.length; ++i) {
+        tmpArray.push(BLOG.index.allShortPagesHtml[i]);
+        if (i === BLOG.ad.AD_AFTER_EVERY_N_PAPER || i === BLOG.pages.length - 1) {
+            tmpArray.push(pageShortItemAd + "\n");
         }
-    });
-    return JSON.stringify(papersSearchData);
+    }
+    BLOG.index.allShortPagesHtml = tmpArray;
 }

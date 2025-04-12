@@ -8,18 +8,19 @@ function blogEngineSearch(searchText) {
         return;
     }
 
-    const paperIds = papersSearchData
+    searchText = searchText.toLowerCase();
+    const paperIds = pagesSearchData
         .filter(data => {
-            const foundTag = data.tags?.find(tag => tag.includes(searchText));
+            const foundTag = data.meta.tags?.find(tag => tag.toLowerCase().includes(searchText));
             const fit =
-                data.link.includes(searchText) ||
-                data.description.includes(searchText) ||
-                data.title.includes(searchText) ||
-                data.html.includes(searchText) ||
+                data.link.toLowerCase().includes(searchText) ||
+                data.meta.description.toLowerCase().includes(searchText) ||
+                data.meta.title.toLowerCase().includes(searchText) ||
+                data.pageSearchData.toLowerCase().includes(searchText) ||
                 foundTag;
             return fit;
         })
-        .map(data => data.id);
+        .map(data => data.link);
 
     console.log(`searchText=${searchText}, paperIds:`, paperIds);
 

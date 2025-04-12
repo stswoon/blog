@@ -1,129 +1,148 @@
-import fs from "node:fs";
 import path from "path";
 import {globSync} from "glob";
 import {styleText} from 'node:util';
-import {md} from "./init-md.mjs";
-import {srcDirName, buildDirName} from "./constants.mjs";
-import {BLOG_RESULT} from "./globals.mjs";
-import {resolveSpecificMacros} from "./resolveMacros.mjs";
+import {md} from "./initMdEngine.mjs";
+import {buildDirName, srcDirName} from "./constants.mjs";
+import {BLOG} from "./globals.mjs";
+import {readFile, readFileSync, removeTags, resolveMacrosAuto, writeFile} from "./utils.mjs";
+import fsp from "node:fs/promises";
+import {JSDOM} from "jsdom";
 
-export function generatePages() {
+export async function generatePages() {
     console.info("generatePages: start");
-
-    const fileNames = globSync(srcDirName + "/pages/*/*/meta.json", {});
-    console.log("fileNames:", fileNames);
-
-    for (let fileName of fileNames) {
-        fileName = fileName.substring(fileName.indexOf("src") + 3) //cut all to first 'src' for Windows and for Docker
-        fileName = path.join(srcDirName, fileName);
-        pageGeneration(path.join(fileName, ".."));
+    await readPages();
+    const pageTemplateHtml = readFileSync(srcDirName, "templates/index-page.html");
+    for (let page of BLOG.pages) {
+        pageGeneration(page, pageTemplateHtml);
     }
-
+    await writePages();
     console.info("generatePages: finish");
 }
 
-function getFirstImgLink(pageHtml, link) {
-    const regex = /<img.*src="(.*?)".*>/;
-    const result = regex.exec(pageHtml);
-    const firstImgLink = result && result[1];
-    console.log("firstImgLink=", firstImgLink);
-    if (!firstImgLink) {
-        return "./assets/fallbackBlogImg.png";
-    }
-    const baseLink = link.substring(0, link.lastIndexOf("/"));
-    return `${baseLink}/${firstImgLink}`;
+function readPages() {
+    const fileNames = globSync(srcDirName + "/pages/*/*/index.md", {});
+    // console.debug("fileNames:", fileNames);
+
+    return Promise.all(fileNames.map(fileName => {
+        console.log(`read ${fileName}`);
+        let srcPageFileName = fileName.substring(fileName.indexOf("src") + 3) //cut all to first 'src' for Windows and for Docker
+        srcPageFileName = path.join(srcDirName, srcPageFileName);
+        return readFile(fileName).then(data => {
+            BLOG.pages.push({
+                raw: {data, srcPageFileName}
+            });
+        });
+    }));
 }
 
-function pageGeneration(srcPageDirName) {
-    console.info("generating " + srcPageDirName);
-
-    const meta = getMeta(srcPageDirName);
-
-    const buildPageDirName = srcPageDirName.replace(srcDirName, buildDirName);
-    const buildPageFileName = path.join(
-        buildPageDirName,
-        meta.fileName.replace(".md", ".html")
-    );
-
-    const link = buildPageFileName
-        .replaceAll(buildDirName, "")
-        .substring(1)
-        .replaceAll("\\", "/");
-    console.log("link=" + link);
-
-    fs.mkdirSync(buildPageDirName, {recursive: true});
-
-    copyStaticAssets(srcPageDirName, buildPageDirName);
-
-    const srcPageFileName = path.join(srcPageDirName, meta.fileName)
-    const pageHtml = generatePageHtml(srcPageFileName);
-    const shortHtml = generatePageShortHtml(srcPageFileName);
-    const shortImageSrc = getFirstImgLink(pageHtml, link);
-    BLOG_RESULT.pages.push({
-        meta,
-        link,
-        html: pageHtml,
-        shortHtml: shortHtml,
-        title: meta.title,
-        description: meta.description,
-        id: link,
-        shortImage: shortImageSrc
-        // source: getSource(srcPageFileName)
-    });
-
-    let data = fs.readFileSync(path.join(srcDirName, "templates/paper.html"), "utf8");
-    data = resolveSpecificMacros(data, "title", BLOG_RESULT.meta.title);
-    data = resolveSpecificMacros(data, "page_title", meta.title);
-    data = resolveSpecificMacros(data, "page_description", meta.description);
-    data = resolveSpecificMacros(data, "page_html", pageHtml);
-    data = resolveSpecificMacros(data, "ad_head", BLOG_RESULT.adHeadHtml);
-    data = resolveSpecificMacros(data, "ad_block", BLOG_RESULT.adBlockHtml);
-    data = resolveSpecificMacros(data, "footer", BLOG_RESULT.footerHtml);
-    fs.writeFileSync(buildPageFileName, data, "utf-8");
+function writePages() {
+    return Promise.all(BLOG.pages.map(page => {
+        console.log(`write ${page.raw.buildPageFileName}`);
+        if (page.meta.draft) {
+            return Promise.resolve();
+        }
+        fsp.mkdir(page.raw.buildPageDirName, {recursive: true})
+            .then(() => copyStaticAssets(page.raw.srcPageDirName, page.raw.buildPageDirName))
+            .then(() => writeFile(page.pageHtml, page.raw.buildPageFileName))
+    }));
 }
 
-function generatePageShortHtml(srcPageFileName) {
-    let pageData = fs.readFileSync(srcPageFileName, "utf8");
-    let pageShortHtml;
-    pageData = pageData.replaceAll("\r\n", "\n");
-    let firstParagraphEnd = pageData.indexOf("\n\n");
-    let secondParagraphEnd = pageData.indexOf("\n\n", firstParagraphEnd + 1);
-    let thirdParagraphEnd = pageData.indexOf("\n\n", secondParagraphEnd + 1);
-    if (thirdParagraphEnd === -1) {
-        console.warn(styleText(
-            'yellowBright',
-            `Cannot find third paragraph in parer so it cause display all paper in index page. Warning for paper: ${srcPageFileName}`
-        ));
-    } else {
-        pageData = pageData.substring(0, thirdParagraphEnd);
-    }
-    pageShortHtml = md.render(pageData);
-    // console.log("pageShortHtml:", pageHtml);
-    return pageShortHtml;
-}
-
-function generatePageHtml(srcPageFileName) {
-    let pageData = fs.readFileSync(srcPageFileName, "utf8");
-    let pageHtml = md.render(pageData);
-    // console.log("pageHtml:", pageHtml);
-    return pageHtml;
-}
-
-function getSource(srcPageFileName) {
-    return fs.readFileSync(srcPageFileName, "utf8");
-}
-
-function copyStaticAssets(pageDirName, buildPageDirName) {
+function copyStaticAssets(srcPageDirName, buildPageDirName) {
     // fs.copyFileSync(sourcePageFolderName + "/*.*", resultFolderName);
-    fs.cpSync(pageDirName, buildPageDirName, {
+    return fsp.cp(srcPageDirName, buildPageDirName, {
         recursive: true,
         filter: (src, dest) => {
-            return !src.endsWith(".md") && !src.endsWith("meta.json");
-        },
+            return !src.endsWith(".md");
+        }
     });
 }
 
-function getMeta(pageDirName) {
-    const meta = fs.readFileSync(path.join(pageDirName, "meta.json"), "utf8");
-    return JSON.parse(meta);
+function pageGeneration(page, pageTemplateHtml) {
+    try {
+        console.log(`generating ${page.raw.srcPageFileName}`);
+        fillMeta(page);
+        if (page.meta.draft) {
+            console.warn(styleText('yellow', `Page ${page.raw.srcPageDirName} is skipped because of draft flag`));
+            return;
+        }
+        fillPageDirs(page);
+        fillPageLink(page);
+        fillHtml(page, pageTemplateHtml);
+        fillSearchData(page);
+    } catch (e) {
+        console.error(`Fail in ${page}`, e);
+        throw e;
+    }
+}
+
+function fillPageDirs(page) {
+    page.raw.srcPageDirName = path.join(page.raw.srcPageFileName, "..");
+    page.raw.buildPageFileName = page.raw.srcPageFileName
+        .replace(srcDirName, buildDirName)
+        .replace(".md", ".html")
+    page.raw.buildPageDirName = path.join(page.raw.buildPageFileName, "..");
+}
+
+function fillPageLink(page) {
+    let link = page.raw.buildPageDirName
+        .replace(buildDirName, "")
+        .substring(1)
+        .replaceAll("\\", "/");
+    link += "/index.html";
+    console.log("link=" + link);
+    page.link = link;
+}
+
+function fillMeta(page) {
+    const meta = getPageMeta(page.raw.data);
+    page.meta = {
+        draft: meta.draft,
+        tags: meta.tags
+    }
+}
+
+function getPageMeta(text) {
+    text = text.replaceAll("\r\n", "\n");
+    const match = text.match(/<!--(.*?)-->/gs);
+    if (!match) {
+        console.debug("no meta for page");
+        return {};
+    } else {
+        // return JSON.parse(match[1]);
+        return JSON.parse(match[0].replace("<!--","").replaceAll("-->",""));
+    }
+}
+
+function removeComments(text) {
+    return text.replace(/<!--.*?-->/gs, "");
+}
+
+function fillSearchData(page) {
+    page.pageSearchData = removeComments(page.raw.data);
+}
+
+function fillHtml(page, pageTemplateHtml) {
+    const pageData = removeComments(page.raw.data);
+    const pageContentHtml = md.render(pageData);
+    // console.debug("pageContentHtml:",  pageContentHtml);
+
+    const jsDom = new JSDOM("<!DOCTYPE html>" + pageContentHtml);
+    const jsDomDocument = jsDom.window.document;
+    page.meta.title = jsDomDocument.querySelector('h1').innerHTML;
+    page.meta.description = removeTags(jsDomDocument.querySelectorAll('p')?.[1].innerHTML);
+    page.meta.firstImageSrc = getSafeImgLink(jsDomDocument.querySelector('img')?.src, page.link);
+    page.meta.date = jsDomDocument.querySelector('.language-blogEnginePageDate')?.innerHTML;
+
+    page.pageHtml = resolveMacrosAuto(pageTemplateHtml, {
+        ...BLOG,
+        GEN_page: {...page, pageContentHtml}
+    });
+}
+
+function getSafeImgLink(imgSrc, pageLink) {
+    if (!imgSrc) {
+        return "./assets/fallbackBlogImg.png";
+    }
+    const baseLink = pageLink.substring(0, pageLink.lastIndexOf("/"));
+    return `${baseLink}/${imgSrc}`;
 }

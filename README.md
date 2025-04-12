@@ -3,7 +3,7 @@
 * https://www.npmjs.com/package/markdown-it
 * https://publishing-project.rivendellweb.net/customizing-markdown-it/
 * https://habr.com/ru/articles/672266/
-* https://jamstack.org/generators/
+* https://jamstack.org/generators/ 
 
 ## Plan
 
@@ -21,3 +21,7 @@
 [] improve styling
 [] split logic onto 2 stages - read, render
 [] links open in new page
+[] metatags in messagers
+[] transliteration for humab readable links
+[] less\ts
+[] log

@@ -1,36 +1,47 @@
 /*
-BlogMetaType = {
-  "title": string,
-  "description": string,
-  "yandexAd": {
-    "blockId": string,
-    "renderTo": string,
-    "fallbackDescription": string; //"Пожалуйста, отключите ад-блок"
-  }
-}
-
 PageType = {
-  meta: {
-    "title": string,
-    "description": string,
-    "publish": boolean,
-    "date": "2024-11-10T09:34:15Z",
-    "fileName": "./test-paper.md"
-  }
-  link: string
-  html: string
-  shortHtml: string
+    raw: {
+        data: string
+        srcPageFileName: string
+        srcPageDirName: string
+        buildPageFileName: string
+        buildPageDirName: string
+    },
+
+    link: string
+    meta: {
+        draft: boolean
+        tags: string[]
+        title: string,
+        description: string
+        firstImageSrc: string
+        date: string
+    }
+    pageHtml: string
 }
 */
-export let BLOG_RESULT = {
-    meta: {},
-    pages: [],
-};
+export const BLOG = {
+    index: {
+        meta: {
+            title: undefined,
+            description: undefined,
+        },
+        allShortPagesHtml: [], //string[]
+        pagesSearchData: undefined
+    },
 
-export function clearBlogResult() {
-    BLOG_RESULT.meta = {};
-    BLOG_RESULT.pages = [];
-    BLOG_RESULT.footerHtml = "";
-    BLOG_RESULT.adBlockHtml = "";
-    BLOG_RESULT.adHeadHtml = "";
-}
+    pages: [], //PageType[]
+
+    footerHtml: undefined,
+
+    ad: {
+        AD_AFTER_EVERY_N_PAPER: 0,
+        yandexAd: {
+            blockId: undefined,
+            renderTo: undefined,
+        },
+        adBlockHtml: undefined,
+        adHeadHtml: undefined,
+        fallbackTitle: undefined
+    }
+};

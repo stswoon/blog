@@ -54,6 +54,7 @@
     position: absolute;
     z-index: -1;
     overflow: hidden;
+    width: 100%;
 }
 
 .blogEngine .header-background .header-background_image {
@@ -217,10 +218,25 @@
 
 .paper-item > .paper-item-content {
     display: flex;
+    gap: 10px;
 }
 
 .paper-item > .paper-item-content > .short-image {
-    max-height: 128px;
-    max-width: 128px;
+    max-height: 200px;
+    max-width: 200px;
     width: 100%;
+}
+
+.paper-item > .paper-item-content > .paper-text {
+    text-align: justify;
+}
+
+.paper-item > .paper-item-header > .paper-header {
+    font-weight: bold;
+    padding-bottom: 15px;
+}
+
+.paper-item > .paper-item-header > .paper-date {
+    color: rgb(136, 136, 136);
+    padding-bottom: 10px;
 }
