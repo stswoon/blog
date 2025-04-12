@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY src ./src
+COPY spec ./spec
 COPY blogengine.mjs ./blogengine.mjs
 RUN npm run build:prod
 
