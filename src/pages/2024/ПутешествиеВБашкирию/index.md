@@ -60,5 +60,5 @@
 взять с сайта - https://terrabashkiria.ru/category/turizm/dostupnyj-ural/
 
 Для себя я составил уже точки для второй попытке. если кому
-пригодиться - [Башкирия попытка номер 2](https://drive.google.com/file/d/1dCx2Rlj2fz2MJl5OqGvmLlNh0ipK3Mzu/view?usp=sharing)
+пригодиться - [Башкирия попытка номер 2](Башкирия-вторая-попытка-v2_01-09-2024_19-50-29.kml)
 

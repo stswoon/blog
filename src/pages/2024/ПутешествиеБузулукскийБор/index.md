@@ -33,4 +33,4 @@
 ![](image.png)
 
 Также прикладываю оффлайн точки
-интереса - [оффлайн точки](https://drive.google.com/file/d/1178NoJYlpJp9y0MG_WBPMvqrH03dh-dI/view?usp=drive_link%C2%A0).
+интереса - [оффлайн точки](бузулукский%20бор_27-09-2024_22-30-17.kml).
