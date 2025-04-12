@@ -54,6 +54,6 @@
 -----
 
 PS: еще один полезный сайт по интересным местам Самарской области и России в
-целом - https://tur-ray.ru/samarskaya-oblast-dostoprimechatelnosti.html
+целом - [https://tur-ray.ru/samarskaya-oblast-dostoprimechatelnosti.html](https://tur-ray.ru/samarskaya-oblast-dostoprimechatelnosti.html)
 
 
