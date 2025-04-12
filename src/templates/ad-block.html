@@ -1,2 +1,12 @@
 <!-- Yandex.RTB -->
-<div class="ad-block-yandex" id="{@blogEngine:ad.yandexAd.blockId}">{@blogEngine:ad.fallbackTitle}</div>
+<div class="ad-block-yandex" id="{@blogEngine:ad.yandexAd.renderTo}">
+    {@blogEngine:ad.fallbackTitle}
+</div>
+<script>
+    window.yaContextCb.push(() => {
+        window.Ya.Context.AdvManager.render({
+            blockId: "{@blogEngine:ad.yandexAd.blockId}",
+            renderTo: "{@blogEngine:ad.yandexAd.renderTo}",
+        });
+    });
+</script>

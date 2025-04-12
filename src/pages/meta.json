@@ -2,8 +2,8 @@
   "title": "Блог ни о чем",
   "description": "Блог ни о чем: преимущественно о программировании и путешествиях, но и обо всем другом тоже.",
   "yandexAd": {
-    "blockId": "QWERTY::R-A-2572196-1",
-    "renderTo": "QWERTY::yandex_rtb_R-A-2572196-1"
+    "blockId": "R-A-15037876-1",
+    "renderTo": "yandex_rtb_R-A-15037876-1"
   },
   "adFallbackTitle": "Пожалуйста, отключите ад-блок, чтобы я смог окупить оплату сервера - $10.",
   "AD_AFTER_EVERY_N_PAPER": 5

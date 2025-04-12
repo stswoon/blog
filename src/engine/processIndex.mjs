@@ -9,8 +9,8 @@ export function readBlogMeta() {
     BLOG.index.meta.title = meta.title;
     BLOG.index.meta.description = meta.description;
     BLOG.ad.AD_AFTER_EVERY_N_PAPER = meta.AD_AFTER_EVERY_N_PAPER;
-    BLOG.ad.yandexAd.blockId = meta.blockId;
-    BLOG.ad.yandexAd.renderTo = meta.renderTo;
+    BLOG.ad.yandexAd.blockId = meta.yandexAd.blockId;
+    BLOG.ad.yandexAd.renderTo = meta.yandexAd.renderTo;
     BLOG.ad.fallbackTitle = meta.adFallbackTitle;
 }
 
