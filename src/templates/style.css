@@ -11,6 +11,8 @@
     overflow-y: scroll;
 
     font-family: 'Roboto', sans-serif;
+
+    min-width: 600px;
 }
 
 .blogEngine .layout {
