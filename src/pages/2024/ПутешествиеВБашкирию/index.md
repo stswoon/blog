@@ -19,8 +19,8 @@
 
 Предоставляю карту путешествий если кому она будет полезна - маршрут на неделю по основным точкам:
 
-* [pdf с маршрутом](https://drive.google.com/file/d/1hvacVhrvtWByEMC3iYThM6BL--UafvU8/view?usp=sharing)
-* [координаты](https://drive.google.com/file/d/1lA6GvBsx_fDol9fPzbbnBfGdWiB3zszU/view?usp=sharing)
+* [pdf с маршрутом](башкирия-all.pdf)
+* [координаты](Башкирия-v6_01-09-2024_19-56-45.kml)
 
 ![img.png](img.png)
 
@@ -57,7 +57,8 @@
 -----
 
 Так что нужно теперь посетить еще раз Башкирию уже недельки на две чтобы посетить все точки силы. Список точек можно
-взять с сайта - https://terrabashkiria.ru/category/turizm/dostupnyj-ural/
+взять с
+сайта -[https://terrabashkiria.ru/category/turizm/dostupnyj-ural/](https://terrabashkiria.ru/category/turizm/dostupnyj-ural/)
 
 Для себя я составил уже точки для второй попытке. если кому
 пригодиться - [Башкирия попытка номер 2](Башкирия-вторая-попытка-v2_01-09-2024_19-50-29.kml)
