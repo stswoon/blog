@@ -45,9 +45,9 @@ export const deepGet = (obj, keys) => keys.reduce((xs, x) => xs?.[x] ?? null, ob
 /**
  * 22 ноября 2024 -> Date
  */
-export function parseRussianDate(dateStr) {
+export function parseRussianDate(pageTitle, dateStr) {
     if (!dateStr) {
-        return new Date(0,0,0);
+        throw new Error(`Empty date string for page "${pageTitle}"`);
     }
 
     const months = {
@@ -70,7 +70,13 @@ export function parseRussianDate(dateStr) {
     const month = months[parts[1].toLowerCase()];
     const year = parseInt(parts[2], 10);
 
-    return new Date(year, month, day);
+    const date = new Date(year, month, day);
+
+    if (date.toString() === "Invalid Date") {
+        throw new Error(`Invalid date string "${dateStr}" for page "${pageTitle}"`);
+    }
+    return date;
+
 }
 
 export function removeTags(str) {

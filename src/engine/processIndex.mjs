@@ -60,12 +60,7 @@ function copyStaticAssets() {
 function generateAllShortHtml() {
     const pageShortItemTemplate = readFileSync(srcDirName, "templates/index_short-page-list-item.html");
 
-    //sort by date
-    const sortedPages = BLOG.pages.sort((a, b) => {
-        return parseRussianDate(b.meta.date) - parseRussianDate(a.meta.date);
-    })
-    console.log("sortedPages order:");
-    sortedPages.map(item => ({title: item.meta.title, date: item.meta.date})).forEach((item) => console.log(item));
+    const sortedPages = sortBlogPages(BLOG.pages)
 
     const pagesSearchData = []
     for (let page of sortedPages) {
@@ -73,11 +68,24 @@ function generateAllShortHtml() {
         BLOG.index.allShortPagesHtml.push(pageShortHtml);
         pagesSearchData.push({...page, raw: undefined, pageHtml: undefined});
     }
+
     BLOG.index.pagesSearchData = JSON.stringify(pagesSearchData)
         .replaceAll("\\n", " ")
         .replaceAll("\\r", " ")
         .replaceAll('\\"', " ")
         .replaceAll('\\', " ");
+}
+
+//sort by date
+function sortBlogPages(pages) {
+    const sortedPages = pages.sort((a, b) => {
+        const dataA = parseRussianDate(a.meta.title, a.meta.date);
+        const dataB = parseRussianDate(b.meta.title, b.meta.date);
+        return dataB - dataA;
+    })
+    console.log("sortedPages order:");
+    sortedPages.map(item => ({title: item.meta.title, date: item.meta.date})).forEach((item) => console.log(item));
+    return sortedPages;
 }
 
 function insertAdInShortPages() {
