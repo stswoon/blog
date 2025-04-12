@@ -129,7 +129,7 @@ function fillHtml(page, pageTemplateHtml) {
     const jsDom = new JSDOM("<!DOCTYPE html>" + pageContentHtml);
     const jsDomDocument = jsDom.window.document;
     page.meta.title = jsDomDocument.querySelector('h1').innerHTML;
-    page.meta.description = removeTags(jsDomDocument.querySelectorAll('p')?.[1].innerHTML);
+    page.meta.description = removeTags(jsDomDocument.querySelectorAll('p')?.[0].innerHTML);
     page.meta.firstImageSrc = getSafeImgLink(jsDomDocument.querySelector('img')?.src, page.link);
     page.meta.date = jsDomDocument.querySelector('.language-blogEnginePageDate')?.innerHTML;
 
