@@ -1,4 +1,5 @@
 * {
+    --blog-min-width: 540px;
     --debug-border: 0px;
     /*--debug-border: 6px;*/
     /*border: 1px red solid;*/
@@ -12,7 +13,7 @@
 
     font-family: 'Roboto', sans-serif;
 
-    min-width: 600px;
+    min-width: var(--blog-min-width);
 }
 
 .blogEngine .layout {
@@ -255,5 +256,9 @@
 
     .blogEngine .content .papers .paper-item {
         margin: 30px 20px;
+    }
+
+    .blogEngine .header-background {
+        min-width: var(--blog-min-width);
     }
 }
