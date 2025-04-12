@@ -39,9 +39,9 @@ export const BLOG = {
         yandexAd: {
             blockId: undefined,
             renderTo: undefined,
-            fallbackTitle: undefined
         },
         adBlockHtml: undefined,
         adHeadHtml: undefined,
+        fallbackTitle: undefined
     }
 };

@@ -68,6 +68,7 @@ function pageGeneration(page, pageTemplateHtml) {
         fillPageDirs(page);
         fillPageLink(page);
         fillHtml(page, pageTemplateHtml);
+        fillSearchData(page);
     } catch (e) {
         console.error(`Fail in ${page}`, e);
         throw e;
@@ -83,10 +84,11 @@ function fillPageDirs(page) {
 }
 
 function fillPageLink(page) {
-    const link = page.raw.buildPageDirName
+    let link = page.raw.buildPageDirName
         .replace(buildDirName, "")
         .substring(1)
         .replaceAll("\\", "/");
+    link += "/index.html";
     console.log("link=" + link);
     page.link = link;
 }
@@ -115,6 +117,11 @@ function removeComments(text) {
     return text.replace(/<!--.*?-->/gs, "");
 }
 
+function fillSearchData(page) {
+    const pageSearchData = removeComments(page.raw.data);
+    page.pageSearchData = pageSearchData;
+}
+
 function fillHtml(page, pageTemplateHtml) {
     const pageData = removeComments(page.raw.data);
     const pageContentHtml = md.render(pageData);
@@ -123,7 +130,7 @@ function fillHtml(page, pageTemplateHtml) {
     const jsDom = new JSDOM("<!DOCTYPE html>" + pageContentHtml);
     const jsDomDocument = jsDom.window.document;
     page.meta.title = jsDomDocument.querySelector('h1').innerHTML;
-    page.meta.description = jsDomDocument.querySelector('p').innerHTML;
+    page.meta.description = jsDomDocument.querySelectorAll('p')?.[1].innerHTML;
     page.meta.firstImageSrc = getSafeImgLink(jsDomDocument.querySelector('img')?.src, page.link);
     page.meta.date = jsDomDocument.querySelector('.language-blogEnginePageDate')?.innerHTML;
 

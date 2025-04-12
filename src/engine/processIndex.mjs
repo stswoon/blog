@@ -2,7 +2,7 @@ import path from "path";
 import fs from "node:fs";
 import {BLOG} from "./globals.mjs";
 import {srcDirName, nodeModulesDirName, buildDirName} from "./constants.mjs";
-import {readFileSync, resolveMacrosAuto, writeFileSync} from "./utils.mjs";
+import {parseRussianDate, readFileSync, resolveMacrosAuto, writeFileSync} from "./utils.mjs";
 
 export function readBlogMeta() {
     const meta = JSON.parse(readFileSync(srcDirName, "pages/meta.json"));
@@ -11,16 +11,16 @@ export function readBlogMeta() {
     BLOG.ad.AD_AFTER_EVERY_N_PAPER = meta.AD_AFTER_EVERY_N_PAPER;
     BLOG.ad.yandexAd.blockId = meta.blockId;
     BLOG.ad.yandexAd.renderTo = meta.renderTo;
-    BLOG.ad.yandexAd.fallbackTitle = meta.fallbackTitle;
+    BLOG.ad.fallbackTitle = meta.adFallbackTitle;
 }
 
 export function generateIndex() {
     console.info("generateIndex: start");
 
     copyStaticAssets();
-    // readBlogMeta();
     generateAllShortHtml();
     insertAdInShortPages();
+    BLOG.index.allShortPagesHtml = BLOG.index.allShortPagesHtml.join("\n");
 
     let data = readFileSync(srcDirName, "templates/index.html");
     data = resolveMacrosAuto(data, BLOG);
@@ -30,6 +30,10 @@ export function generateIndex() {
 }
 
 function copyStaticAssets() {
+    fs.copyFileSync(
+        path.join(nodeModulesDirName, "highlight.js/styles/default.min.css"),
+        path.join(buildDirName, "highlight-default.min.css")
+    );
     fs.copyFileSync(
         path.join(nodeModulesDirName, "highlight.js/styles/default.min.css"),
         path.join(buildDirName, "highlight-default.min.css")
@@ -56,13 +60,21 @@ function copyStaticAssets() {
 function generateAllShortHtml() {
     const pageShortItemTemplate = readFileSync(srcDirName, "templates/index_short-page-list-item.html");
 
+    const sortedPages = BLOG.pages.sort((a, b) => {
+        return parseRussianDate(a.meta.date) - parseRussianDate(a.meta.date);
+    })
+
     const pagesSearchData = []
-    for (let page of BLOG.pages) {
+    for (let page of sortedPages) {
         const pageShortHtml = resolveMacrosAuto(pageShortItemTemplate, {...BLOG, GEN_page: page})
         BLOG.index.allShortPagesHtml.push(pageShortHtml);
-        pagesSearchData.push({...page, raw: undefined});
+        pagesSearchData.push({...page, raw: undefined, pageHtml: undefined});
     }
-    BLOG.index.pagesSearchData = JSON.stringify(pagesSearchData);
+    BLOG.index.pagesSearchData = JSON.stringify(pagesSearchData)
+        .replaceAll("\\n", " ")
+        .replaceAll("\\r", " ")
+        .replaceAll('\\"', " ")
+        .replaceAll('\\', " ");
 }
 
 function insertAdInShortPages() {
