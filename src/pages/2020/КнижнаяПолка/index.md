@@ -11,7 +11,10 @@
 07 декабря 2020
 ```
 
-<table>
+Решил собрать пару наиболее интересных книжек про программирование, которые я считаю важным прочитать. Они довольно
+долго на мой взгляд остаются актуальными.
+
+<table style="max-width: 800px; margin: 0 auto;">
 
 <tr>
 <td style="width: 50%">
@@ -119,8 +122,8 @@ Cédric Exbrayat
 
 Джонсон Спенсер, Бланшар Кеннет
 
-[Ссылка 1](https://www.litres.ru/ken-blanshar/odnominutnyy-menedzher) 
-и 
+[Ссылка 1](https://www.litres.ru/ken-blanshar/odnominutnyy-menedzher)
+и
 [Ссылка 2](https://www.ozon.ru/context/detail/id/34423694)
 
 </td>
