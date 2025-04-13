@@ -5,6 +5,6 @@
     "blockId": "R-A-15037876-1",
     "renderTo": "yandex_rtb_R-A-15037876-1"
   },
-  "adFallbackTitle": "Пожалуйста, отключите ад-блок, чтобы я смог окупить оплату сервера - $10.",
-  "AD_AFTER_EVERY_N_PAPER": 5
+  "adFallbackTitle": "Пожалуйста, отключите ад-блок, чтобы я смог окупить оплату сервера - $10. А еще можно сделать донат - <a href=\"https://yoomoney.ru/to/41001998657825\">DONATE</a>.",
+  "AD_AFTER_EVERY_N_PAPER": 7
 }

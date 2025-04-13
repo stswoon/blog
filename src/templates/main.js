@@ -1,6 +1,8 @@
 const paperItemElements = document.querySelectorAll(".paper-item");
 
 function blogEngineSearch(searchText) {
+    showMore();
+
     if (!searchText) {
         paperItemElements.forEach(paperItemElement => {
             paperItemElement.classList.remove("paper-item__hidden");
@@ -31,4 +33,13 @@ function blogEngineSearch(searchText) {
             paperItemElement.classList.add("paper-item__hidden");
         }
     });
+}
+
+function showMore() {
+    document.querySelectorAll('.blogEngine .content .papers .paper-item.hidden').forEach(el => {
+        el.classList.remove("hidden");
+    });
+    document.getElementById('showMoreButton').classList.add("hidden");
+    //e.preventDefault();
+    return false;
 }

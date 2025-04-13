@@ -106,6 +106,19 @@
     width: 500px;
 }
 
+.blogEngine .content .papers .paper-item.showMore {
+    display: flex;
+    justify-content: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.blogEngine .content .papers .paper-item.showMore.hidden {
+    display: none;
+}
+
 /* -----FOOTER----- */
 
 .blogEngine .footer {

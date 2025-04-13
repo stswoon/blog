@@ -19,7 +19,7 @@ export function generateIndex() {
 
     copyStaticAssets();
     generateAllShortHtml();
-    insertAdInShortPages();
+    // insertAdInShortPages();
     BLOG.index.allShortPagesHtml = BLOG.index.allShortPagesHtml.join("\n");
 
     let data = readFileSync(srcDirName, "templates/index.html");
@@ -63,8 +63,12 @@ function generateAllShortHtml() {
     const sortedPages = sortBlogPages(BLOG.pages)
 
     const pagesSearchData = []
-    for (let page of sortedPages) {
-        const pageShortHtml = resolveMacrosAuto(pageShortItemTemplate, {...BLOG, GEN_page: page})
+    for (let i = 0; i < sortedPages.length; ++i) {
+        const page = sortedPages[i];
+        let pageShortHtml = resolveMacrosAuto(pageShortItemTemplate, {...BLOG, GEN_page: page});
+        if (i >= BLOG.ad.AD_AFTER_EVERY_N_PAPER) {
+            pageShortHtml = pageShortHtml.replace('<div class="paper-item"', '<div class="paper-item hidden"')
+        }
         BLOG.index.allShortPagesHtml.push(pageShortHtml);
         pagesSearchData.push({...page, raw: undefined, pageHtml: undefined});
     }
@@ -73,7 +77,11 @@ function generateAllShortHtml() {
         .replaceAll("\\n", " ")
         .replaceAll("\\r", " ")
         .replaceAll('\\"', " ")
-        .replaceAll('\\', " ");
+        .replaceAll('\\', " ")
+        .replaceAll('<', " ")
+        .replaceAll('>', " ")
+        .replaceAll('```', " ")
+    // BLOG.index.pagesSearchData = encodeURIComponent(BLOG.index.pagesSearchData);
 }
 
 //sort by date
@@ -88,16 +96,16 @@ function sortBlogPages(pages) {
     return sortedPages;
 }
 
-function insertAdInShortPages() {
-    let pageShortItemAd = readFileSync(srcDirName, "templates/index_short-page-ad-list-item.html");
-    pageShortItemAd = resolveMacrosAuto(pageShortItemAd, BLOG);
-
-    const tmpArray = [];
-    for (let i = 0; i < BLOG.index.allShortPagesHtml.length; ++i) {
-        tmpArray.push(BLOG.index.allShortPagesHtml[i]);
-        if (i === BLOG.ad.AD_AFTER_EVERY_N_PAPER || i === BLOG.pages.length - 1) {
-            tmpArray.push(pageShortItemAd + "\n");
-        }
-    }
-    BLOG.index.allShortPagesHtml = tmpArray;
-}
+// function insertAdInShortPages() {
+//     let pageShortItemAd = readFileSync(srcDirName, "templates/index_short-page-ad-list-item.html");
+//     pageShortItemAd = resolveMacrosAuto(pageShortItemAd, BLOG);
+//
+//     const tmpArray = [];
+//     for (let i = 0; i < BLOG.index.allShortPagesHtml.length; ++i) {
+//         tmpArray.push(BLOG.index.allShortPagesHtml[i]);
+//         if (i === BLOG.ad.AD_AFTER_EVERY_N_PAPER || i === BLOG.pages.length - 1) {
+//             tmpArray.push(pageShortItemAd + "\n");
+//         }
+//     }
+//     BLOG.index.allShortPagesHtml = tmpArray;
+// }
