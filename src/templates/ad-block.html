@@ -1,7 +1,8 @@
 <!-- Yandex.RTB -->
-<div class="ad-block-yandex" id="{@blogEngine:ad.yandexAd.renderTo}">
+<div class="ad-fallback">
     {@blogEngine:ad.fallbackTitle}
 </div>
+<div class="ad-block-yandex" id="{@blogEngine:ad.yandexAd.renderTo}"></div>
 <script>
     window.yaContextCb.push(() => {
         window.Ya.Context.AdvManager.render({
