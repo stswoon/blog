@@ -6,6 +6,7 @@ console.info("init markdownit: start");
 //https://github.com/markdown-it/markdown-it?tab=readme-ov-file#init-with-presets-and-options
 export const md = markdownit({
     html: true,
+    linkify: true,
     highlight: function (str, lang) {
         let code = md.utils.escapeHtml(str);
         if (lang && hljs.getLanguage(lang)) {
