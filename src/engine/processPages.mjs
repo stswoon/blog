@@ -87,7 +87,8 @@ function fillPageLink(page) {
     let link = page.raw.buildPageDirName
         .replace(buildDirName, "")
         .substring(1)
-        .replaceAll("\\", "/");
+        .replaceAll("\\", "/")
+        .replaceAll(" ", "%20");
     link += "/index.html";
     console.log("link=" + link);
     page.link = link;

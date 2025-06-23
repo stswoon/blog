@@ -63,6 +63,7 @@ function copyStaticAssets() {
 function generateAllShortHtml(sortedPages) {
     const pageShortItemTemplate = readFileSync(srcDirName, "templates/index_short-page-list-item.html");
 
+    //TODO: year separator
     const pagesSearchData = []
     for (let i = 0; i < sortedPages.length; ++i) {
         const page = sortedPages[i];
