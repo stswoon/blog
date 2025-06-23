@@ -7,6 +7,7 @@
 
 ## Plan
 
+TODO
 [] move 7 paper to here (3/7)
 [] ad
 [] img in short version

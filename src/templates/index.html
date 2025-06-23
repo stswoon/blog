@@ -28,7 +28,10 @@
             <img src="assets/background-original.jpg" class="header-background_image"/>
         </div>
 
-        <div class="header-title">My <s>Class</s> Blog</div>
+        <div class="header-title">
+            <span class="menuButton" onclick="toggleMenu()">☰</span>
+            <span>My <s>Class</s> Blog<span>
+        </div>
 
         <div class="header-subtitle">{@blogEngine:index.meta.description}</div>
 
@@ -52,6 +55,10 @@
     </div>
 
     <div class="footer">{@blogEngine:footerHtml}</div>
+
+    <div class="popupMenu" style="display: none">
+        {@blogEngine:index.toc}
+    </div>
 </div>
 
 <script>

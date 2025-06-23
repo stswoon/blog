@@ -1,3 +1,9 @@
+const popupMenu = document.querySelector(".popupMenu");
+
+function toggleMenu() {
+    popupMenu.style.display =  popupMenu.style.display === "none" ? "block" : "none";
+}
+
 const paperItemElements = document.querySelectorAll(".paper-item");
 
 function blogEngineSearch(searchText) {

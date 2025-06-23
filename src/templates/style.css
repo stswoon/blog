@@ -84,6 +84,7 @@
 .blogEngine .content .papers {
     padding: 10px 0;
     width: 100%;
+    max-width: 1200px;
 }
 
 .blogEngine .content .papers .paper-item {
@@ -145,6 +146,19 @@
 
     background-color: rgba(209, 209, 248, 0.7);
     width: var(--menu-width);
+}
+
+.blogEngine .menuButton {
+    margin-right: 50px;
+    cursor: pointer;
+}
+
+.blogEngine .popupMenu {
+    position: fixed;
+    height: 100%;
+    width: 350px;
+    padding: 20px;
+    background-color: antiquewhite;
 }
 
 /* -----COMMON----- */

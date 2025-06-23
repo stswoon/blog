@@ -3,6 +3,7 @@ import fs from "node:fs";
 import {BLOG} from "./globals.mjs";
 import {srcDirName, nodeModulesDirName, buildDirName} from "./constants.mjs";
 import {parseRussianDate, readFileSync, resolveMacrosAuto, writeFileSync} from "./utils.mjs";
+import {md} from "./initMdEngine.mjs";
 
 export function readBlogMeta() {
     const meta = JSON.parse(readFileSync(srcDirName, "pages/meta.json"));
@@ -18,9 +19,11 @@ export function generateIndex() {
     console.info("generateIndex: start");
 
     copyStaticAssets();
-    generateAllShortHtml();
+    const sortedPages = sortBlogPages(BLOG.pages)
+    generateAllShortHtml(sortedPages);
     // insertAdInShortPages();
     BLOG.index.allShortPagesHtml = BLOG.index.allShortPagesHtml.join("\n");
+    generateToc(sortedPages);
 
     let data = readFileSync(srcDirName, "templates/index.html");
     data = resolveMacrosAuto(data, BLOG);
@@ -57,10 +60,8 @@ function copyStaticAssets() {
     );
 }
 
-function generateAllShortHtml() {
+function generateAllShortHtml(sortedPages) {
     const pageShortItemTemplate = readFileSync(srcDirName, "templates/index_short-page-list-item.html");
-
-    const sortedPages = sortBlogPages(BLOG.pages)
 
     const pagesSearchData = []
     for (let i = 0; i < sortedPages.length; ++i) {
@@ -109,3 +110,20 @@ function sortBlogPages(pages) {
 //     }
 //     BLOG.index.allShortPagesHtml = tmpArray;
 // }
+
+function generateToc(sortedPages) {
+    let toc = "";
+
+    let lastYear;
+    sortedPages.forEach(item => {
+        const currentYear = parseRussianDate(item.meta.title, item.meta.date).getFullYear();
+        if (currentYear !== lastYear) {
+            lastYear = currentYear;
+            toc += `\n#### ${currentYear}\n\n`;
+        }
+        toc += `* [${item.meta.title}](${item.link})\n`;
+    })
+
+    const tocHtml = md.render(toc);
+    BLOG.index.toc = tocHtml;
+}
