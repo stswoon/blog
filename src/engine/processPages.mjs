@@ -15,6 +15,9 @@ export async function generatePages() {
     for (let page of BLOG.pages) {
         pageGeneration(page, pageTemplateHtml);
     }
+    BLOG.pages = BLOG.pages.filter(page => {
+        return !page.meta.draft;
+    });
     await writePages();
     console.info("generatePages: finish");
 }
