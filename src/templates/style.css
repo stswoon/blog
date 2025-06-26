@@ -159,6 +159,7 @@
     width: 350px;
     padding: 20px;
     background-color: antiquewhite;
+    overflow-y: auto;
 }
 
 /* -----COMMON----- */

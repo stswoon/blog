@@ -1,7 +1,19 @@
 const popupMenu = document.querySelector(".popupMenu");
 
 function toggleMenu() {
-    popupMenu.style.display =  popupMenu.style.display === "none" ? "block" : "none";
+    popupMenu.style.display = popupMenu.style.display === "none" ? "block" : "none";
+
+    if (popupMenu.style.display === "block") {
+        const outsideClickListener = (e) => {
+            if (!popupMenu.contains(e.target)) {
+                popupMenu.style.display = 'none';
+                document.removeEventListener('click', outsideClickListener);
+            }
+        };
+        setTimeout(() => {
+            document.addEventListener('click', outsideClickListener);
+        });
+    }
 }
 
 const paperItemElements = document.querySelectorAll(".paper-item");
