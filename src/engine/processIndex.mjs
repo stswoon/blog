@@ -83,6 +83,8 @@ function generateAllShortHtml(sortedPages) {
         .replaceAll('<', " ")
         .replaceAll('>', " ")
         .replaceAll('```', " ")
+        .replaceAll('`', " ")
+        .replaceAll('$', " ")
     // BLOG.index.pagesSearchData = encodeURIComponent(BLOG.index.pagesSearchData);
 }
 
