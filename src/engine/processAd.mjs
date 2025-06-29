@@ -10,3 +10,9 @@ export function generateAd() {
     BLOG.ad.adBlockHtml = resolveMacrosAuto(BLOG.ad.adBlockHtml, BLOG);
     console.info("generateAd: finish");
 }
+
+export function generateMetrica() {
+    console.info("generateMetrica: start");
+    BLOG.metricaHtml = readFileSync(srcDirName, "templates/metrica.html");
+    console.info("generateMetrica: finish");
+}

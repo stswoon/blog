@@ -5,7 +5,7 @@ import {buildDirName} from "./constants.mjs";
 import {generatePages} from "./processPages.mjs";
 import {generateIndex, readBlogMeta} from "./processIndex.mjs";
 import {generateFooter} from "./processFooter.mjs";
-import {generateAd} from "./processAd.mjs";
+import {generateAd, generateMetrica} from "./processAd.mjs";
 import {styleText} from "node:util";
 import {openInBrowser} from "./utils.mjs";
 
@@ -21,6 +21,7 @@ export const runBlogEngine = async () => {
         readBlogMeta();
         generateFooter();
         generateAd();
+        generateMetrica();
         await generatePages();
         generateIndex();
 
