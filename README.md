@@ -3,26 +3,18 @@
 * https://www.npmjs.com/package/markdown-it
 * https://publishing-project.rivendellweb.net/customizing-markdown-it/
 * https://habr.com/ru/articles/672266/
-* https://jamstack.org/generators/ 
+* https://jamstack.org/generators/
 
 ## Plan
 
 TODO
-[] move 7 paper to here (3/7)
-[] ad
-[] img in short version
-[] short version till first paragraph
 
-[] groups
-[] move all papers to here (except vpn)
-[] mobile view
-[] make sync to promise all for performance watch
-[] cache css/js
-[] typescript
-[] improve styling
-[] split logic onto 2 stages - read, render
-[] links open in new page
-[] metatags in messagers
-[] transliteration for humab readable links
-[] less\ts
-[] log
+1. [ ] groups
+2. [ ] mobile view
+3. [ ] cache css/js
+4. [ ] typescript
+5. [ ] improve styling
+6. [ ] links open in new page
+7. [ ] meta-tags in messengers
+8. [ ] vite, ssr, mui
+9. [ ] x17 papers
