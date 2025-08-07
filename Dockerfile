@@ -16,3 +16,6 @@ RUN chmod +x /etc/nginx/start.sh
 ARG NGINX_PORT
 EXPOSE $NGINX_PORT
 CMD "/etc/nginx/start.sh"
+
+# docker build . -t blog
+# docker run --rm --name blog -p 80:80 -e PORT=80 blog
