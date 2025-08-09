@@ -15,11 +15,21 @@ TODO: Спросить аннотацию у AI
 
 ![img.png](img.png)
 
-## Data Service
+## Описание data-service
 
-В качестве стаба использован `json-server`.
+Директория data-service представляет собой простой сервис данных для приложения, который выполняет функции
+локального REST API сервера, реализованного с помощью библиотеки `json-server`. Он предоставляет тестовые данные
+для приложения:
 
-В качестве модели используется две сущности `orders` и `products`
+- Коллекцию orders (заказы) с информацией о заказанных продуктах и их количестве:
+    - id заказа
+    - купленный телефон
+    - и количество купленных телефонов
+- Коллекцию products (продукты) с подробной информацией о смартфонах, включая:
+    - Название смартфона
+    - Путь к изображению
+    - Краткое описание
+    - Для некоторых продуктов - подробное описание в формате Markdown
 
 ```plantuml
 @startuml
@@ -38,55 +48,58 @@ json Order {
 @enduml
 ```
 
+В папке `data-service/public/img/` - лежат изображения смартфонов.
+
 ## CMS (Strapi)
 
-В качестве CMS, очевидно, может использоваться любая CMS. Я взял за основу [Strapi](https://strapi.io), т.к. имею
-опыт работы с ней и ее можно легко настроить для работы стендалон.
+В проекте используется Headless [Strapi](https://strapi.io) CMS для управления контентом портала. Выбор Strapi
+обусловлен возможностью автономной работы.
 
-Проделаны некоторые мелкие моменты, которые понадобятся для работы
+Основные настройки CMS:
 
-* установлен плагин `strapi-v5-plugin-populate-deep` который позволяет получать вложенные сущности будь то компоненты
-  или референцы с любой вложенностью
-* сгенерирован токен для RO доступа к контенту
-* выставлены настроики пейджинга чтобы отдавать по 1000 елементов вместо стандартных 10, т.к. нам все равно нужно на
-  портале получить всю конфигу и пока она не такая уж и большая чтобы делать пейджинг (см `defaultLimit` в файле
-  `cms/config/api.ts`)
+- Установлен плагин `strapi-v5-plugin-populate-deep` для получения вложенных сущностей любой глубины
+- Настроен токен для доступа к контенту в режиме только чтения
+- Увеличен лимит пагинации до 1000 элементов вместо стандартных 10 (см. `cms/config/api.ts`)
 
-в идеале еще сделать возможноность раскатки данных из некоего экспорта, вместо того чтобы хранить базу целиком (что-то
-подобное я делал для предыдущей весии страпи, но в данном прототипе это пропущено)
+В идеале сделать возможность импортировать данные из json, вместо хранения БД в гите, но в данном
+прототипе этот момент пропущен для лаконичности, хотя я и делал подобное решение для предыдущей версии.
 
-### Модель
+### Модель данных
 
-Модель состоит из пейджи, в которой есть `urlPattern` (паблик апи по сути) который соотвествует общеиспользваому формату
-вида `/order/:id` в
-частности на портале используется библиотека `path-to-regexp` для матчинга страницы, причем на всякий случай добавлена
-функциональность что статичекий путь вида `/order/123` приоитетнее (но это логика портала). Также можно еще всякий сео
-атирбутов накидать и др.
+Модель состоит из следующих основных компонентов:
 
-Далее есть headerWidget и contentZone которые ссылаются на обзекты `WidgetInstance` причем хеадер оди, а вот контен
-множественный набор, предпологается что лайот просто вертикальный. Для потрала еще стоит добавить футер райт панедл для
-драуэра ну и можно поддержать грид свойства в виджетах чтобы можно было располагать из по колонкам, но для простоты
-протоипа опускаем.
+1. `Page` - страница, которая используется для маршрутизации, она содержит:
+    - `urlPattern` - урл строка в специальном формате роутинга, например `/product/:id`
+    - `headerWidget` - один виджет для шапки страницы
+    - `contentZone` - набор виджетов для основного содержимого
 
-WidgetInstance это динамические компоненты - виджеты. В одном WidgetInstance можно выбрать только 1один компонент.
-На даный момент это выглядит избыточно и можно было бы напрямуд ставить компонент, в пейджу, но это удобно когда
-мы столкномся с кейсом вдигет-виждгет или туда можно будет положить свойтва грида или еще общих ствойств лайауту не
-нужнжных самому виджету. Хотя в некоторый CMS типа contenfull нет модели компонент и там всегда референсы,
-возможно там этот слой избыточеке и не нужен будет. В свою очередь по хороему в портале в пейдж рендерере должно быть
-адаптер который из разных смс моделей делает одну стандартную так например можно убрать WidgetInstance.
-Главным параметром сделсь будет `widget` из которого мы будет добывать виджет, так что этот ключ является контрактом (
-паблик апи). Посколько это диамик зон то в ресте модеь возвращает `__component` а значение имя компоненты (через
-адампрет оба ключа можно поменять было бы)
+2. `WidgetInstance` - экземпляр виджета, который содержит:
+    - `name` - имя экземпляра
+    - `widget` - динамическая зона, содержащая только один компонент виджета
 
-Имя компоненты используется для инстанциации виджета, а опять же можно подрихтовать имя через адаптер
+3. Компоненты виджетов - различные типы виджетов:
+    - `HeaderWidget` - виджет шапки с вложенным menuWidget
+    - `MenuWidget` - виджет меню с JSON-структурой пунктов меню
+    - `ProductWidget` - виджет продукта с параметром name
+    - `Splitter` - разделитель с настраиваемым размером
+    - И другие (`BannerWidget`, `CheckoutWidget`, `HtmlWidget`, `ProductList`)
 
-Пример респонса
-убрал не нужные поля createdAt, updatedAt, publishedAt, id, documentId
+При запросе страницы из CMS возвращается структура с компонентами, где каждый компонент имеет атрибут `__component`
+(например, `widgets.header-widget`), который используется для инстанцирования соответствующего React-компонента на
+портале.
+
+Виджеты внутри себя также могут рисовать виджеты, например в `HeaderWidget` есть полюшко `menuWidget`, которое в свою
+очередь тоже виджет - `MenuWidget`, и в нем тоже есть уже свои параметры - `menu` в виде json.
+
+Параметры из `urlPattern` (например, `:name`) могут использоваться в виджетах через макросы вида `{name}`, что позволяет
+динамически формировать содержимое страницы.
+
+Пример ответа API `/api/pages?pLevel` (сокращенный - убрал не нужные поля createdAt, updatedAt, publishedAt, id,
+documentId):
 
 ```
 {
   "data": [
-    ...
     {
       "urlPattern": "/product/:name",
       "headerWidget": {
@@ -104,18 +117,7 @@ WidgetInstance это динамические компоненты - видже
                       "title": "Samsung Galaxy S24 Ultra",
                       "url": "/portal/product/Samsung%20Galaxy%20S24%20Ultra"
                     },
-                    {
-                      "title": "Apple iPhone 15 Pro",
-                      "url": "/portal/product/Apple%20iPhone%2015%20Pro"
-                    },
-                    {
-                      "title": "Google Pixel 404",
-                      "url": "/portal/product/google-pixel-404-not-exist"
-                    },
-                    {
-                      "title": "About",
-                      "url": "/portal/about"
-                    }
+                    // ... другие пункты меню
                   ]
                 }
               ]
@@ -143,8 +145,7 @@ WidgetInstance это динамические компоненты - видже
           ]
         }
       ]
-    },
-  ...
+    }
   ],
   "meta": {
     "pagination": {
@@ -157,85 +158,76 @@ WidgetInstance это динамические компоненты - видже
 }
 ```
 
-Здесь мы видим что в HeaderWidget есть поле menuWidget, которое в свою очередь тоже виджет - MenuWidget, и в нем тоже
-есть уже свои параметры - menu в виде json
+Такая архитектура позволяет гибко настраивать страницы и виджеты через CMS без необходимости изменения кода портала.
 
-В контент зоне есть 2 виджета Splitter со значение разделителя 40px чтобы визуально разделить хедее и виджет (значение
-специально перепутано потому как в страпи походу бага и нельзя начать с числа листовой тип атримта) и product-widget
-который имеет в себе макрос `{name}` значение которого будет заполнено из `urlPattern`
+# Портал на Next.js
 
-## Portal
+Портал построен на Next.js, который является стандартом для генерации статических сайтов (SSG). Решение адаптировано для
+Server Components, хотя может быть перенесено и на другие фреймворки (например обычный SSR или SPA, правда придется
+сильно его переписать под использование контекста, говорю это т.к. уже решал данную задачу, здесь же мне было интересно
+перенести решение на **App Router**).
 
-Основан на next.js т.к. является хоть и небольшим на мой взгляд но все же стандартом для генерации SSG. Но решение можно
-применить и на другом фремворке, правда придется переписть на контексты и др. Я же делал решние для SPA и SSR но вот
-захочелось на Server Components переложить.
+## Основные компоненты
 
-Для начла подговтовим нектс
+- MUI в качестве UI-фреймворка
+- Прокси-сервер для обхода ограничений middleware (`/api/proxy/[...path]/route.ts`), т.к. `middleware.ts` поддерживает
+  только самые простые кейсы проксирования, а мне нужно было спрятать три "микросервиса" в один docker контейнер для
+  демонстрации
+- `useSWR` для клиентских запросов
 
-* добавим `MUI` как UI фремворк
-* добавим профкси т.к. мидлваре работае плоовато (не поддерживает множество кейсов) см
-  `portal/src/app/api/proxy/[...path]/route.ts`
-* для клиетских запросов будем исползовать `useSWR`
+## Управление кешем
 
-### поскольку страницы кешируются нужно сбрасывать кеш
+Для сброса кеша используется `revalidatePath`. Каждая страница регистрирует свой URL в singleton-сервисе
+`RouteRegisterService`, а специальный API-маршрут (`/api/revalidate/route.ts`) сбрасывает кеш для всех
+зарегистрированных URL.
 
-будем использватть `revalidatePath` но нужно явно перечислить список страниц, для этого в каждой странице вызовем
-синглетов тсервис и запишем урл, а уже на специальном апи роуте сбросим все урлы.
-см `portal/src/app/api/revalidate/route.ts`
-Возмножно в продакшене роутов может
-быть много тогда понядобиться исползовать какойнить подход с фремами (сбрасывать в цикле по 100 роутов а раз и делая
-передышку на пару милли секунд)
+Возможно в продакшене роутов может быть много тогда понадобиться использовать например подход с frame-окном, т.е.
+сбрасывать в цикле по 100 роутов а раз, затем делать микроперерыв и продолжать сбарсывать дальше.
 
-### перформанс
+## Оптимизация производительности
 
-некст джс ждрет как не в себя да и билдить в рантайме считаю млохим тоном, и в конце концов сервер бека может еще не
-успеть подняться
-напрмер в клауде портал можнт поднять раньше чем бек даже есть техника проверки канареечный запуск???
-ну и сервис должне легко скалироваться
-поэтому подкачка роутов должна быть лезиная
+На предыдуще версии некста я столкнулся с тем что некст ест память и CPU как не в себя, во время компиляции, да и во
+время работы тоже, поэтому ниже я описываю решения помогающие драматически снизить косты на ресурсах:
 
-**лезийность**
+- Экономия дискового пространства за счет включения только необходимых npm модулей
+- Снижение нагрузки на CPU благодаря отсутствию компиляции в runtime
+- Снижение потребления памяти до ~256MB (против 3-4GB) за счет использования node вместо next (вродебы почти одно и тоже
+  а вон как выстрелило)
+- StartUp time мгноенный, т.к. не тратиться время на компиляциию и генерацию страниц
+- Решена проблема курицы и яйца - теперь некст сможет стартовать, даже если бекенд с данными еще не поднялся.
+- Происходит компиляция только тех страниц куда идет пользователь, а не сразу всех (хотя может быть это и не такой уж и
+  плюс в проде).
 
-вротое лезийность для этого в пейдже говорим что у нас нет страниц и теперь нест не геренир их при старте зато при
-первом заходе он сгенерит страниц и положит в кеши причем если на этой странице есть ссылки заимпорченные из "next"
-тогда он заодно подгрузить и друге страницы.
+![img_1.png](img_1.png)
 
-```js
-export const revalidate = 120; 
-export const dynamicParams = true;
-export const generateStaticParams = async () => []; 
+### Ленивая загрузка
+
+Страницы **не** генерируются при старте, а создаются при первом запросе и кешируются:
+
+```ts
+export const revalidate = 120; // время жизни кеша в секундах
+export const dynamicParams = true; // разрешить динамические параметры
+export const generateStaticParams = async () => []; // не генерировать страницы заранее
 ```
 
-**standalone**
+### Режим Standalone
 
-первое что мы делаем это включаем режим standalone
+Включен режим standalone в конфигурации Next.js:
 
-```js
-const nextConfig: NextConfig = {
+```ts
+const nextConfig = {
     output: "standalone"
 };
 ```
 
-теперь у нас запускается не `next start` а `node .next/standalone/server.js` что экономи пямяти ???
+Это позволяет запускать приложение через `node .next/standalone/server.js` вместо `next start`, что дает следующие
+преимущества:
 
-** саммари **
+- Компиляция и линтинг происходят только на этапе сборки
+- В продакшен-версию включаются только используемые npm модули
+- Используется next plugin внутри node что оказывает более экономно нежели запуска некст напрямую
 
-для анализа установим плагин Resource Usage в Rancher Descktop (бесплатный аналог докера) ну и заюзаем ключ
-`docker run ... -m 2048m` для ограничения
-
-в результате у нас нект компилация и линтинг происходит на билдере а в продакшене только старт и дже страницы не
-генерятся
-также стендалоне забирает тоьлко те тщде моули которые нужны а ряд не используемы не берет
-
-итого у нас экнопия по диску из-за но модулей для докер образа, по CPU т.к. сложные копиляци в ропде нет и по мятия в
-районе `256mb`
-для реальных кейсом может и пондобится еще 100мб т.к. у меня то обекыт и колчисство виджето мало
-
-![img_1.png](img_1.png)
-
-на предыдущей версии некста без стендалона у меня до 3-4 ГБ доходило даже на стравнительно простых кейсах
-
-### Page Renderer
+## Page Renderer
 
 ```plantuml
 @startuml
@@ -347,51 +339,50 @@ export default DynamicPortalPage;
 
 `portal/src/app/portal/about/page.tsx`
 
-
 ```tsx
 
 export const AppRouterPageEngine: FC<PageEngineProps> = memo(async (props) => {
-  console.log(`AppRouterPageEngine::path=${props.path}`);
+    console.log(`AppRouterPageEngine::path=${props.path}`);
 
-  const cmsToken = CMS_TOKEN;
-  console.log(`AppRouterPageEngine::cmsToken=${cmsToken}`);
+    const cmsToken = CMS_TOKEN;
+    console.log(`AppRouterPageEngine::cmsToken=${cmsToken}`);
 
-  const cmsPageResponse: CmsPageResponse = await fetch(ROUTES.cmsPages, {
-    method: "GET",
-    headers: { Authorization: `Bearer ${cmsToken}` }
-  }).then((res) => res.json());
+    const cmsPageResponse: CmsPageResponse = await fetch(ROUTES.cmsPages, {
+        method: "GET",
+        headers: {Authorization: `Bearer ${cmsToken}`}
+    }).then((res) => res.json());
 
-  //here should be CmsAdapter pattern to converter Strapi CMS model or other CMS model
-  //into standard PageEngine model but it is skipped because it is only PoC.
+    //here should be CmsAdapter pattern to converter Strapi CMS model or other CMS model
+    //into standard PageEngine model but it is skipped because it is only PoC.
 
-  const [matchedPage, urlParams] = matchPage(props.path, cmsPageResponse.data);
-  if (!matchedPage) {
-    notFound();
-  }
+    const [matchedPage, urlParams] = matchPage(props.path, cmsPageResponse.data);
+    if (!matchedPage) {
+        notFound();
+    }
 
-  console.log(`AppRouterPageEngine::found page=${matchedPage.urlPattern}, urlParams=`, urlParams);
+    console.log(`AppRouterPageEngine::found page=${matchedPage.urlPattern}, urlParams=`, urlParams);
 
-  return (
-          <Box className="taAppRouterPageEngine">
+    return (
+        <Box className="taAppRouterPageEngine">
             {!!matchedPage.headerWidget && (
-                    <PageEngineRenderWidget
-                            cmsWidgetReference={matchedPage.headerWidget}
-                            urlParams={urlParams}
-                    />
+                <PageEngineRenderWidget
+                    cmsWidgetReference={matchedPage.headerWidget}
+                    urlParams={urlParams}
+                />
             )}
 
             {matchedPage.contentZone.map((cmsWidgetReference) => {
-              return (
-                      <PageEngineRenderWidget
-                              key={cmsWidgetReference.name}
-                              cmsWidgetReference={cmsWidgetReference}
-                              urlParams={urlParams}
-                              customHelperComponent={props.customHelperComponent}
-                      />
-              );
+                return (
+                    <PageEngineRenderWidget
+                        key={cmsWidgetReference.name}
+                        cmsWidgetReference={cmsWidgetReference}
+                        urlParams={urlParams}
+                        customHelperComponent={props.customHelperComponent}
+                    />
+                );
             })}
-          </Box>
-  );
+        </Box>
+    );
 });
 ```
 
@@ -400,59 +391,59 @@ export const AppRouterPageEngine: FC<PageEngineProps> = memo(async (props) => {
 `portal/src/app-router-page-engine/PageEngineRenderWidget.tsx`
 
 ```tsx
-import { FC, memo, ReactNode } from "react";
-import { CmsWidgetReference } from "@/app-router-page-engine/PageEngine.model";
-import { PAGE_ENGINE_REGISTER } from "@/app-router-page-engine/PageEngineRegister";
-import { AlertError } from "@/components/AlertError";
+import {FC, memo, ReactNode} from "react";
+import {CmsWidgetReference} from "@/app-router-page-engine/PageEngine.model";
+import {PAGE_ENGINE_REGISTER} from "@/app-router-page-engine/PageEngineRegister";
+import {AlertError} from "@/components/AlertError";
 import SkipNotFoundErrorBoundary from "@/components/SkipNotFoundErrorBoundary";
 
 interface PageEngineRenderWidgetProps {
-  cmsWidgetReference: CmsWidgetReference;
-  urlParams?: Record<string, string>;
+    cmsWidgetReference: CmsWidgetReference;
+    urlParams?: Record<string, string>;
 
-  customHelperComponent?: ReactNode;
+    customHelperComponent?: ReactNode;
 }
 
 export const PageEngineRenderWidget: FC<PageEngineRenderWidgetProps> = memo(async (props) => {
-  const widgetData = props.cmsWidgetReference.widget[0];
-  const Widget = PAGE_ENGINE_REGISTER.get(widgetData.__component);
-  if (!Widget) {
-    return (
-      <div className="taPageRendererWidget">
-        <AlertError message={`Widget not found: ${widgetData.__component}`} />
-      </div>
-    );
-  }
-
-  for (const key in widgetData) {
-    const anyWidgetValue: unknown | CmsWidgetReference = widgetData[key];
-    if ((anyWidgetValue as CmsWidgetReference).widget) {
-      //means inner widget
-      widgetData[key] = (
-        <PageEngineRenderWidget cmsWidgetReference={anyWidgetValue as CmsWidgetReference} />
-      );
+    const widgetData = props.cmsWidgetReference.widget[0];
+    const Widget = PAGE_ENGINE_REGISTER.get(widgetData.__component);
+    if (!Widget) {
+        return (
+            <div className="taPageRendererWidget">
+                <AlertError message={`Widget not found: ${widgetData.__component}`}/>
+            </div>
+        );
     }
-  }
 
-  const widgetProps = {
-    ...widgetData,
-    ...props.urlParams,
-    customHelperComponent: props.customHelperComponent
-  };
-
-  return (
-    <div className="taPageRendererWidget">
-      <SkipNotFoundErrorBoundary
-        fallback={
-          <AlertError
-            message={`Failed to load widget with name "${props.cmsWidgetReference.name}"`}
-          />
+    for (const key in widgetData) {
+        const anyWidgetValue: unknown | CmsWidgetReference = widgetData[key];
+        if ((anyWidgetValue as CmsWidgetReference).widget) {
+            //means inner widget
+            widgetData[key] = (
+                <PageEngineRenderWidget cmsWidgetReference={anyWidgetValue as CmsWidgetReference}/>
+            );
         }
-      >
-        <Widget key={props.cmsWidgetReference.name} {...widgetProps} />
-      </SkipNotFoundErrorBoundary>
-    </div>
-  );
+    }
+
+    const widgetProps = {
+        ...widgetData,
+        ...props.urlParams,
+        customHelperComponent: props.customHelperComponent
+    };
+
+    return (
+        <div className="taPageRendererWidget">
+            <SkipNotFoundErrorBoundary
+                fallback={
+                    <AlertError
+                        message={`Failed to load widget with name "${props.cmsWidgetReference.name}"`}
+                    />
+                }
+            >
+                <Widget key={props.cmsWidgetReference.name} {...widgetProps} />
+            </SkipNotFoundErrorBoundary>
+        </div>
+    );
 });
 
 PageEngineRenderWidget.displayName = "PageEngineRenderWidget";
