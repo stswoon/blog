@@ -227,7 +227,7 @@ const nextConfig = {
 - В продакшен-версию включаются только используемые npm модули
 - Используется next plugin внутри node что оказывает более экономно нежели запуска некст напрямую
 
-## Page Renderer
+## Механизм Page Renderer (app-router-page-engine) в Widget Portal
 
 ```plantuml
 @startuml
@@ -300,20 +300,45 @@ User <-- Portal: HTML, CSS, JS
 @enduml
 ```
 
+//TODO опиши диаграмму
+
 ### регистрация
 
-### динамическая страница
+Регистрация виджетов осуществляется через класс `PageEngineRegister`, который представляет собой реестр компонентов:
 
-`portal/src/app/portal/[[...paths]]/page.tsx`
+- Класс хранит Map с соответствием имени компонента ( widgets.header-widget ) и React-компонента
+- Метод register(name, widget) добавляет компонент в реестр
+- Метод get(name) возвращает компонент по имени
+- Синглтон PAGE_ENGINE_REGISTER экспортируется для использования во всем приложении
 
-но можно и статику см /about - `portal/src/app/portal/about/page.tsx`
+Регистрация всех доступных виджетов происходит в функции `registerPageRenderWidgets()`, которая вызывается при
+инициализации динамических страниц:
+
+```tsx
+PAGE_ENGINE_REGISTER.register("widgets.header-widget", Header);
+```
+
+Для оптимизации размера бандла часть виджетов регистрируется с использованием динамического импорта:
+
+```tsx
+PAGE_ENGINE_REGISTER.register(
+    "widgets.product-list",
+    dynamic(() => import("@/widgets/ProductList").then((m) => m.ProductList))
+);
+```
+
+## Динамическая страница
+
+Динамические страницы реализованы через механизм Next.js с использованием catch-all параметров `[[...paths]]`:
+
+Файл `portal/src/app/portal/[[...paths]]/page.tsx` обрабатывает все динамические маршруты
 
 ```
 export const revalidate = 120; //cannot assign constant from other file
 export const dynamicParams = true; // or false, to 404 on unknown paths
 export const generateStaticParams = async () => []; // to spic generate pages for all paths, generate only by demand
 
-registerPageRenderWidgets();
+registerPageRenderWidgets(); // ерегистрация всех виджетов
 
 interface DynamicPortalPageProps {
   params: Promise<{ paths: string[] | undefined }>;
@@ -322,8 +347,7 @@ interface DynamicPortalPageProps {
 const DynamicPortalPage: FC<DynamicPortalPageProps> = async ({ params }) => {
   const { paths } = await params;
   const path = "/" + (paths ?? []).join("/");
-  console.log(`DynamicPortalPage::path=${path}`);
-  ROUTE_REGISTER_SERVICE.register(urlJoin(LINKS.portal, path));
+  ROUTE_REGISTER_SERVICE.register(urlJoin(LINKS.portal, path)); // для возможности сброса кеша
   return (
     <main className="taDynamicPortalPage">
       <AppRouterPageEngine path={path} customHelperComponent={<Discount />} />
@@ -332,35 +356,41 @@ const DynamicPortalPage: FC<DynamicPortalPageProps> = async ({ params }) => {
 };
 
 export default DynamicPortalPage;
-
 ```
+
+- `customHelperComponent` - проверка возможность глобально прокидывать объекты в SSG, аналог React Context
+- также можно использовать и обычные статичные пейджи, например роут `/about` - `portal/src/app/portal/about/page.tsx`
+- динамическая страницу лежит под отдельной папкой `portal/[[...paths]]`, если положить ее в корень она перезватывает
+  все запросы, в том числе и статичные страницы, апи-роуты и даже системные типа `.well-known/` (в Page Router такой
+  проблемы не было, возможно баг нового роутера)
 
 ### cms an urlmathc
 
-`portal/src/app/portal/about/page.tsx`
+Основной компонент AppRouterPageEngine выполняет следующие действия:
+
+1. Получает данные страниц из CMS с использованием токена авторизации
+2. Использует функцию matchPage для поиска подходящей страницы и извлечения URL-параметров
+3. Если страница не найдена, вызывает `notFound()` для отображения 404
+4. Рендерит виджеты из `headerWidget` и `contentZone` найденной страницы
+
+Функция `matchPage` в `pageRender.util.ts` использует библиотеку `path-to-regexp` для сопоставления URL-шаблонов:
+
+- Поддерживает параметризованные URL вида `/product/:id`
+- Возвращает найденную страницу и извлеченные параметры
+- Обрабатывает конфликты маршрутов, предпочитая статические пути динамическим
 
 ```tsx
-
 export const AppRouterPageEngine: FC<PageEngineProps> = memo(async (props) => {
-    console.log(`AppRouterPageEngine::path=${props.path}`);
-
     const cmsToken = CMS_TOKEN;
-    console.log(`AppRouterPageEngine::cmsToken=${cmsToken}`);
-
     const cmsPageResponse: CmsPageResponse = await fetch(ROUTES.cmsPages, {
         method: "GET",
         headers: {Authorization: `Bearer ${cmsToken}`}
     }).then((res) => res.json());
 
-    //here should be CmsAdapter pattern to converter Strapi CMS model or other CMS model
-    //into standard PageEngine model but it is skipped because it is only PoC.
-
     const [matchedPage, urlParams] = matchPage(props.path, cmsPageResponse.data);
     if (!matchedPage) {
         notFound();
     }
-
-    console.log(`AppRouterPageEngine::found page=${matchedPage.urlPattern}, urlParams=`, urlParams);
 
     return (
         <Box className="taAppRouterPageEngine">
@@ -386,21 +416,23 @@ export const AppRouterPageEngine: FC<PageEngineProps> = memo(async (props) => {
 });
 ```
 
-### виджет в виджете
+### W-in-W (виджет в виджете)
 
-`portal/src/app-router-page-engine/PageEngineRenderWidget.tsx`
+Компонент `PageEngineRenderWidget` (`portal/src/app-router-page-engine/PageEngineRenderWidget.tsx`) отвечает за
+рендеринг отдельных виджетов:
+
+1. Получает данные виджета из CMS-ссылки
+2. Находит соответствующий React-компонент через `PAGE_ENGINE_REGISTER.get()`
+3. Рекурсивно обрабатывает вложенные виджеты, заменяя их на компоненты `PageEngineRenderWidget`
+4. Объединяет свойства виджета с URL-параметрами и дополнительными компонентами
+5. Оборачивает виджет в `SkipNotFoundErrorBoundary` для обработки ошибок
+
+Это позволяет создавать сложные композиции виджетов, где один виджет может содержать другие виджеты.
 
 ```tsx
-import {FC, memo, ReactNode} from "react";
-import {CmsWidgetReference} from "@/app-router-page-engine/PageEngine.model";
-import {PAGE_ENGINE_REGISTER} from "@/app-router-page-engine/PageEngineRegister";
-import {AlertError} from "@/components/AlertError";
-import SkipNotFoundErrorBoundary from "@/components/SkipNotFoundErrorBoundary";
-
 interface PageEngineRenderWidgetProps {
     cmsWidgetReference: CmsWidgetReference;
     urlParams?: Record<string, string>;
-
     customHelperComponent?: ReactNode;
 }
 
@@ -445,45 +477,79 @@ export const PageEngineRenderWidget: FC<PageEngineRenderWidgetProps> = memo(asyn
         </div>
     );
 });
-
-PageEngineRenderWidget.displayName = "PageEngineRenderWidget";
-
 ```
 
-### смс и урл параметры
+### URL параметры и макросы
 
-### not found
+URL параметры достаются из урла через  `path-to-regexp`. Далее эти параметры и склеиваются с параметрами из CMS с
+большим приоритетом и отдаются внутрь виджета. Если имя параметра в виджете совпало, то он заберёт значение из урла.
+Можно сделать чуть более умное решение и смотреть какой макрос прости виджет и забирать из урлов только нужные
+параметры. Решение понятное и просто поэтому пропущено в данном прототипе.
 
-Работает тольк не перхватить ошибку
+```tsx
+export const AppRouterPageEngine: FC<PageEngineProps> = memo(async (props) => {
+    //...
+    const [matchedPage, urlParams] = matchPage(props.path, cmsPageResponse.data);
+    //...
+    return (
+        <Box className="taAppRouterPageEngine">
+            {/*...*/}
+            <PageEngineRenderWidget
+                key={cmsWidgetReference.name}
+                cmsWidgetReference={cmsWidgetReference}
+                urlParams={urlParams}
+            />
+        </Box>
+    );
+});
+
+export const PageEngineRenderWidget: FC<PageEngineRenderWidgetProps> = memo(async (props) => {
+    const widgetData = props.cmsWidgetReference.widget[0]; // cms params
+    //...
+    const widgetProps = {...widgetData, ...props.urlParams};
+    //...
+    return (
+        <div className="taPageRendererWidget">
+            {/*...*/}
+            <Widget key={props.cmsWidgetReference.name} {...widgetProps} />
+        </div>
+    );
+});
+```
+
+### Обработка ошибок + Not Found
+
+Компонент `SkipNotFoundErrorBoundary` обрабатывает ошибки рендеринга виджетов:
+
+- Перехватывает ошибки через `getDerivedStateFromError`
+- Игнорирует ошибки 404 (`NEXT_HTTP_ERROR_FALLBACK;404`), позволяя продолжить рендеринг, чтобы NextJs смог отработать
+  404 через свой механизм
+- Для других ошибок отображает fallback-компонент (для прототипа используется простенький `AlertError`)
 
 ```tsx
 export default class SkipNotFoundErrorBoundary extends Component<Props, State> {
     //...
-
     static getDerivedStateFromError(error: Error) {
         if (error?.message === "NEXT_HTTP_ERROR_FALLBACK;404") {
             return {hasError: false};
         }
         return {hasError: true};
     }
-
-    //...
 }
 ```
 
 ### SSG
 
-из минусов нелья выбрать тип кеша но по мне так лучше всегда SSG ведь не смысла перегенериться описание продукта лучше
-его закешировать и не тратить CPU
+Портал использует статическую генерацию страниц с инкрементальной регенерацией:
+
+- Параметр revalidate = 120 указывает время жизни кеша (2 минуты), для прода можно сделать и больше, например 1 час
+- Статические страницы (например, /about ) используют export const dynamic = "force-static"
+- Для динамических страниц используется generateStaticParams = async () => [] , что означает генерацию только по запросу
+  Этот подход оптимизирует производительность, кешируя страницы и снижая нагрузку на сервер.
+
+Из минусов нельзя выбрать тип кеша, но по мне так лучше всегда SSG ведь не смысла перегенерится описание продукта при
+каждом запросе - лучше его закешировать и не тратить попусту сервеный CPU
 
 ![img_2.png](img_2.png)
-
-
-
-
-
-
-
-
 
 
