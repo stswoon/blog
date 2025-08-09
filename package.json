@@ -5,7 +5,7 @@
   "scripts": {
     "build:prod": "node blogengine.mjs --open=false && npm run test",
     "build": "node blogengine.mjs",
-    "serve": "node --watch-path=./src blogengine.mjs --open=false",
+    "serve": "node --watch-path=./src blogengine.mjs --open=true",
     "test": "jasmine"
   },
   "dependencies": {
