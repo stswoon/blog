@@ -243,76 +243,7 @@ const nextConfig = {
 
 ### Архитектура
 
-```plantuml
-@startuml
-autonumber
-skinparam responseMessageBelowArrow true
-actor User
-participant Portal
-participant DynamicPortalPage
-participant AppRouterPageEngine
-participant CMS_Strapi
-participant PageEngineRenderWidget
-participant PAGE_ENGINE
-
-
-User -> Portal: /portal
-
-== Register widgets ==
-
-Portal -> DynamicPortalPage: render SSG, cache and display
-DynamicPortalPage -> PAGE_ENGINE: register page render widgets
-note over DynamicPortalPage
-PAGE_ENGINE.register("widgets.splitter", Splitter);
-PAGE_ENGINE.register("widgets.product-list",
-    dynamic(()=>import("@/widgets/ProductList")
-    .then(m=>m.ProductList)));
-end note
-DynamicPortalPage <-- PAGE_ENGINE
-
-== Render page ==
-
-    DynamicPortalPage -> AppRouterPageEngine++: render
-    AppRouterPageEngine -> CMS_Strapi: /api/pages?pLevel
-    AppRouterPageEngine <-- CMS_Strapi: StrapiCmsPage[]
-    AppRouterPageEngine -> AppRouterPageEngine: use adapter to convert raw StrapiCmsPage\nto some standard CmsPage.\n(Skipped in this prototype)
-    AppRouterPageEngine -> AppRouterPageEngine: match StrapiCmsPage by urlPattern
-    AppRouterPageEngine -> AppRouterPageEngine++: get widgets from page content zone
-    
-== Render random widget ==
-        
-    AppRouterPageEngine -> PageEngineRenderWidget++: render
-    note over AppRouterPageEngine
-    <PageEngineRenderWidget
-        key={strapiCmsPage.contentZone[i].widgetReference.name}
-        cmsWidgetReference={strapiCmsPage.contentZone[i].widgetReference}
-        urlParams={matchPage(props.path, StrapiCmsPage.urlPattern)}
-    />
-    end note
-    
-        PageEngineRenderWidget -> PAGE_ENGINE: get widget by name
-        note over PageEngineRenderWidget
-        Widget = PAGE_ENGINE.get(cmsWidgetReference.__component)
-        end note
-        PageEngineRenderWidget <-- PAGE_ENGINE: ReactComponent
-        PageEngineRenderWidget -> ReactComponent**: render
-        note over PageEngineRenderWidget
-        const widgetProps = {...cmsWidgetProps, ...urlParams};
-        return (<Widget {...widgetProps} />)
-        end note
-        PageEngineRenderWidget <-- ReactComponent
-      
-    AppRouterPageEngine <-- PageEngineRenderWidget--
-    
-    AppRouterPageEngine--
-    DynamicPortalPage <-- AppRouterPageEngine--
-    
-Portal <-- DynamicPortalPage: SSG
-
-User <-- Portal: HTML, CSS, JS
-
-@enduml
-```
+![arch.png](arch.png)
 
 Диаграмма последовательности наглядно демонстрирует процесс работы механизма app-router-page-engine в портале. Разберем
 ее по шагам:
