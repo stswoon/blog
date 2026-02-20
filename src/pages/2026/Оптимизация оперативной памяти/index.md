@@ -22,10 +22,8 @@
 
 - Мессенджеры (Telegram, Slack, Discord)
 - Облака (OneDrive, Google Drive)
-- Лишние вкладки Chrome
+- Лишние вкладки Chrome (👉 Chrome с 20 вкладками легко «съедает» 2–4 ГБ.)
 - Фоновые лаунчеры (Steam, Epic и т.д.)
-
-👉 Chrome с 20 вкладками легко «съедает» 2–4 ГБ.
 
 ### 2. Удалить ненужные программы
 
@@ -93,7 +91,7 @@ Mem Reduct — утилита для очистки RAM. Иногда позво
 ### 11. Ограничить потребление памяти
 
 - Найти IntelliJ IDEA параметры по пути `C:\Program Files\JetBrains\jetbra\vmoptions` и сохранить `-Xms512m -Xmx2g`
-- VS Code запускать с флагом `--disable-gpu` 
+- VS Code запускать с флагом `--disable-gpu`
 - Ограничить память Docker `--memory 2g`
 - Для Node.js `NODE_OPTIONS=--max-old-space-size=4096`
 
