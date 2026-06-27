@@ -7,8 +7,7 @@
 
 ## Plan
 
-TODO
-
+TODO:
 1. [ ] groups
 2. [ ] mobile view
 3. [ ] cache css/js
