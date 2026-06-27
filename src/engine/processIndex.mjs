@@ -58,6 +58,10 @@ function copyStaticAssets() {
         path.join(buildDirName, "assets"),
         {recursive: true}
     );
+    fs.copyFileSync(
+        path.join(srcDirName, "templates/assets/favicon.svg"),
+        path.join(buildDirName, "favicon.svg")
+    );
 }
 
 function generateAllShortHtml(sortedPages) {
