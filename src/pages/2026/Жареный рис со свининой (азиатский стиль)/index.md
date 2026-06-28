@@ -1,6 +1,6 @@
 <!--
 {
-  "draft": true,
+  "draft": false,
   "tags": ["Другое"]
 }
 -->
