@@ -14,9 +14,13 @@
 Описание статьи, желательно на 3-4 строчки, которое попадет на главную страницу. Стоит избегать Хедеров, ссылок и других
 декораций текста. Также первая картинка в этой статься будет использована как иконка для статьи на главной странице.
 
+Пример с видео
+
 <div style="display: flex; justify-content: center; gap: 30px;">
 <iframe width="700" height="420" src="https://www.youtube.com/embed/jeTP2kZR4ms" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 </div>
+
+Пример со сложным расположением картинок
 
 <div style="display: flex; justify-content: center; gap: 30px; height: 500px;">
 
@@ -24,6 +28,12 @@
 ![img_4.png](img_4.png)
 
 </div>
+
+Пример со ссылкой на статью - [Собственный Heroku](../СобственныйHeroku/index.html).
+
+
+
+
 
 
 
