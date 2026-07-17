@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=0.6"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>{@blogEngine:index.meta.title}</title>
     <meta name="description" content="{@blogEngine:index.meta.description}"/>
 
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"/>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&display=swap" rel="stylesheet"/>
+
     <link rel="stylesheet" href="./reset.css"/>
     <link rel="stylesheet" href="./style.css"/>
     <link rel="stylesheet" href="./highlight-default.min.css"/>
-
-    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
 
     <!--<script src="./highlight.min.js" defer></script>-->
     <script src="./main.js" defer></script>
@@ -27,19 +29,19 @@
 <div class="layout">
     <div class="content">
         <div class="header-background">
-            <img src="assets/background-original.jpg" class="header-background_image"/>
+            <img src="assets/background-original.jpg" alt="" class="header-background_image"/>
         </div>
 
         <div class="header-title">
-            <span class="menuButton" onclick="toggleMenu()">☰</span>
+            <span class="menuButton" onclick="toggleMenu()" aria-label="Меню">☰</span>
             <span>My <s>Class</s> Blog</span>
         </div>
 
         <div class="header-subtitle">{@blogEngine:index.meta.description}</div>
 
         <div class="search">
-            <input type="text" class="search-input" id="search-input"
-                   placeholder="Введите для поиска по статьям..."
+            <input type="search" class="search-input" id="search-input"
+                   placeholder="Поиск по статьям..."
                    onkeyup="blogEngineSearch(this.value)">
         </div>
 
