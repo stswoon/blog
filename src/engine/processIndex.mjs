@@ -12,11 +12,9 @@ export function readVersion() {
 
 export function readBlogMeta() {
     const meta = JSON.parse(readFileSync(srcDirName, "pages/meta.json"));
-    const brandedName = `${meta.title} (${BLOG.version})`;
-    BLOG.index.meta.title = brandedName;
-    BLOG.index.meta.description = meta.description.startsWith(`${meta.title}:`)
-        ? `${brandedName}${meta.description.slice(meta.title.length)}`
-        : `${brandedName}: ${meta.description}`;
+    BLOG.index.meta.title = meta.title;
+    const titleWithVersion = `${meta.title} (v.${BLOG.version})`;
+    BLOG.index.meta.description = meta.description.replace(`${meta.title}:`, titleWithVersion)
     BLOG.ad.AD_AFTER_EVERY_N_PAPER = meta.AD_AFTER_EVERY_N_PAPER;
     BLOG.ad.yandexAd.blockId = meta.yandexAd.blockId;
     BLOG.ad.yandexAd.renderTo = meta.yandexAd.renderTo;
