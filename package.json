@@ -1,6 +1,6 @@
 {
   "name": "myblog",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "scripts": {
     "prepare": "node -e \"try{require('child_process').execSync('git rev-parse --git-dir',{stdio:'ignore'});require('child_process').execSync('git config core.hooksPath .githooks',{stdio:'inherit'})}catch(e){}\"",
