@@ -12,7 +12,6 @@ TODO:
 2. [ ] mobile view
 3. [ ] cache css/js
 4. [ ] typescript
-5. [ ] improve styling
 6. [ ] links open in new page
 7. [ ] meta-tags in messengers
 8. [ ] vite, ssr, mui
