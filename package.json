@@ -1,8 +1,9 @@
 {
   "name": "myblog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
     "build:prod": "node blogengine.mjs --open=false && npm run test",
     "build": "node blogengine.mjs",
     "serve": "node --watch-path=./src blogengine.mjs --open=true",

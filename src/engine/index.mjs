@@ -3,7 +3,7 @@ import path from "path";
 import minimist from "minimist";
 import {buildDirName} from "./constants.mjs";
 import {generatePages} from "./processPages.mjs";
-import {generateIndex, readBlogMeta} from "./processIndex.mjs";
+import {generateIndex, readBlogMeta, readVersion} from "./processIndex.mjs";
 import {generateFooter} from "./processFooter.mjs";
 import {generateAd, generateMetrica} from "./processAd.mjs";
 import {styleText} from "node:util";
@@ -18,6 +18,7 @@ export const runBlogEngine = async () => {
 
         clearAndCreateBuildDir();
 
+        readVersion();
         readBlogMeta();
         generateFooter();
         generateAd();

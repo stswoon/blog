@@ -5,6 +5,11 @@ import {srcDirName, nodeModulesDirName, buildDirName} from "./constants.mjs";
 import {parseRussianDate, readFileSync, resolveMacrosAuto, writeFileSync} from "./utils.mjs";
 import {md} from "./initMdEngine.mjs";
 
+export function readVersion() {
+    const pkg = JSON.parse(readFileSync(srcDirName, "..", "package.json"));
+    BLOG.version = pkg.version;
+}
+
 export function readBlogMeta() {
     const meta = JSON.parse(readFileSync(srcDirName, "pages/meta.json"));
     BLOG.index.meta.title = meta.title;

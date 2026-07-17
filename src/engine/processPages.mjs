@@ -4,7 +4,15 @@ import {styleText} from 'node:util';
 import {md} from "./initMdEngine.mjs";
 import {buildDirName, srcDirName} from "./constants.mjs";
 import {BLOG} from "./globals.mjs";
-import {readFile, readFileSync, removeTags, resolveMacrosAuto, writeFile} from "./utils.mjs";
+import {
+    appendVersionToHtmlImages,
+    appendVersionToStaticUrl,
+    readFile,
+    readFileSync,
+    removeTags,
+    resolveMacrosAuto,
+    writeFile
+} from "./utils.mjs";
 import fsp from "node:fs/promises";
 import {JSDOM} from "jsdom";
 
@@ -127,15 +135,16 @@ function fillSearchData(page) {
 
 function fillHtml(page, pageTemplateHtml) {
     const pageData = removeComments(page.raw.data);
-    const pageContentHtml = md.render(pageData);
-    // console.debug("pageContentHtml:",  pageContentHtml);
+    const pageContentHtmlRaw = md.render(pageData);
 
-    const jsDom = new JSDOM("<!DOCTYPE html>" + pageContentHtml);
+    const jsDom = new JSDOM("<!DOCTYPE html>" + pageContentHtmlRaw);
     const jsDomDocument = jsDom.window.document;
     page.meta.title = jsDomDocument.querySelector('h1').innerHTML;
     page.meta.description = removeTags(jsDomDocument.querySelectorAll('p')?.[0].innerHTML);
     page.meta.firstImageSrc = getSafeImgLink(jsDomDocument.querySelector('img')?.src, page.link);
     page.meta.date = jsDomDocument.querySelector('.language-blogEnginePageDate')?.innerHTML;
+
+    const pageContentHtml = appendVersionToHtmlImages(pageContentHtmlRaw, BLOG.version);
 
     page.pageHtml = resolveMacrosAuto(pageTemplateHtml, {
         ...BLOG,
@@ -145,8 +154,8 @@ function fillHtml(page, pageTemplateHtml) {
 
 function getSafeImgLink(imgSrc, pageLink) {
     if (!imgSrc) {
-        return "./assets/fallbackBlogImg.png";
+        return appendVersionToStaticUrl("./assets/fallbackBlogImg.png", BLOG.version);
     }
     const baseLink = pageLink.substring(0, pageLink.lastIndexOf("/"));
-    return `${baseLink}/${imgSrc}`;
+    return appendVersionToStaticUrl(`${baseLink}/${imgSrc}`, BLOG.version);
 }

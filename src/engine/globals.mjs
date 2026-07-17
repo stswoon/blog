@@ -21,6 +21,8 @@ PageType = {
 }
 */
 export const BLOG = {
+    version: undefined,
+
     index: {
         meta: {
             title: undefined,

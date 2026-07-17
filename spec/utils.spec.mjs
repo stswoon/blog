@@ -1,4 +1,4 @@
-import {resolveMacrosAuto} from "../src/engine/utils.mjs";
+import {appendVersionToStaticUrl, resolveMacrosAuto} from "../src/engine/utils.mjs";
 
 describe("resolveMacrosAuto", () => {
     const context = {
@@ -12,4 +12,14 @@ describe("resolveMacrosAuto", () => {
         const ar = resolveMacrosAuto(text, context);
         expect(ar).toBe(er);
     })
+});
+
+describe("appendVersionToStaticUrl", () => {
+    it("appends version query param to local assets", () => {
+        expect(appendVersionToStaticUrl("./style.css", "1.0.3")).toBe("./style.css?v=1.0.3");
+    });
+
+    it("keeps external urls unchanged", () => {
+        expect(appendVersionToStaticUrl("https://example.com/a.png", "1.0.3")).toBe("https://example.com/a.png");
+    });
 });

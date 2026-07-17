@@ -82,3 +82,17 @@ export function parseRussianDate(pageTitle, dateStr) {
 export function removeTags(str) {
     return str.replace(/<[^>]*>/g, '');
 }
+
+export function appendVersionToStaticUrl(url, version) {
+    if (!url || !version || url.startsWith("http://") || url.startsWith("https://") || url.startsWith("//")) {
+        return url;
+    }
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}v=${version}`;
+}
+
+export function appendVersionToHtmlImages(html, version) {
+    return html.replace(/(<img[^>]+src=["'])([^"']+)(["'])/gi, (match, prefix, src, suffix) => {
+        return `${prefix}${appendVersionToStaticUrl(src, version)}${suffix}`;
+    });
+}
