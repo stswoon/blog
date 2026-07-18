@@ -11,23 +11,22 @@
 20 июля 2026
 ```
 
-Для кейса когда нужно не просто замокировать класс, а сделать это для всего микросервиса, а еще и чтобы его депенды -
-база, кафка, другой сервис были максимально настоящими есть вариант поднять сервис и его депенды в докере, например
-через docker-compose. Но есть решение еще лучше TestContainers.
+Иногда мока одного класса недостаточно: нужно проверить микросервис целиком, а вместе с ним — реальные зависимости:
+базу, Kafka, другой сервис. Один из вариантов — поднять всё через `docker-compose`. Но для тестов удобнее
+[Testcontainers](https://www.testcontainers.org): библиотека поднимает одноразовые Docker-контейнеры прямо из кода
+теста и удаляет их после завершения.
 
-TestContainers (https://www.testcontainers.org) позволяет Unit tests with real dependencies
-Testcontainers is an open source library for providing throwaway, lightweight instances of databases, message brokers,
-web browsers, or just about anything that can run in a Docker container.
-How it works
-Test dependencies as code
-No more need for mocks or complicated environment configurations. Define your test dependencies as code, then simply run
-your tests and containers will be created and then deleted.
-With support for many languages and testing frameworks, all you need is Docker.
+![img.png](img.png)
 
-Давайте попробуем поднять Kafka в TestContainers.
+Идея простая: зависимости описываются как код, а не как отдельная инфраструктура. Нужен только Docker на машине
+разработчика или в CI. Поддерживаются Java, Kotlin, Go, .NET и другие языки.
 
-1) Укажем депенды - junit, логгер, kafka-clients (для подписки на топик) и testcontainers-kafka (движок кафки,
-   упакованный в докер и обязанный testcontainers утилитками)
+В этой заметке — минимальный пример: поднимаем Kafka в контейнере, отправляем сообщение и читаем его обратно.
+
+## Зависимости
+
+Понадобятся JUnit, Log4j (Testcontainers пишет в SLF4J, без биндинга в логах будут предупреждения),
+`testcontainers-kafka` и `kafka-clients` для producer/consumer:
 
 ```java
 dependencies {
@@ -42,89 +41,97 @@ dependencies {
 }
 ```
 
-2) Создадим тест
+## Тест целиком
+
+Контейнер Kafka живёт внутри `try-with-resources`: после теста он останавливается автоматически. Образ
+`apache/kafka-native` стартует быстрее классического JVM-образа.
 
 ```java
+import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.junit.Test;
+import org.rnorth.ducttape.unreliables.Unreliables;
+import org.testcontainers.kafka.KafkaContainer;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
+
 public class KafkaTest {
+
     @Test
     public void testSimplePutAndGet() throws ExecutionException, InterruptedException {
-        //...
+        try (KafkaContainer kafka = new KafkaContainer("apache/kafka-native:4.0.0")) {
+            kafka.start();
+            String bootstrapServers = kafka.getBootstrapServers();
+
+            KafkaProducer<String, String> producer = new KafkaProducer<>(
+                    Map.of(
+                            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                            ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()
+                    ),
+                    new StringSerializer(),
+                    new StringSerializer()
+            );
+
+            KafkaConsumer<String, String> consumer = new KafkaConsumer<>(
+                    Map.of(
+                            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                            ConsumerConfig.GROUP_ID_CONFIG, "tc-" + UUID.randomUUID(),
+                            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
+                    ),
+                    new StringDeserializer(),
+                    new StringDeserializer()
+            );
+
+            String topicName = "messages";
+            consumer.subscribe(List.of(topicName));
+
+            producer.send(new ProducerRecord<>(topicName, "testcontainers", "rulezzz")).get();
+
+            Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                if (records.isEmpty()) {
+                    return false;
+                }
+
+                ConsumerRecord<String, String> record = records.iterator().next();
+                assertEquals("rulezzz", record.value());
+                return true;
+            });
+
+            consumer.unsubscribe();
+        }
     }
 }
 ```
 
-3) Запустим Кафку
+## Что происходит по шагам
 
-```
-import org.testcontainers.kafka.KafkaContainer;
-//...
-try (KafkaContainer kafka = new KafkaContainer("apache/kafka-native:4.0.0")) {
-        kafka.start();
-        String bootstrapServers = kafka.getBootstrapServers();
-        //..
-}
-```
+**1. Запуск Kafka.** `KafkaContainer` скачивает образ (при первом запуске), поднимает брокер и отдаёт
+`bootstrapServers` — адрес, который нужен producer и consumer.
 
-4) Создадим Producer и Consumer
+**2. Producer и Consumer.** Конфигурация минимальная: bootstrap-серверы, случайный `client.id` и `group.id`
+(чтобы параллельные тесты не мешали друг другу), `auto.offset.reset=earliest` — читаем с начала топика.
 
-```java
-KafkaProducer<String, String> producer = new KafkaProducer<>(
-        Map.of(
-                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
-                ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()
-        ),
-        new StringSerializer(),
-        new StringSerializer()
-);
-```
+**3. Отправка и чтение.** Подписываемся на топик `messages`, синхронно отправляем запись
+(`producer.send(...).get()`), затем ждём сообщение в цикле.
 
-```java
-KafkaConsumer<String, String> consumer = new KafkaConsumer<>(
-        Map.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
-                ConsumerConfig.GROUP_ID_CONFIG, "tc-" + UUID.randomUUID(),
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
-        ),
-        new StringDeserializer(),
-        new StringDeserializer()
-);
-```
+**4. Ожидание с `Unreliables`.** Kafka — асинхронная система: сообщение может прийти не с первого `poll`.
+`Unreliables.retryUntilTrue` из Testcontainers повторяет проверку до 10 секунд. Как только находим `"rulezzz"` —
+выходим из цикла.
 
-5) Подпишемся на топик
-
-```
-String topicName = "messages";
-consumer.subscribe(List.of(topicName));
-```
-
-6) Отправим Event
-
-```
-producer.send(new ProducerRecord<>(topicName, "testcontainers", "rulezzz")).get();
-```
-
-7) Начнем полить ивенты из кафки и сверять нашли ли отправленный `rulezzz`. Т.к. мы знаем что он будет только 1 то после
-   получения ивента возвращает true и выходим из цикла.
-
-```
-Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
-    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-    if (records.isEmpty()) {
-        return false;
-    }
-
-    ConsumerRecord<String, String> record = records.iterator().next();
-    assertEquals("rulezzz", record.value());
-    return true;
-});
-```
-
-8) Не забываем отписаться
-
-```
-consumer.unsubscribe();
-```
+**5. Отписка.** `consumer.unsubscribe()` освобождает ресурсы до закрытия контейнера.
 
 ---
 
-Исходник - https://github.com/stswoon/projectForLessons/tree/master/test-containers-test
+Исходник — [projectForLessons/test-containers-test](https://github.com/stswoon/projectForLessons/tree/master/test-containers-test).
+
+Документация по модулю Kafka: [testcontainers.org/modules/kafka](https://www.testcontainers.org/modules/kafka/).
