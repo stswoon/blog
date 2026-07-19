@@ -193,7 +193,7 @@ Page
 ## Реестр компонентов
 
 Для выбора какой элемент рисовать используется реестр реализаций (что
-такое [паттерн registry](../2026/PatternRegistryAndStrategy/index.html)):
+такое [паттерн registry](../PatternRegistryAndStrategy/index.html)):
 
 ```ts
 Registry.fields["text"] = TextField;
@@ -232,8 +232,8 @@ Runtime получает строковый тип из конфигурации
 
 ```typescript
 Registry = {
-    fields: Record<string, ComponentType<FieldProps>>
-    widgets: Record<string, ComponentType<Widget>>
+    fields: Record<string, ComponentType<FieldProps>>,
+    widgets: Record<string, ComponentType<Widget>>,
     dataSources: Record<string, DatasourceService>
 }
 ```
@@ -640,7 +640,6 @@ docker run --rm -p 3200:3200 -p 3201:3201 low-code-ui
 - json-server на `:3201`.
 
 Один контейнер = полный demo-стенд.
-
 
 ## 12. Резюме
 

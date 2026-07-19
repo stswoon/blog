@@ -7,7 +7,8 @@
     "build:prod": "node blogengine.mjs --open=false && npm run test",
     "build": "node blogengine.mjs",
     "serve": "node --watch-path=./src blogengine.mjs --open=true",
-    "test": "jasmine"
+    "test": "jasmine",
+    "docs:toc": "npx doctoc ./src/pages/2026/low-code-ui/index.md",
   },
   "dependencies": {
     "markdown-it": "14.1.0",
