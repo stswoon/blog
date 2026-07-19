@@ -17,4 +17,4 @@ TODO:
 7. [ ] multi thread build
 8. [ ] translit pages url
 9. [ ] url without index.html
-10. [] https://codesandbox.io/p/sandbox/github/facebook/docusaurus/tree/main/examples/classic?privacy=public ???
+10. [ ] https://codesandbox.io/p/sandbox/github/facebook/docusaurus/tree/main/examples/classic?privacy=public ???
