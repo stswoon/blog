@@ -8,7 +8,7 @@
 # Configurable Checkout
 
 ```blogEnginePageDate
-26 июля 2026
+31 июля 2026
 ```
 
 Прототип Checkout с возможность найтройки.
