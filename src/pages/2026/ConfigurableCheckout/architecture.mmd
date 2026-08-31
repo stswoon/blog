@@ -1,0 +1,28 @@
+flowchart TB
+    subgraph Demo["Демо-приложение"]
+        CE[ConfigEditor]
+        RV[RuntimeView]
+        CS[configStore / localStorage]
+        CE -->|Apply| CS
+        CS --> RV
+    end
+
+    subgraph CheckoutModule["modules/checkout"]
+        CH[Checkout]
+        ST[CheckoutSteps]
+        CP[CheckoutProvider / CheckoutContext]
+        WR[WidgetRenderer]
+        SUB[SubmitStep]
+        CH --> ST
+        ST -->|useQuote| BE_Q[GET /api/quotes/:id]
+        ST --> CP
+        CP --> WR
+        CP --> SUB
+    end
+
+    RV --> CH
+    WR --> W1[KycWidget]
+    WR --> W2[OrderDetailsWidget]
+    WR --> W3[DeliveryWidget]
+    WR --> W4[ConsentsWidget]
+    SUB -->|POST /api/quotes/:id/submit| BE_S[Submit API]
