@@ -5,374 +5,364 @@
 }
 -->
 
-# Cursor Plugin: как упаковать skills и агентов
+# Hello World Chrome Plugin
 
 ```blogEnginePageDate
-07 сентября 2026
+06 сентября 2026
 ```
 
-В статье [Vibe Coding — простыми словами](../Vibe%20Coding%20—%20Getting%20Started/index.html) я уже
-разбирал `agents.md`, rules, skills и мультиагентов. Всё это живёт внутри одного проекта: скопировал `.cursor/` — и
-второй репозиторий ничего об этом не знает. А хочется наоборот: один раз описать команду (аналитик, lead, dev, QA) и
-вызывать её в любом репозитории через `/multiagents-orchestration`. Для этого в Cursor есть **plugin** + **marketplace**.
-Рабочий пример — https://github.com/stswoon/cursor-plugin
+Недавно делал Chrome-плагин, который сам заполняет форму **Run new pipeline** в GitLab. Пока собирал, понял что
+hello-world для расширения сейчас уже не «три файла в одной папке»: Manifest V3, popup и content script живут в разных
+мирах, а TypeScript нужно собирать в обычный JS. Ниже минимальный скелет — тот же, что в рабочем плагине, только вместо
+GitLab будет «Hello World».
+
+Полный проект, из которого вырос этот каркас: https://github.com/stswoon/gitlab-pipeline-chrome-plugin
 
 ![img.png](img.png)
 
-Плагин Cursor — это манифесты и markdown: command, skill, агенты. Никакого
-скомпилированного кода. Простыми словами: zip с промптами, который Cursor умеет ставить из GitHub или из локальной
-папки. Документация: [cursor.com/docs/plugins](https://cursor.com/docs/plugins) и
-[reference](https://cursor.com/docs/reference/plugins). Шаблон — https://github.com/cursor/plugin-template
+## Что получим
 
-## Два формата
+Два независимых куска, как в настоящем расширении:
 
-Cursor понимает два вида плагинов:
+* **popup** — маленькая HTML-страница, которая открывается по клику на иконку. Это ваш UI.
+* **content script** — JS, который Chrome сам вставляет в открытую вкладку. Он видит DOM страницы.
 
-* **Agent Plugins** — `plugin.json` в корне папки. Только skills и MCP. Открытый стандарт
-  [agent-plugins.org](https://agent-plugins.org).
-* **Cursor Plugins** — `.cursor-plugin/plugin.json`. Плюс rules, agents, commands, hooks, variables.
+В GitLab-плагине popup собирает URL и делает `chrome.tabs.update`, а content script уже на странице `/-/pipelines/new`
+ищет поля и заполняет их. Они почти не разговаривают друг с другом: каждый делает свою работу. Для hello-world оставим
+то же самое — popup скажет «привет» в своём окне, content нарисует баннер на сайте.
 
-Нам нужны **command** (точка входа `/...`) и **agents** (роли `/analyst`, `/lead`, …). Значит берём Cursor Plugin.
-
-Можно сделать один плагин в корне репозитория. Удобнее сразу маркетплейс: в корне только каталог плагинов, сами плагины
-лежат в `plugins/<имя>/`. Так сделано и в официальном template, и у меня.
-
-## Структура репозитория
+## Структура
 
 ```
-cursor-plugin/
-├── .cursor-plugin/
-│   └── marketplace.json          # каталог: какие плагины есть в этом git
-├── plugins/
-│   └── multiagents-orchestration/
-│       ├── .cursor-plugin/
-│       │   └── plugin.json       # манифест одного плагина
-│       ├── commands/
-│       │   └── multiagents-orchestration.md
-│       └── skills/
-│           └── multiagents-orchestration/
-│               ├── SKILL.md
-│               ├── multiagents.md
-│               └── agents/
-│                   ├── analyst.md
-│                   ├── lead.md
-│                   ├── dev-fe.md
-│                   └── qa.md
-└── README.md
+hello-world-chrome-plugin/
+  manifest.json
+  package.json
+  tsconfig.json
+  vite.popup.config.ts
+  vite.content.config.ts
+  src/
+    popup/
+      index.html
+      main.ts
+      popup.css
+    content/
+      index.ts
 ```
 
-Две разные папки `.cursor-plugin/` — это не опечатка:
+После `npm run build` появится папка `dist/`. В Chrome загружаем именно её, не исходники.
 
-* в **корне репозитория** — `marketplace.json` (оглавление);
-* в **папке плагина** — `plugin.json` (сам плагин).
+## package.json
 
-Если в корень положить только `plugin.json` и залить на GitHub, Cursor не поймёт это как маркетплейс. Ссылка на
-репозиторий добавляет **marketplace**, а плагин ставится отдельной кнопкой Install.
+Расширение пишем на TypeScript, собираем Vite. Зависимостей в runtime нет — только инструменты сборки.
 
-## 1. marketplace.json
-
-Файл `.cursor-plugin/marketplace.json` в корне:
-
-```json
+```
 {
-  "name": "stswoon-cursor-plugins",
-  "owner": {
-    "name": "stswoon"
+  "name": "hello-world-chrome-plugin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run typecheck && vite build --config vite.popup.config.ts && vite build --config vite.content.config.ts",
+    "typecheck": "tsc --noEmit"
   },
-  "metadata": {
-    "description": "Marketplace for the Multiagents Orchestration Cursor plugin.",
-    "version": "1.0.1"
+  "devDependencies": {
+    "@types/chrome": "^0.1.43",
+    "@types/node": "^26.4.1",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5"
+  }
+}
+```
+
+`@types/chrome` даёт типы для `chrome.tabs`, `chrome.storage` и остальных API. Сам Chrome их предоставляет в runtime,
+в `package.json` их ставить не нужно.
+
+## tsconfig.json
+
+```
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["chrome"]
   },
-  "plugins": [
+  "include": [
+    "src/**/*.ts",
+    "vite.popup.config.ts",
+    "vite.content.config.ts"
+  ]
+}
+```
+
+`noEmit: true` — TypeScript только проверяет типы, файлы в `dist` рисует Vite.
+
+## manifest.json — паспорт расширения
+
+Manifest V3. Popup вешается на `action`, content script — отдельным блоком `content_scripts`.
+
+```
+{
+  "manifest_version": 3,
+  "name": "Hello World",
+  "version": "0.1.0",
+  "description": "Hello World: popup + content script.",
+  "minimum_chrome_version": "116",
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_title": "Hello World"
+  },
+  "content_scripts": [
     {
-      "name": "multiagents-orchestration",
-      "source": "./plugins/multiagents-orchestration",
-      "description": "Orchestrate a feature through Analyst → Lead → Dev/QA → review → tests → acceptance."
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["hello-world-content.js"],
+      "run_at": "document_idle"
     }
   ]
 }
 ```
 
-Где:
+Важные мелочи:
 
-* `name` — id маркетплейса, kebab-case;
-* `owner.name` — кто выкладывает;
-* `plugins[].name` — id плагина;
-* `plugins[].source` — путь **от корня репозитория** к папке плагина.
+* `default_popup` указывает путь **как он будет лежать в `dist`**. Vite сохраняет `src/popup/index.html`, поэтому в
+  манифесте пишем именно так, а не `popup.html`.
+* В `content_scripts.js` — уже **собранный** файл. Исходник `src/content/index.ts` Chrome не умеет грузить.
+* `matches` — на каких сайтах вставлять скрипт. Для hello-world — все http/https. В бою лучше сузить, например
+  `https://gitlab.example.com/*`.
+* `run_at: document_idle` — скрипт стартует когда DOM уже готов. Для формы, которая дорисовывается React'ом, этого мало
+  (в GitLab-плагине я ещё жду появления полей), но для баннера хватает.
 
-Дальше в массив можно дописать второй плагин — тот же git, другая папка в `plugins/`.
+Манифест сам себя в `dist` не копирует. Это сделаем плагином в Vite.
 
-## 2. plugin.json
+## Popup
 
-Файл `plugins/multiagents-orchestration/.cursor-plugin/plugin.json`:
+Popup — обычная HTML-страница. Можно без React: кнопка, обработчик, готово.
 
-```json
-{
-  "name": "multiagents-orchestration",
-  "displayName": "Multiagents Orchestration",
-  "version": "1.0.1",
-  "description": "Orchestrate a feature through Analyst → Lead → Dev/QA → review → tests → acceptance. Invoke with /multiagents-orchestration.",
-  "author": {
-    "name": "stswoon"
-  },
-  "homepage": "https://github.com/stswoon/cursor-plugin",
-  "repository": "https://github.com/stswoon/cursor-plugin",
-  "keywords": [
-    "multiagents",
-    "orchestration",
-    "analyst",
-    "lead",
-    "qa",
-    "workflow",
-    "code-review"
-  ],
-  "skills": "./skills/",
-  "commands": "./commands/",
-  "agents": [
-    "./skills/multiagents-orchestration/agents/analyst.md",
-    "./skills/multiagents-orchestration/agents/lead.md",
-    "./skills/multiagents-orchestration/agents/dev-fe.md",
-    "./skills/multiagents-orchestration/agents/qa.md"
-  ]
+`src/popup/index.html`:
+
+```
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Hello World</title>
+    <link rel="stylesheet" href="./popup.css"/>
+</head>
+<body>
+    <div id="app">
+        <p id="label">Hello from popup</p>
+        <button id="btn-hello" type="button">Сказать привет</button>
+    </div>
+    <script type="module" src="./main.ts"></script>
+</body>
+</html>
+```
+
+`src/popup/popup.css`:
+
+```
+body {
+    margin: 0;
+    min-width: 220px;
+    font: 14px/1.4 system-ui, sans-serif;
+}
+#app {
+    padding: 12px;
+}
+button {
+    width: 100%;
 }
 ```
 
-Обязательное поле по доке — только `name` (kebab-case). Остальное лучше заполнить: в Customize будет человеческое
-`displayName`, а не голый id.
-
-Если пути не указать, Cursor ищет по умолчанию:
-
-| Компонент | Папка по умолчанию  |
-|-----------|---------------------|
-| skills    | `skills/*/SKILL.md` |
-| commands  | `commands/*`        |
-| agents    | `agents/*.md`       |
-| rules     | `rules/*.mdc`       |
-| hooks     | `hooks/hooks.json`  |
-| MCP       | `mcp.json`          |
-
-У меня агенты лежат **внутри skill**, а не в `agents/` в корне плагина. Поэтому в манифесте пути прописаны явно. Если
-поле `agents` задано — дефолтная папка `agents/` уже не сканируется.
-
-`skills` и `commands` можно было не писать: они и так в стандартных папках. Написал, чтобы не гадать.
-
-## 3. Command — то, что видно как `/...`
-
-Command — markdown в `commands/`. Имя файла (или `name` во frontmatter) становится командой в чате.
-
-```markdown
----
-name: multiagents-orchestration
-description: >-
-  Запускает полный цикл фичи: Analyst → Lead → параллельно Dev/QA →
-  ревью → тесты → приёмка. Use when the user types /multiagents-orchestration
-  or starts a new feature that needs analysis, design, and QA.
----
-
-# /multiagents-orchestration
-
-Ты — оркестратор команды. Прочитай skill `multiagents-orchestration` (`SKILL.md`)
-и схему `multiagents.md` в той же папке skill. Дальше веди процесс по шагам
-и не перескакивай гейты.
-```
-
-Дальше в том же файле — кто какие шаги делает, куда писать артефакты, когда **не** запускать полный цикл.
-
-Простыми словами:
-
-* **command** — кнопка «старт» для пользователя;
-* **skill** — инструкция, которую агент подхватывает и по `description`, и когда его ткнули командой;
-* **agent** — отдельная роль (`/analyst`), которую оркестратор запускает как subagent.
-
-Во frontmatter command и skill стоит писать и русские слова, и английские триггеры (`Use when the user types /...`).
-Cursor выбирает skill по `description`. Если там только «оркестрация фичи», англоязычный чат может skill не найти.
-
-## 4. Skill — правила оркестрации
-
-Каждый skill — папка со `SKILL.md`:
+`src/popup/main.ts`:
 
 ```
-skills/multiagents-orchestration/
-├── SKILL.md          # обязательно: name + description + инструкция
-├── multiagents.md    # схема процесса, агент читает по ссылке из SKILL.md
-└── agents/           # промпты ролей (у меня тут, не в корне плагина)
+function init(): void {
+    const label = document.getElementById('label') as HTMLElement;
+    const button = document.getElementById('btn-hello') as HTMLButtonElement;
+
+    button.addEventListener('click', () => {
+        label.textContent = `Hello, ${new Date().toLocaleTimeString()}`;
+    });
+}
+init();
 ```
 
-Frontmatter:
+Скрипт подключаем как `type="module"` и указываем `.ts` — Vite сам соберёт бандл. Popup живёт в своём документе: у него
+свой `document`, он **не видит** DOM вкладки. Поэтому «поменять текст на сайте» из popup напрямую нельзя. Для этого есть
+content script (или `chrome.scripting.executeScript`, но это уже другой сюжет).
 
-```markdown
----
-name: multiagents-orchestration
-description: >-
-  Оркестрация фичи через команду SA → Lead → Dev/QA → ревью → тесты → приёмка.
-  Use when the user gives a feature task, mentions multiagents,
-  /multiagents-orchestration, /multiagents, or asks to run the
-  analyst-lead-dev-qa workflow.
----
-```
+## Content script
 
-В `SKILL.md` — короткий процесс, таблица ролей, гейты. Длинная схема и mermaid — в `multiagents.md` рядом. Так в
-контекст сначала попадает compact-инструкция, а подробности агент читает сам, когда дойдёт до шага.
+Content script выполняется в контексте страницы: может читать и менять DOM. Но это не совсем «скрипт сайта» — у него
+отдельный JS-мир. `window` страницы он не делит с page-скриптами (isolated world), зато `document` общий.
 
-Артефакты пишем не в репозиторий плагина, а в **текущий проект**: `.cursor/artifacts/` (`requirements.md`, `design.md`,
-`dev-tasks.md`, `test-cases.md`, …). Плагин — только промпты. Результат работы живёт там, где открыт чат.
-
-## 5. Agents — роли команды
-
-Агент — тоже markdown с frontmatter. Минимум по доке: `name` и `description`. Можно добавить `model` и `readonly`.
-
-```markdown
----
-name: analyst
-description: >-
-  Системный аналитик. Уточняет требования, пишет design.md и requirements.md,
-  финальная приёмка sunny-day сценариев. Use via /analyst на шагах 1 и 7 workflow.
-model: inherit
-readonly: false
----
-
-Ты — **Системный аналитик (SA)** (React + TypeScript strict).
-Код в `src/` **не пишешь**.
-```
-
-В моём плагине четыре роли:
-
-| Команда    | Файл         | Шаги  | Что делает                      |
-|------------|--------------|-------|---------------------------------|
-| `/analyst` | `analyst.md` | 1, 7  | требования, дизайн, приёмка     |
-| `/lead`    | `lead.md`    | 2, 5  | нарезка задач, code review      |
-| `/dev-fe`  | `dev-fe.md`  | 4б    | код в `src/`                    |
-| `/qa`      | `qa.md`      | 4а, 6 | test-cases, прогон, баг-репорты |
-
-Важный кусок, который легко забыть. Когда оркестратор запускает Task/subagent, у того **нет истории чата**. В промпт
-нужно передать роль целиком (файл агента) плюс пути к артефактам и номер шага. Иначе subagent начнёт фичу с нуля и
-перепишет `design.md`.
-
-Ещё правило
-из [Vibe Coding](https://github.com/stswoon/blog/blob/main/src/pages/2026/Vibe%20Coding%20%E2%80%94%20Getting%20Started/index.md):
-один агент владеет своими файлами.
-Dev не пишет `test-cases.md`, QA не лезет в `src/` фичи, Analyst не нарезает dev-задачи. Иначе два subagent правят один
-файл и получается каша из diff'ов.
-
-## Как это склеивается
+`src/content/index.ts`:
 
 ```
-Пользователь
-    │
-    ▼
- /multiagents-orchestration     ← command, оркестратор
-    │
-    ▼
- skill multiagents-orchestration
-    │
-    ├── /analyst  → requirements.md, design.md
-    ├── /lead     → dev-tasks.md, qa-task.md
-    ├── /qa  ┐
-    └── /dev-fe ┘ параллельно
-    ├── /lead     → review
-    ├── /qa       → прогон TC
-    └── /analyst  → sunny-day приёмка
+function helloWorld(): void {
+    if (document.getElementById('hello-world-banner')) {
+        return;
+    }
+
+    const banner = document.createElement('div');
+    banner.id = 'hello-world-banner';
+    banner.textContent = 'Hello from content script';
+    banner.style.cssText = [
+        'position:fixed',
+        'top:8px',
+        'right:8px',
+        'z-index:10000',
+        'padding:8px 12px',
+        'background:#111',
+        'color:#fff',
+    ].join(';');
+
+    document.documentElement.appendChild(banner);
+    console.info('[Hello World] content script is here');
+}
+helloWorld();
 ```
 
-Пользователь в целевом проекте пишет:
+Откройте любой сайт, в консоли вкладки будет лог, в углу — баннер. Если баннера нет: проверьте `matches` в манифесте и
+что загрузили именно `dist/`, а не исходники.
+
+## Две сборки Vite
+
+Почему не один `vite.config.ts`? Потому что popup и content — разные артефакты.
+
+* Popup — HTML-приложение. Точка входа `index.html`, Vite кладёт рядом JS/CSS и сохраняет путь
+  `src/popup/index.html`.
+* Content script в `manifest.json` — обычный классический скрипт, не ES-модуль. Его нужно собрать в один IIFE-файл
+  с фиксированным именем, которое прописано в манифесте.
+
+Плюс порядок: первая сборка чистит `dist`, вторая дописывает туда content-файл и **не должна** делать `emptyOutDir`.
+
+`vite.popup.config.ts`:
 
 ```
-/multiagents-orchestration Добавь на главную страницу фильтр заказов по статусу
+import { copyFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'vite';
+
+const root = dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: true,
+    minify: false,
+    rollupOptions: {
+      input: {
+        popup: resolve(root, 'src/popup/index.html'),
+      },
+    },
+  },
+  plugins: [
+    {
+      name: 'copy-manifest',
+      closeBundle() {
+        copyFileSync(resolve(root, 'manifest.json'), resolve(root, 'dist/manifest.json'));
+      },
+    },
+  ],
+});
 ```
 
-Оркестратор **сам код не пишет**. Он гоняет роли по гейтам: нет `design.md` — Dev не стартует; ревью не пройдено — QA
-на шаг 6 не идёт.
-
-Для мелкой правки в одном файле полный цикл не нужен — обычный agent. Отдельные роли тоже можно звать напрямую:
-`/analyst` или `/lead`.
-
-## Локальная установка (разработка)
-
-Пока крутишь промпты, GitHub не нужен. Cursor подхватывает папки из `~/.cursor/plugins/local/`.
-
-1. Если в организации запрещены локальные плагины — включи **Allow Local Plugin Imports**.
-2. Скопируй **папку плагина**, не весь репозиторий. В корне этой папки должен быть `.cursor-plugin/plugin.json`.
-3. `View -> Command Palette (Ctrl + Shift + A)` -> `Developer: Reload Window`.
-4. Customize → плагин должен быть в установленных
-5. В чате — `/multiagents-orchestration`.
-
-## Установка из GitHub
-
-Ссылка на репозиторий добавляет **marketplace**, а не ставит плагин.
-
-1. Запушь актуальный `main`.
-2. Customize → Plugins.
-
-![img_1.png](img_1.png)
-
-3. Добавь `https://github.com/stswoon/cursor-plugin`.
-4. В каталоге появится **Multiagents Orchestration**. Нажми **Install**, выбери scope: **user** или **project**.
-5. Reload: `View -> Command Palette (Ctrl + Shift + A)` -> `Developer: Reload Window`.
-
-![img.png](img.png)
-
-6. В чате должна быть `/multiagents-orchestration`.
-
-Если уже добавляли репозиторий:
-
-1. Найди marketplace (не только плагин) и **Remove**.
-2. После reload проверь, что он не вернулся.
-3. Добавь URL заново и снова нажми Install.
-
-![img_2.png](img_2.png)
-
-![img_3.png](img_3.png)
-
-Если marketplace возвращается со старым коммитом — это
-[известный баг](https://forum.cursor.com/t/add-plugin-github-imports-can-get-stuck-on-stale-plugin-versions/163895).
-Тогда локальная копия из раздела выше.
-
-Для team marketplace в Cursor есть Auto Refresh (нужно GitHub App, не чаще раза в 10 минут). Личный Add по URL этого не
-умеет.
-
-## Как пользоваться
-
-Команду вызывай в Agent-чате **целевого проекта**, не в репозитории плагина.
-
-Полный цикл:
+`vite.content.config.ts`:
 
 ```
-/multiagents-orchestration
-Сделай форму обратной связи на /contacts: имя, email, сообщение.
-Валидация на клиенте, без бэкенда — покажи toast об успехе.
-Не добавляй новые библиотеки.
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'vite';
+
+const root = dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  publicDir: false,
+  build: {
+    emptyOutDir: false,
+    outDir: 'dist',
+    sourcemap: 'inline',
+    minify: false,
+    rollupOptions: {
+      input: resolve(root, 'src/content/index.ts'),
+      output: {
+        format: 'iife',
+        name: 'unusedHelloWorld',
+        extend: true,
+        entryFileNames: 'hello-world-content.js',
+        inlineDynamicImports: true,
+      },
+    },
+  },
+});
 ```
 
-Только анализ:
+* `name: 'unusedHelloWorld'` — IIFE обязан иметь глобальное имя. Нам оно не нужно, поэтому `extend: true`, чтобы никого
+  не затереть.
+* `minify: false` — в консоли Chrome проще читать свой код. Для магазина можно включить обратно.
+
+После сборки `dist` выглядит так:
 
 ```
-/analyst
-Нужен экспорт таблицы заказов в CSV. Уточни требования и напиши design.md.
+dist/
+  manifest.json
+  hello-world-content.js
+  src/popup/index.html
+  src/popup/assets/...
 ```
 
-Только ревью уже написанного кода:
+Именно поэтому в манифесте `default_popup` = `src/popup/index.html`, а content = `hello-world-content.js`.
+
+## Собрать и загрузить в Chrome
 
 ```
-/lead
-Проведи шаг 5: ревью текущего diff против .cursor/artifacts/design.md
+npm install
+npm run build
 ```
 
-На шаге 1 отвечай на вопросы аналитика — без этого дизайн не начнётся. На шаге 4 Dev и QA стартуют вместе: тест-кейсы не
-блокируют код.
+Дальше:
 
-## Что ещё можно положить в плагин (у меня нет)
+1. Открыть `chrome://extensions`
+2. Включить **Developer mode**
+3. **Load unpacked**
+4. Выбрать папку `dist/`
 
-В этом репозитории только command + skill + agents. По доке в тот же плагин можно добавить:
+Кликнули по иконке — открылся popup. Открыли любой `https://...` сайт — в углу баннер от content script.
 
-* `rules/*.mdc` — как проектные rules, только раздаются с плагином;
-* `mcp.json` — MCP, который встанет вместе с плагином;
-* `hooks/hooks.json` + `scripts/` — хуки на edit/shell/session;
-* `variables` в `plugin.json` — схема секретов, значения пользователь ставит в Customize → Configure, в конфиге
-  плейсхолдеры `${API_TOKEN}`, не сами токены;
-* `logo` — картинка для каталога.
+После каждого изменения исходников снова `npm run build`, затем на карточке расширения кнопка обновления. Если меняли
+только popup — достаточно закрыть и снова открыть иконку. Если меняли content script — ещё и обновить вкладку: старый
+скрипт уже вживлён в страницу.
 
-Для workflow из промптов это лишнее. MCP и hooks имеет смысл, когда плагину нужны руки (API, форматирование файла после
-edit), а не только текст роли.
+## Если popup всё-таки хочет дернуть страницу
 
-Официальный marketplace (cursor.com/marketplace) — ручная модерация и отдельная заявка. Для себя и команды достаточно
-GitHub URL или `~/.cursor/plugins/local/`.
+В GitLab-плагине я так не делаю: popup меняет URL вкладки, а content сам просыпается на новой странице. Но для
+hello-world часто хотят кнопку «напиши на сайте». Тогда нужен канал сообщений.
+
+В popup:
+
+```
+const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
+if (tab?.id) {
+    await chrome.tabs.sendMessage(tab.id, {type: 'HELLO'});
+}
+```
+
+В content:
+
+```
+chrome.runtime.onMessage.addListener((message) => {
+    if (message?.type === 'HELLO') {
+        helloWorld();
+    }
+});
+```
+
+В манифест добавить `"permissions": ["activeTab"]`. Сообщение дойдёт только если content script на этой вкладке уже
+вставлен — то есть URL попал в `matches`. На `chrome://` и Chrome Web Store content scripts не работают.
