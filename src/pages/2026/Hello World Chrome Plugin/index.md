@@ -11,7 +11,7 @@
 07 сентября 2026
 ```
 
-В статье [Vibe Coding — простыми словами](../pages/2026/Vibe%20Coding%20%E2%80%94%20Getting%20Started/index.md) я уже
+В статье [Vibe Coding — простыми словами](../Vibe%20Coding%20—%20Getting%20Started/index.html) я уже
 разбирал `agents.md`, rules, skills и мультиагентов. Всё это живёт внутри одного проекта: скопировал `.cursor/` — и
 второй репозиторий ничего об этом не знает. А хочется наоборот: один раз описать команду (аналитик, lead, dev, QA) и
 вызывать её в любом репозитории через `/multiagents-orchestration`. Для этого в Cursor есть **plugin** + **marketplace**.
