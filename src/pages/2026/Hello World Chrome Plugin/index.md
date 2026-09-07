@@ -16,9 +16,11 @@ hello-world для расширения сейчас уже не «три фай
 мирах, а TypeScript нужно собирать в обычный JS. Ниже минимальный скелет — тот же, что в рабочем плагине, только вместо
 GitLab будет «Hello World».
 
-Полный проект, из которого вырос этот каркас: https://github.com/stswoon/gitlab-pipeline-chrome-plugin
+Пример получившегося проекта (простая структура): https://github.com/stswoon/gitlab-pipeline-chrome-plugin/tree/release/v1
 
 ![img.png](img.png)
+
+Но сейчас он переделан и в main более свежая версия - https://github.com/stswoon/gitlab-pipeline-chrome-plugin
 
 ## Что получим
 
