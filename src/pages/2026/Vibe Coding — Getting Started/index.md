@@ -412,3 +412,7 @@ async function main() {
 
 ![img_2.png](img_2.png)
 
+## Update 10 сентября 2026
+
+Неплохая дока в простых словах о то что такое LLM, Tools, Harness и
+др. - https://datatalks.ru/spec-driven-development/index.html
