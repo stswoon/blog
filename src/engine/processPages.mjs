@@ -154,7 +154,7 @@ function fillHtml(page, pageTemplateHtml) {
 
 function getSafeImgLink(imgSrc, pageLink) {
     if (!imgSrc) {
-        return appendVersionToStaticUrl("./assets/fallbackBlogImg.png", BLOG.version);
+        return appendVersionToStaticUrl("./assets/fallbackBlogImg.webp", BLOG.version);
     }
     const baseLink = pageLink.substring(0, pageLink.lastIndexOf("/"));
     return appendVersionToStaticUrl(`${baseLink}/${imgSrc}`, BLOG.version);
