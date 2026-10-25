@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420" role="img" aria-labelledby="title description">
+  <title id="title">Доля AI и полнота атрибуции — разные метрики</title>
+  <desc id="description">Учебный пример: из 100 добавленных строк 60 атрибутированы AI, 20 человеку, 20 неизвестны. Доля AI равна 60 процентам, покрытие строк атрибуцией — 80 процентам. Это не измерение продуктивности.</desc>
+  <defs>
+    <style>
+      text { font-family: Inter, "Segoe UI", Arial, sans-serif; }
+      .kicker { font-size: 14px; font-weight: 700; letter-spacing: 2.5px; fill: #9a461f; }
+      .heading { font-size: 30px; font-weight: 700; fill: #1d293d; }
+      .body { font-size: 20px; fill: #536177; }
+      .value { font-size: 27px; font-weight: 700; fill: #1d293d; }
+      .bar-label { font-size: 24px; font-weight: 700; text-anchor: middle; }
+    </style>
+    <clipPath id="bar"><rect x="36" y="142" width="728" height="54" rx="12"/></clipPath>
+  </defs>
+  <rect width="800" height="420" rx="24" fill="#f8f5ef"/>
+  <text x="36" y="43" class="kicker">ЗАМЕРЫ БЕЗ САМООБМАНА</text>
+  <text x="36" y="85" class="heading">60% AI ≠ 60% продуктивности</text>
+  <text x="36" y="119" class="body">Учебный пример: 100 добавленных строк</text>
+
+  <g clip-path="url(#bar)">
+    <rect x="36" y="142" width="436.8" height="54" fill="#4164ae"/>
+    <rect x="472.8" y="142" width="145.6" height="54" fill="#e8b46c"/>
+    <rect x="618.4" y="142" width="145.6" height="54" fill="#d5d9df"/>
+  </g>
+  <text x="254.4" y="178" class="bar-label" fill="#fff">60</text>
+  <text x="545.6" y="178" class="bar-label" fill="#49361e">20</text>
+  <text x="691.2" y="178" class="bar-label" fill="#354155">20</text>
+
+  <circle cx="44" cy="231" r="7" fill="#4164ae"/>
+  <text x="61" y="238" class="body">AI</text>
+  <circle cx="274" cy="231" r="7" fill="#e8b46c"/>
+  <text x="291" y="238" class="body">Human</text>
+  <circle cx="504" cy="231" r="7" fill="#a8b0bb"/>
+  <text x="521" y="238" class="body">Unknown</text>
+
+  <rect x="36" y="268" width="352" height="104" rx="16" fill="#fff" stroke="#e4dfd5"/>
+  <text x="60" y="304" class="body">Доля AI</text>
+  <text x="60" y="345" class="value">60 / 100 = 60%</text>
+  <rect x="412" y="268" width="352" height="104" rx="16" fill="#fff" stroke="#e4dfd5"/>
+  <text x="436" y="304" class="body">Покрытие строк</text>
+  <text x="436" y="345" class="value">(60 + 20) / 100 = 80%</text>
+
+  <text x="36" y="402" class="body">Unknown остаётся в знаменателе доли AI.</text>
+</svg>

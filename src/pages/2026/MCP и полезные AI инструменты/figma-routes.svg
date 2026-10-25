@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530" viewBox="0 0 800 530" role="img" aria-labelledby="title description">
+  <title id="title">Три маршрута подключения Figma</title>
+  <desc id="description">В описанном кейсе официальный remote вернул 403 при OAuth. Figma Desktop на порту 3845 позволял читать холст. Сторонний console с Desktop Bridge использовался для записи.</desc>
+  <defs>
+    <style>
+      text { font-family: Inter, "Segoe UI", Arial, sans-serif; }
+      .kicker { font-size: 14px; font-weight: 700; letter-spacing: 2.5px; fill: #9a461f; }
+      .heading { font-size: 29px; font-weight: 700; fill: #1d293d; }
+      .label { font-size: 24px; font-weight: 700; fill: #1d293d; }
+      .body { font-size: 20px; fill: #536177; }
+      .badge { font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .number { font-size: 22px; font-weight: 700; text-anchor: middle; }
+    </style>
+  </defs>
+  <rect width="800" height="530" rx="24" fill="#f8f5ef"/>
+  <text x="36" y="43" class="kicker">FIGMA · МОЙ КЕЙС, ОКТЯБРЬ 2026</text>
+  <text x="36" y="85" class="heading">Три пути, а не три копии одного MCP</text>
+
+  <rect x="36" y="124" width="728" height="100" rx="16" fill="#fff" stroke="#e4dfd5"/>
+  <circle cx="78" cy="174" r="24" fill="#fce7e4"/>
+  <text x="78" y="182" class="number" fill="#ae423c">1</text>
+  <text x="122" y="165" class="label">Официальный remote</text>
+  <text x="122" y="199" class="body">OAuth · поддерживаемый клиент</text>
+  <rect x="610" y="152" width="130" height="44" rx="22" fill="#fce7e4"/>
+  <text x="675" y="180" class="badge" fill="#ae423c">403 в кейсе</text>
+
+  <rect x="36" y="246" width="728" height="100" rx="16" fill="#fff" stroke="#e4dfd5"/>
+  <circle cx="78" cy="296" r="24" fill="#e9eefb"/>
+  <text x="78" y="304" class="number" fill="#405d9f">2</text>
+  <text x="122" y="287" class="label">Figma Desktop</text>
+  <text x="122" y="321" class="body">Локальный MCP · порт 3845</text>
+  <rect x="610" y="274" width="130" height="44" rx="22" fill="#e9eefb"/>
+  <text x="675" y="302" class="badge" fill="#405d9f">Чтение</text>
+
+  <rect x="36" y="368" width="728" height="100" rx="16" fill="#fff" stroke="#e4dfd5"/>
+  <circle cx="78" cy="418" r="24" fill="#e3f3ed"/>
+  <text x="78" y="426" class="number" fill="#236d58">3</text>
+  <text x="122" y="409" class="label">Console + Desktop Bridge</text>
+  <text x="122" y="443" class="body">OpenCode → Node → плагин в Figma</text>
+  <rect x="610" y="396" width="130" height="44" rx="22" fill="#e3f3ed"/>
+  <text x="675" y="424" class="badge" fill="#236d58">Запись</text>
+
+  <text x="36" y="505" class="body">У каждого маршрута — своя проверка готовности.</text>
+</svg>

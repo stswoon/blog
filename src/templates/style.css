@@ -354,6 +354,22 @@
     margin: 0;
 }
 
+.paper-text details {
+    margin: 1rem 0;
+    padding: 12px 16px;
+    border: 1px solid #d6d3d1;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-muted);
+}
+
+.paper-text details > summary {
+    color: var(--color-text);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.paper-text details[open] > :not(summary) { margin-top: 1rem; }
+
 .paper-text a {
     color: var(--color-accent);
     text-decoration-color: rgba(194, 65, 12, 0.4);

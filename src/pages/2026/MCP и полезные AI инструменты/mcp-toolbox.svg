@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-labelledby="title description">
+  <title id="title">Карта MCP по задачам</title>
+  <desc id="description">Шесть групп инструментов: контекст и память, навигация по коду, проверка в браузере, дизайн и компоненты, схемы и работа с GitLab.</desc>
+  <defs>
+    <style>
+      text { font-family: Inter, "Segoe UI", Arial, sans-serif; }
+      .kicker { font-size: 14px; font-weight: 700; letter-spacing: 2.5px; fill: #9a461f; }
+      .heading { font-size: 29px; font-weight: 700; fill: #1d293d; }
+      .label { font-size: 23px; font-weight: 700; fill: #1d293d; }
+      .body { font-size: 19px; fill: #536177; }
+      .card { fill: #fff; stroke: #e4dfd5; }
+      .icon { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+  <rect width="800" height="600" rx="24" fill="#f8f5ef"/>
+  <text x="36" y="43" class="kicker">ИНСТРУМЕНТЫ АГЕНТА</text>
+  <text x="36" y="85" class="heading">Не больше серверов. Больше пользы.</text>
+
+  <rect x="36" y="124" width="352" height="130" rx="16" class="card"/>
+  <rect x="60" y="145" width="38" height="4" rx="2" fill="#b96332"/>
+  <text x="60" y="188" class="label">Контекст и память</text>
+  <text x="60" y="223" class="body">Context7 · Basic Memory</text>
+  <g class="icon" stroke="#b96332" transform="translate(338 144)">
+    <path d="M0 1h11l4 4v21H0z M15 5h-4V1 M4 12h7 M4 17h7"/>
+  </g>
+
+  <rect x="412" y="124" width="352" height="130" rx="16" class="card"/>
+  <rect x="436" y="145" width="38" height="4" rx="2" fill="#4c66ac"/>
+  <text x="436" y="188" class="label">Навигация по коду</text>
+  <text x="436" y="223" class="body">Serena · символы и ссылки</text>
+  <g class="icon" stroke="#4c66ac" transform="translate(714 144)">
+    <path d="m6 3-7 10 7 10 M17 3l7 10-7 10 M14 0l-5 26"/>
+  </g>
+
+  <rect x="36" y="278" width="352" height="130" rx="16" class="card"/>
+  <rect x="60" y="299" width="38" height="4" rx="2" fill="#288071"/>
+  <text x="60" y="342" class="label">Проверка в браузере</text>
+  <text x="60" y="377" class="body">Playwright · DevTools</text>
+  <g class="icon" stroke="#288071" transform="translate(330 299)">
+    <rect width="26" height="24" rx="4"/>
+    <path d="M0 7h26 M5 3.5h1 M10 3.5h1 m-3 12 4 4 7-8"/>
+  </g>
+
+  <rect x="412" y="278" width="352" height="130" rx="16" class="card"/>
+  <rect x="436" y="299" width="38" height="4" rx="2" fill="#9a5188"/>
+  <text x="436" y="342" class="label">Дизайн и компоненты</text>
+  <text x="436" y="377" class="body">Figma · shadcn</text>
+  <g class="icon" stroke="#9a5188" transform="translate(708 299)">
+    <rect width="11" height="11" rx="2"/>
+    <rect x="15" width="11" height="11" rx="2"/>
+    <rect y="15" width="11" height="11" rx="2"/>
+    <path d="M15 20h11 M20.5 15v11"/>
+  </g>
+
+  <rect x="36" y="432" width="352" height="130" rx="16" class="card"/>
+  <rect x="60" y="453" width="38" height="4" rx="2" fill="#4c66ac"/>
+  <text x="60" y="496" class="label">Архитектура наглядно</text>
+  <text x="60" y="531" class="body">draw.io · редактируемые схемы</text>
+  <g class="icon" stroke="#4c66ac" transform="translate(330 451)">
+    <rect x="9" width="10" height="8" rx="2"/>
+    <rect y="20" width="10" height="8" rx="2"/>
+    <rect x="18" y="20" width="10" height="8" rx="2"/>
+    <path d="M14 8v6 M5 20v-6h18v6"/>
+  </g>
+
+  <rect x="412" y="432" width="352" height="130" rx="16" class="card"/>
+  <rect x="436" y="453" width="38" height="4" rx="2" fill="#b96332"/>
+  <text x="436" y="496" class="label">Работа с проектом</text>
+  <text x="436" y="531" class="body">GitLab · issues и MR</text>
+  <g class="icon" stroke="#b96332" transform="translate(710 451)">
+    <circle cx="4" cy="4" r="3"/>
+    <circle cx="4" cy="25" r="3"/>
+    <circle cx="22" cy="4" r="3"/>
+    <path d="M4 7v15 M22 7v3c0 7-18 1-18 9"/>
+  </g>
+</svg>
