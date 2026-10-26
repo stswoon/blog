@@ -44,8 +44,10 @@
     - [Как начать](#arcengine-start)
     - [Промпт для агента](#arcengine-prompt)
     - [Что проверить перед публикацией](#arcengine-checks)
-- [Замеры: что считает git-ai-dashboard](#metrics)
-- [Наблюдаемость LLM: Langfuse и ccusage](#llm-observability)
+- [Наблюдаемость LLM](#llm-observability)
+    - [git-ai](#git-ai)
+    - [Langfuse](#langfuse)
+    - [ccusage](#ccusage)
 
 > **Если вы только начинаете:** подключите Context7 и Playwright.
 
@@ -896,7 +898,7 @@ Git-ai показывает, сколько кода пришло от аген�
 
 Далее по каждому коммиту можно построить статистку
 
-### Langfuse и ccusage
+### Langfuse
 
 **[Langfuse](https://langfuse.com)** — open-source платформа наблюдаемости для LLM-приложений, не MCP-сервер. Она
 собирает трейсы: какой промпт ушёл в модель, какие инструменты вызвал агент, что вернулось, сколько занял вызов и
