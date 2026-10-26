@@ -17,87 +17,117 @@
 и промптами для агента.
 
 Это продолжение статьи [Vibe Coding — простыми словами](../Vibe%20Coding%20%E2%80%94%20Getting%20Started/index.html).
-Читать всё подряд не обязательно: ниже можно выбрать маршрут под свою задачу.
 
-<a id="toc"></a>
+## Оглавление
 
-## Оглавление: выберите свою задачу
+- [MCP](#mcp)
+    - [Общие правила подключения](#connect)
+    - [Basic Memory](#basic-memory)
+    - [Context7](#context7)
+    - [Serena](#serena)
+    - [Playwright](#playwright)
+    - [Chrome DevTools](#chrome-devtools)
+    - [draw.io](#drawio)
+    - [GitLab](#gitlab)
+    - [shadcn](#shadcn)
+    - [Figma — официальный remote](#figma)
+        - [Figma Desktop](#figma-desktop)
+        - [Figma Console](#figma-console)
+    - [REA — Reverse Engineer Anything](#rea)
+- [От идеи до проверяемого интерфейса](#planning)
+    - [grill-me: вскрыть допущения до написания кода](#grill-me)
+    - [OpenSpec: сохранить договорённости в проекте](#openspec)
+    - [UX: работающая кнопка ещё не означает удобный интерфейс](#ux)
+- [Видео и другие полезные находки](#video)
+    - [Общий рабочий процесс](#video-workflow)
+    - [HyperFrames: локальный CLI отдельно от облачного MCP](#hyperframes)
+    - [Что ещё взять из подборки инструментов](#more-tools)
+- [ArcEngine: разработка игр с AI-агентом](#arcengine)
+    - [Как начать](#arcengine-start)
+    - [Промпт для агента](#arcengine-prompt)
+    - [Что проверить перед публикацией](#arcengine-checks)
+- [Замеры: что считает git-ai-dashboard](#metrics)
+    - [Что означает доля AI](#ai-share)
 
-1. **Настроить рабочее место:** [какие MCP выбрать](#mcp), [код подключения](#connect),
-   [промпты для настройки агентом](#agent-setup), [история починки Serena](#serena-fix).
-2. **Работать с дизайном и готовыми приложениями:** [Figma и её три подключения](#figma),
-   [REA для исследования поведения](#rea).
-3. **Превратить идею в понятную задачу:** [grill-me](#grill-me) → [OpenSpec](#openspec) → [UX-чек-лист](#ux).
-4. **Сделать ролик:** [три подхода и рабочий процесс](#video), [HyperFrames: CLI и MCP](#hyperframes),
-   [другие полезные находки](#more-tools).
-5. **Разобраться в замерах:** [что считает git-ai-dashboard](#metrics), [почему было 0% AI и unknown model](#git-ai-fix).
-6. **Забрать самое важное:** [короткий маршрут от идеи до проверки](#checklist).
-
-> **Если вы только начинаете:** подключите Context7 и один браузерный инструмент из первой части.
-> Затем попробуйте связку grill-me → OpenSpec. Figma, REA и видео нужны не каждой задаче.
-
-Длинные конфиги и подробности поломок спрятаны в раскрывающиеся блоки — открывайте только нужные.
+> **Если вы только начинаете:** подключите Context7 и Playwright.
 
 ---
 
-<a id="mcp"></a>
-
-## 1. Выбрать и подключить MCP
-
-**Коротко:** MCP даёт агенту доступ к инструментам. Начинайте с нужной возможности, а не с установки всего списка.
-
-<figure>
-  <div class="blogImage_container"><img src="mcp-toolbox.svg" width="800" height="600" style="height: auto;" decoding="async" alt="Карта инструментов: контекст, код, браузер, дизайн, схемы и репозиторий"></div>
-  <figcaption><em>Выбирайте возможность под задачу, а не коллекционируйте подключения.</em></figcaption>
-</figure>
+## MCP
 
 **MCP — стандартный способ подключить AI-приложение к данным и действиям.** Host — само приложение, например OpenCode.
-Client — его компонент, который общается с конкретным сервером. Server предоставляет возможности и не обязательно
-находится в интернете: это может быть локальный процесс. ([Архитектура MCP](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture))
+Client — его компонент для связи с конкретным сервером. Server предоставляет возможности и может работать локально.
+([Архитектура MCP](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture))
 
-У сервера бывают **tools** — вызываемые операции, **resources** — данные для контекста, **prompts** — готовые шаблоны
-взаимодействия. Не каждый сервер реализует всё сразу.
-([Понятия MCP](https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts))
+![mcp-toolbox.svg](mcp-toolbox.svg)
 
-Не стоит смешивать три вещи. MCP описывает интерфейс подключения. **Skill** объясняет агенту, как выполнять работу,
-обычно через `SKILL.md` и дополнительные материалы. **CLI** — программа с командами для терминала. Skill может
-использовать CLI или MCP; они дополняют друг друга. ([Agent Skills](https://agentskills.io/what-are-skills))
+Сервер может предоставлять **tools** — операции, **resources** — данные для контекста и **prompts** — шаблоны
+взаимодействия. MCP описывает интерфейс, **skill** объясняет порядок работы, **CLI** выполняет команды в терминале.
+Это разные, дополняющие друг друга вещи.
+([Понятия MCP](https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts), [Agent Skills](https://agentskills.io/what-are-skills))
 
-Вот назначение всех одиннадцати подключений из моего списка. Название в настройках — метка: по одному `drawio` или
-`gitlab` нельзя установить конкретный пакет и его версию. Ссылки показывают назначение и примеры реализаций.
+Все JSON-примеры ниже — **для OpenCode V2**, файл `opencode.jsonc` в корне проекта, но по аналогии можно применить к
+любой другой система AI.
 
-| Группа | Метка | Для чего нужна |
-|---|---|---|
-| Память | `basic-memory` | Долговременные Markdown-заметки, поиск и связи. Не автоматическая память обо всех чатах. [Проект](https://github.com/basicmachines-co/basic-memory) |
-| Документация | `context7` | Документация библиотек и примеры с учётом версии. [Проект](https://github.com/upstash/context7) |
-| Код | `serena` | Поиск символов и ссылок, точечные изменения и рефакторинг. [Проект](https://github.com/oraios/serena) |
-| Браузер | `playwright` | Пройти пользовательский сценарий: открыть страницу, заполнить форму, проверить состояние. [Пример реализации](https://github.com/microsoft/playwright-mcp) |
-| Браузер | `chrome-devtools` | Разобраться в ошибке: консоль, сеть, производительность, скриншоты. [Проект](https://github.com/ChromeDevTools/chrome-devtools-mcp) |
-| Схемы | `drawio` | Редактируемые диаграммы архитектуры и потоков. [Пример реализации](https://github.com/jgraph/drawio-mcp) |
-| Репозиторий | `gitlab` | Проекты, issues, merge requests и данные для ревью в пределах выданных прав. [Документация](https://docs.gitlab.com/user/model_context_protocol/mcp_server/) |
-| UI | `shadcn` | Поиск, просмотр и добавление компонентов из совместимых реестров. [Документация](https://ui.shadcn.com/docs/mcp) |
-| Figma | `figma` | Официальный удалённый MCP: контекст дизайна и запись для поддерживаемых клиентов. В списке требует входа, ещё не подключён. [Remote](https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/) |
-| Figma | `figma-desktop` | Официальный сервер в Figma Desktop: контекст макета, выделение, скриншоты; без записи на холст. [Desktop](https://developers.figma.com/docs/figma-mcp-server/local-server-installation/) |
-| Figma | `figma-console` | Сторонний локальный сервер и плагин-мост для создания и изменения дизайна. [Использованная версия](https://github.com/southleft/figma-console-mcp/tree/v1.40.9) |
+### Basic Memory
 
-Разделение браузеров условное: Playwright удобно использовать для сценария, DevTools — для диагностики, но возможности
-пересекаются. Один проход агентом по странице не становится автоматически полноценным набором автотестов.
+**Описание.** [`basic-memory`](https://github.com/basicmachines-co/basic-memory) — долговременные Markdown-заметки,
+поиск и связи между знаниями. Но автоматическое воспоминание обо всех чатах - нет. Для локального варианта нужны `uv`
+и Python 3.12+; до первой записи нужно выбрать проект базы знаний и место хранения заметок.
+([Quickstart](https://docs.basicmemory.com/raw/start-here/quickstart-local.md))
 
-<a id="connect"></a>
+Подключение через промпт
 
-### Код подключения: начните с двух серверов
-
-Далее — примеры **для OpenCode V2**, а не универсальный JSON для любого клиента. Нужны Node.js LTS и npm;
-для браузерной работы — браузер. Запускайте команды в корне нужного проекта:
-
-```sh
-opencode mcp add context7 --url https://mcp.context7.com/mcp
-opencode mcp add playwright -- npx -y @playwright/mcp@latest
-opencode mcp list
+```text
+Подключи Basic Memory MCP к этому проекту OpenCode V2 по официальной
+инструкции basicmachines-co/basic-memory. Проверь uv и Python 3.12+;
+используй запуск uvx basic-memory mcp. Сохрани существующий конфиг.
+После согласования изменений проверь connected и получи список проектов
+базы знаний. Ничего не записывай: проект и первую заметку я выберу отдельно.
 ```
 
-Без `--global` настройки относятся к проекту; этот флаг нужен только для осознанной установки во все проекты.
-Тот же набор можно описать вручную в `opencode.jsonc`:
+Подключение через JSON
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "basic-memory": {
+        "type": "local",
+        "command": [
+          "uvx",
+          "basic-memory",
+          "mcp"
+        ]
+      }
+    }
+  }
+}
+```
+
+Адаптация - попроси агента (возможно в твоем Harness это уже настроено автоматически)
+
+```
+Cделай, чтобы Basic Memory заранее читал заметки пред стартом размышлений\джиалога, а после ответа записывал в память 
+если в диалоге есть важные решения или информация.
+```
+
+### Context7
+
+**Описание.** [`context7`](https://github.com/upstash/context7) подтягивает документацию библиотек и примеры
+с учётом версии. Помогает не опираться только на устаревшие знания модели.
+
+Подключение через промпт
+
+```text
+Добавь Context7 в проектный OpenCode V2 как remote MCP:
+https://mcp.context7.com/mcp. Сохрани другие настройки и согласуй diff.
+Если потребуется вход, предложи мне авторизацию через /mcps.
+Проверь подключение и найди документацию одной зависимости из package.json,
+указав её установленную версию. Ссылку на полученный источник покажи в ответе.
+```
+
+Подключение через JSON
 
 ```json
 {
@@ -107,54 +137,218 @@ opencode mcp list
       "context7": {
         "type": "remote",
         "url": "https://mcp.context7.com/mcp"
-      },
-      "playwright": {
-        "type": "local",
-        "command": ["npx", "-y", "@playwright/mcp@latest"]
       }
     }
   }
 }
 ```
 
-**Выберите CLI или ручное редактирование — выполнять оба варианта не нужно.** Если конфиг уже существует,
-добавляйте записи в его `mcp.servers`, а не заменяйте весь файл. OpenCode подхватывает изменения без перезапуска.
-Если сервер ожидает OAuth, откройте `/mcps` и войдите сами: запись в JSON ещё не означает успешное подключение.
-([Документация V2](https://opencode.ai/v2/docs/mcp-servers))
+### Serena
 
-<details>
-<summary>Ещё шесть MCP: DevTools, Serena, Basic Memory, shadcn, draw.io и GitLab — готовый JSON</summary>
+**Описание.** [`serena`](https://github.com/oraios/serena) работает с кодом на уровне IDE (AST дерево вместо grep):
+символы, ссылки, точечные изменения и рефакторинг. Language server — один из backend; его зависимости зависят от языка
+проекта. Для показанного запуска сначала нужны `uv tool install -p 3.13 serena-agent` и `serena init`.
+([Установка](https://oraios.github.io/serena/02-usage/010_installation.html),
+[контекст ide](https://oraios.github.io/serena/02-usage/030_clients.html#terminal-based-clients))
 
-Выберите только нужные записи и добавьте их в существующий конфиг. Это **примеры актуальных публичных реализаций**,
-а не восстановленная копия всех моих настроек со скриншота.
+Подключение через промпт
+
+```text
+Подключи oraios/serena к проектному OpenCode V2. Проверь установленный
+serena CLI; его установку через uv согласуй отдельно. Запускай MCP
+с контекстом ide и проектом текущего workspace, не соседнего репозитория.
+После согласования diff проверь connected, прочитай initial instructions
+Serena и найди существующий символ с его ссылками. Код не изменяй.
+Onboarding и дополнительные установки сначала предложи, не запускай молча.
+```
+
+Подключение через JSON
+
+* Если OpenCode не видит `serena` в PATH, замените первый элемент `command` абсолютным путём к CLI.
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "serena": {
+        "type": "local",
+        "command": [
+          "serena",
+          "start-mcp-server",
+          "--context",
+          "ide",
+          "--project",
+          "."
+        ],
+        "cwd": ".",
+        "timeout": {
+          "startup": 60000
+        }
+      }
+    }
+  }
+}
+```
+
+Адаптация. Разбираясь с Serena на Windows, заметил что часто открываются окна и создается много процессов. Поэтому
+я попросил агента
+
+```
+Починить Serena 1.7.0 на Windows: при старте открываются окна и плодятся процессы.
+
+Причина — дефолты Serena: `web_dashboard_open_on_launch: true` и `web_dashboard_interface: app` (на Windows это 
+pywebview-окно + своя tray-иконка на каждый экземпляр). OpenCode поднимает отдельный stdio-сервер на сессию, поэтому 
+окон и процессов столько же, сколько сессий.
+
+1. С бэкапом поправь `%USERPROFILE%\.serena\serena_config.yml`:
+web_dashboard: true
+web_dashboard_open_on_launch: false
+web_dashboard_interface: tray_manager   # одна общая иконка вместо окна на инстанс
+gui_log_window: false
+Если дашборд не нужен — `web_dashboard: false`.
+
+2. Убей только деревья процессов с корнем `serena.exe start-mcp-server` (корень + все потомки), не трогая остальные 
+python/node, и перезапусти OpenCode целиком.
+
+Проверка: после старта не открывается ни одного окна/вкладки; `SerenaDashboardTrayManager` ≤ 1; серверов не больше, 
+чем активных сессий; вызов `get_current_config` работает.
+
+Если остались короткие вспышки консоли — это `cmd.exe /c ...typescript-language-server`, который Serena поднимает 
+на каждый активный проект; лечится числом открытых проектов и списком `languages` в `.serena/project.yml`.
+```
+
+### Playwright
+
+**Описание.** [`playwright`](https://github.com/microsoft/playwright-mcp) проходит пользовательские сценарии: открыть
+страницу, заполнить форму, проверить состояние.
+
+Подключение через промпт
+
+```
+Подключи официальный microsoft/playwright-mcp в проектном OpenCode V2
+через npx -y @playwright/mcp@latest. Проверь Node.js, npm и браузер;
+недостающие установки предложи отдельно. Согласуй diff, сохрани другие MCP.
+Для проверки открой https://example.com в новой вкладке и прочитай заголовок.
+Не используй мои аккаунты и не закрывай существующие вкладки.
+```
+
+Подключение через JSON
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "playwright": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@playwright/mcp@latest"
+        ]
+      }
+    }
+  }
+}
+```
+
+### Chrome DevTools
+
+**Описание.** [`chrome-devtools`](https://github.com/ChromeDevTools/chrome-devtools-mcp) нужен для диагностики: консоль,
+сеть, скриншоты и performance traces живого Chrome. С Playwright возможности пересекаются; удобная специализация —
+сценарии там, разбор причин ошибки здесь.
+
+Подключение через промпт
+
+```
+Добавь ChromeDevTools/chrome-devtools-mcp в проектный OpenCode V2.
+Проверь Node.js LTS и Chrome. В запуске отключи usage statistics и CrUX
+флагами --no-usage-statistics и --no-performance-crux. Согласуй diff.
+Проверь connected, открой example.com в новой вкладке, прочитай консоль
+и сетевые запросы. Не подключай мой повседневный профиль без согласия.
+```
+
+Подключение через JSON
+
+```json
+{
   "mcp": {
     "servers": {
       "chrome-devtools": {
         "type": "local",
-        "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--no-usage-statistics", "--no-performance-crux"]
-      },
-      "serena": {
-        "type": "local",
-        "command": ["serena", "start-mcp-server", "--context", "ide", "--project", "."],
-        "cwd": ".",
-        "timeout": { "startup": 60000 }
-      },
-      "basic-memory": {
-        "type": "local",
-        "command": ["uvx", "basic-memory", "mcp"]
-      },
-      "shadcn": {
-        "type": "local",
-        "command": ["npx", "-y", "shadcn@latest", "mcp"]
-      },
+        "command": [
+          "npx",
+          "-y",
+          "chrome-devtools-mcp@latest",
+          "--no-usage-statistics",
+          "--no-performance-crux"
+        ]
+      }
+    }
+  }
+}
+```
+
+* Флаги отключают статистику сервера и запросы к CrUX, но не весь внешний трафик браузера.
+
+### draw.io
+
+**Описание.** [`drawio`](https://github.com/jgraph/drawio-mcp) создаёт редактируемые схемы архитектуры и потоков.
+Здесь выбран локальный **Tool Server `@drawio/mcp`**, открывающий редактор. Есть еще альтернатива в виде
+`mcp.draw.io` для работы с облачным drawio.
+
+Подключение через промпт
+
+```text
+Подключи локальный draw.io Tool Server из jgraph/drawio-mcp
+к проектному OpenCode V2: npx -y @drawio/mcp. Не подменяй его hosted
+MCP App Server без обсуждения передачи данных. Покажи и согласуй diff.
+Для проверки создай простую схему «Запрос → Проверка → Ответ»
+без рабочих данных, открой её в редакторе и проверь возможность правки.
+Промежуточные файлы сохраняй в .temp/.
+```
+
+Подключение через JSON
+
+```json
+{
+  "mcp": {
+    "servers": {
       "drawio": {
         "type": "local",
-        "command": ["npx", "-y", "@drawio/mcp"]
-      },
+        "command": [
+          "npx",
+          "-y",
+          "@drawio/mcp"
+        ]
+      }
+    }
+  }
+}
+```
+
+### GitLab
+
+**Описание.** [`gitlab`](https://docs.gitlab.com/user/model_context_protocol/mcp_server/) даёт доступ к проектам,
+issues и merge requests в пределах выданных прав. Ниже — **официальный сервер GitLab.com**. Для self-managed замените
+домен, но MCP должен быть разрешён gitlab-группой и администратором.
+
+Подключение через промпт
+
+```text
+Подключи официальный GitLab MCP к проектному OpenCode V2. Уточни адрес
+инстанса и проверь разрешение на MCP. Используй endpoint /api/v4/mcp
+и штатный OAuth, не проси токен в чат. Покажи diff и дождись подтверждения.
+Предложи мне войти через /mcps, затем проверь connected и прочитай
+метаданные указанного мной проекта. Не создавай issues, комментарии и MR,
+не запускай pipelines. При 403 сообщи этап сбоя, не расширяй права наугад.
+```
+
+Подключение через JSON
+
+```json
+{
+  "mcp": {
+    "servers": {
       "gitlab": {
         "type": "remote",
         "url": "https://gitlab.com/api/v4/mcp"
@@ -164,187 +358,167 @@ opencode mcp list
 }
 ```
 
-Что подготовить:
+* OAuth-токен должен иметь scope `mcp`. Обычный legacy PAT со scope `api` для этого официального endpoint не подходит.
 
-- **DevTools:** установленный Chrome. Два флага отключают статистику использования сервера и запросы к CrUX,
-  но не делают весь браузерный трафик локальным. [README](https://github.com/ChromeDevTools/chrome-devtools-mcp).
-- **Serena:** установленный `uv`, затем `uv tool install -p 3.13 serena-agent` и `serena init`.
-  Пример использует установленный CLI; если OpenCode его не находит, укажите абсолютный путь к исполняемому файлу.
-  Зависимости language server зависят от языка проекта.
-  [Установка](https://oraios.github.io/serena/02-usage/010_installation.html),
-  [контекст ide](https://oraios.github.io/serena/02-usage/030_clients.html#terminal-based-clients).
-- **Basic Memory:** `uv` и Python 3.12+. До первой записи выберите проект базы знаний и место хранения заметок.
-  [Локальный quickstart](https://docs.basicmemory.com/raw/start-here/quickstart-local.md).
-- **shadcn:** для добавления компонентов нужен совместимый проект и его `components.json`.
-  Само подключение MCP не превращает обычный блог в React-приложение. [Документация](https://ui.shadcn.com/docs/mcp).
-- **draw.io:** здесь выбран локальный Tool Server `@drawio/mcp`, открывающий редактор;
-  это не облачный MCP App Server. [Варианты подключения](https://github.com/jgraph/drawio-mcp).
-- **GitLab:** здесь показан официальный сервер GitLab.com с OAuth. Для своего инстанса замените домен;
-  доступ к MCP должен быть разрешён группой или администратором. Legacy PAT со scope `api` не заменяет
-  OAuth-токен с `mcp` scope. [Требования и авторизация](https://docs.gitlab.com/user/model_context_protocol/mcp_server/).
+### shadcn
 
-`@latest` и неприкреплённые версии удобны для первого знакомства, но не фиксируют состав окружения.
-После проверки закрепите версии там, где это поддерживается, и обновляйте их осознанно.
-На Windows при проблемах поиска `npx` укажите полный путь к подходящему исполняемому файлу; не отключайте
-политику безопасности PowerShell ради одной команды.
+**Описание.** [`shadcn`](https://ui.shadcn.com/docs/mcp) позволяет искать, просматривать и добавлять UI-компоненты
+из совместимых реестров. Для установки компонентов нужен подходящий проект и `components.json`.
 
-</details>
-
-<a id="agent-setup"></a>
-
-### Подключение через агента: промпты вместо ручного JSON
-
-Это **примеры запросов**, не обещание автоматической установки без разрешений. Агент может подготовить конфиг
-и диагностику; вход в аккаунт и решения о правах остаются за вами.
-
-**Для начала — документация и браузер:**
+Подключение через промпт
 
 ```text
-Настрой Context7 и Playwright MCP для этого проекта в OpenCode V2.
-Используй официальные https://mcp.context7.com/mcp и microsoft/playwright-mcp.
-Прочитай актуальную V2-документацию и существующий конфиг. Другие серверы,
-провайдеры и permissions сохрани. Не меняй глобальные настройки.
-Сначала покажи план, diff и недостающие зависимости; дождись подтверждения.
-Затем добавь подключения, проверь opencode mcp list и доступность инструментов.
-Попроси Context7 найти документацию зависимости из package.json,
-а Playwright — открыть https://example.com в новой вкладке и прочитать заголовок.
-OAuth выполняю я через /mcps. Не называй сервер подключённым до проверки.
-Промежуточные файлы сохраняй в .temp/, секреты не печатай и не коммить.
+Добавь shadcn MCP к проектному OpenCode V2 по ui.shadcn.com/docs/mcp:
+npx -y shadcn@latest mcp. Согласуй diff и сохрани остальные настройки.
+Проверь подключение и получи список компонентов реестра.
+Для добавления компонентов сначала проверь совместимость проекта
+и components.json. Не меняй стек и не устанавливай компоненты без запроса.
 ```
 
-<details>
-<summary>Промпт: добавить кодовую навигацию, память, UI, схемы и диагностику</summary>
+Подключение через JSON
 
-Из строки с серверами удалите лишнее. Установка Serena через `uv tool install` затрагивает пользовательское
-окружение, поэтому её нужно согласовать отдельно от редактирования проектного конфига.
+```json
+{
+  "mcp": {
+    "servers": {
+      "shadcn": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "shadcn@latest",
+          "mcp"
+        ]
+      }
+    }
+  }
+}
+```
+
+### Figma — официальный remote
+
+**Описание.** [`figma`](https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/) — официальный
+удалённый MCP: контекст дизайна и запись для поддерживаемых клиентов. Нужен вход в Figma.
+
+![figma-routes.svg](figma-routes.svg)
+
+Подключение через промпт
 
 ```text
-Добавь к проектному OpenCode V2 выбранные MCP: Serena, Basic Memory,
-shadcn, draw.io Tool Server и Chrome DevTools. Найди официальные инструкции
-oraios/serena, basicmachines-co/basic-memory, shadcn, jgraph/drawio-mcp
-и ChromeDevTools/chrome-devtools-mcp; не выбирай одноимённые пакеты наугад.
-Сохрани существующие настройки. Покажи план и diff, дождись подтверждения.
-Установку uv/Python/пакетов вне проекта согласуй отдельно.
-Serena привяжи к текущему workspace; прочитай её initial instructions.
-Проверь поиск существующего символа, список проектов памяти и список UI-компонентов.
-Через draw.io создай тестовую схему без рабочих данных; через DevTools
-открой example.com в новой вкладке. Ничего не записывай в память,
-не добавляй компоненты в приложение и не рефактори код без отдельного запроса.
-Результаты проверок и временные файлы положи в .temp/.
+Настрой официальный remote MCP Figma в проектном OpenCode V2:
+https://mcp.figma.com/mcp. Сначала проверь текущую поддержку клиента Figma.
+Покажи diff и дождись согласия. Если клиент поддерживается, предложи мне
+войти через /mcps, затем получи контекст выбранного макета.
+Если OAuth-регистрация возвращает 403, не обходи авторизацию:
+зафиксируй ограничение и предложи варианты чтения или записи отдельно.
 ```
 
-</details>
+Подключение через JSON
 
-<details>
-<summary>Промпт: подключить GitLab без передачи токена в чат</summary>
+```json
+{
+  "mcp": {
+    "servers": {
+      "figma": {
+        "type": "remote",
+        "url": "https://mcp.figma.com/mcp"
+      }
+    }
+  }
+}
+```
+
+Адаптация: OAuth-регистрация OpenCode возвращала 403. Это Figma ограничивает подключение поддерживаемыми клиентами.
+
+Для чтения я оставил официальный Figma Desktop, для записи подключил сторонний Figma Console с Desktop Bridge.
+Это другие маршруты с собственными правами и проверками, а не обход OAuth официального remote.
+
+> Если у вас Cursor \ Codex \ Claude то скорее всего официальный Figma будет работать.
+
+#### Figma Desktop
+
+**Описание.** [`figma-desktop`](https://developers.figma.com/docs/figma-mcp-server/local-server-installation/) —
+официальный сервер внутри Figma Desktop: контекст макета, текущее выделение и скриншоты. Он не пишет на холст.
+Включается через **Dev Mode → Enable desktop MCP server**; доступность зависит от плана и seat.
+
+Подключение через промпт
 
 ```text
-Подключи официальный GitLab MCP в OpenCode V2 только для этого проекта.
-Сначала уточни адрес инстанса; проверь его документацию и разрешён ли MCP.
-Используй endpoint /api/v4/mcp и штатный OAuth, не проси прислать токен в чат.
-Покажи diff существующего конфига и дождись подтверждения.
-После сохранения предложи мне войти через /mcps.
-Затем проверь connected и прочитай метаданные указанного мной проекта.
-Не создавай issues, комментарии и MR, не запускай pipelines.
-Если получен 403, сообщи конкретный этап сбоя; не расширяй права наугад.
+Подключи официальный Figma Desktop MCP к проектному OpenCode V2
+по http://127.0.0.1:3845/mcp. Объясни, как включить сервер в Dev Mode,
+и проверь требования плана. Покажи и согласуй diff существующего конфига.
+После включения получи контекст выбранного мной элемента в открытом файле.
+Не обещай запись на холст и не устанавливай сторонний плагин вместо
+официального сервера без отдельного согласования.
 ```
 
-</details>
+Подключение через JSON
 
-Критерий готовности одинаковый: **сервер виден → авторизация завершена, если нужна → одна настоящая операция успешна**.
-Для [Figma ниже есть отдельный конфиг и промпт](#figma-setup): одного статуса Node-процесса там недостаточно.
+```json
+{
+  "mcp": {
+    "servers": {
+      "figma-desktop": {
+        "type": "remote",
+        "url": "http://127.0.0.1:3845/mcp"
+      }
+    }
+  }
+}
+```
 
-<a id="serena-fix"></a>
+* Тип `remote` здесь означает HTTP-транспорт, хотя сервер находится на вашем компьютере.
 
-<details>
-<summary>Личный кейс: как я сломал и восстановил подключение Serena</summary>
+Адаптация: для редактирования нужен другой маршрут
 
-Когда разбирался с Figma на Windows, принял несколько MCP-процессов за лишние и остановил их. Вместе с ними исчезли
-инструменты Serena и других серверов. Вернул их пересозданием подключений в OpenCode: в том эпизоде изменение записи
-сервера, включая startup timeout, заставило соединение создаться заново.
+Если нужно только читать макет, desktop достаточно. В моём сценарии требовалось **рисовать на холсте**, поэтому
+понадобился Figma Console с плагином. Включение порта 3845 не добавляет официальному desktop возможности записи
+и не является обязательным шагом установки стороннего Desktop Bridge.
+([Возможности официальных инструментов](https://developers.figma.com/docs/figma-mcp-server/tools-and-prompts/))
 
-Это **восстановление MCP-подключения, а не подтверждённый ремонт language server**. Отдельной истории ошибки LSP
-запись не подтверждает. Практический вывод: сначала выяснить, какую сессию обслуживает процесс, затем проверить
-подключение через `opencode mcp list` или `/mcps`. Большое число процессов само по себе не доказывает утечку.
-([Управление MCP в OpenCode V2](https://opencode.ai/v2/docs/mcp-servers))
+#### Figma Console
 
-</details>
+**Описание.** [`figma-console`](https://github.com/southleft/figma-console-mcp/tree/v1.40.9) — сторонний сервер
+`southleft/figma-console-mcp`; в моём кейсе использована версия **1.40.9**. Связка для записи:
+OpenCode → локальный Node-сервер → WebSocket → Desktop Bridge в открытом Figma-файле.
+PAT используется для REST-функций, действия на холсте идут через Plugin API.
 
-MCP также не является песочницей. Локальный сервер получает права запускающего пользователя: стоит проверять издателя,
-фиксировать версии, ограничивать доступ и не класть секреты в репозиторий. Успешный вызов инструмента нужно подтверждать
-изменённым объектом, diff или тестом. ([Безопасность локальных серверов](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/local-server-security))
+Подключение через промпт
 
-[↑ К оглавлению](#toc)
+```text
+Мне нужна запись на холст через southleft/figma-console-mcp и Desktop Bridge.
+Для воспроизводимости описанного кейса используй 1.40.9. Объясни права
+стороннего сервера и плагина, покажи план и diff; дождись подтверждения.
+Установку вне проекта согласуй отдельно. Токен я передам через
+FIGMA_ACCESS_TOKEN: не проси его в чат и не записывай в git.
+Найди абсолютный путь к dist/local.js и настрой прямой запуск через node.
+Дай шаги импорта manifest и запуска bridge в выбранном Figma-файле.
+Проверь текущий инстанс: pluginConnected должен быть true.
+После моего согласия создай тестовый фрейм и проверь его скриншотом.
+Не чисти чужие процессы и не меняй существующие экраны ради теста.
+```
 
----
+Подключение через JSON
 
-<a id="design"></a>
-
-## 2. Дизайн и исследование приложений
-
-**Когда читать:** нужно редактировать Figma или понять поведение существующего приложения.
-Это разные задачи: Figma даёт доступ к макету, REA — к средствам исследования программы.
-
-<a id="figma"></a>
-
-### Figma: почему понадобилось три подключения
-
-<figure>
-  <div class="blogImage_container"><img src="figma-routes.svg" width="800" height="530" style="height: auto;" loading="lazy" decoding="async" alt="Три маршрута Figma: remote с OAuth, Desktop для чтения холста и Console с плагином для записи"></div>
-  <figcaption><em>403 — результат моего случая, а не вечное ограничение для всех клиентов.</em></figcaption>
-</figure>
-
-В моём случае **12 октября 2026 года, Windows и OpenCode 2.0.26** официальный remote упёрся в HTTP 403 при регистрации
-OAuth-клиента OpenCode. Это не просто забытый вход: документация Figma ограничивает подключение поддерживаемыми
-клиентами. Исторический сбой не означает, что совместимость останется такой навсегда.
-([Официальное подключение](https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/))
-
-Официальный desktop endpoint `http://127.0.0.1:3845/mcp` давал читать макет, но не писать на canvas. Для записи
-подключил **`southleft/figma-console-mcp@1.40.9` и Figma Desktop Bridge**. Это другой маршрут:
-OpenCode → локальный Node-сервер → WebSocket → плагин в открытом Figma-файле. PAT используется для REST-функций,
-а действия на холсте выполняются через плагин; это не обход OAuth официального remote.
-([README 1.40.9](https://github.com/southleft/figma-console-mcp/blob/v1.40.9/README.md))
-
-<a id="figma-setup"></a>
-
-<details>
-<summary>Подключить Figma: установка, JSON для трёх маршрутов и проверка bridge</summary>
-
-Точная первоначальная install-команда не сохранилась. Подтверждены локальный npm-пакет и итоговый запуск через
-`node` файла `~/.figma-console-mcp/server/node_modules/figma-console-mcp/dist/local.js`, **не через `npx`**:
-в этом Windows-окружении возникали осиротевшие процессы. Это наблюдение конкретного случая, не общий запрет на `npx`.
-
-Воспроизводимый npm-вариант под такую схему, а не запись моей первоначальной команды, для PowerShell:
+Воспроизводимый PowerShell-рецепт установки, **не запись моей первоначальной install-команды**:
 
 ```powershell
 npm install --prefix "$HOME/.figma-console-mcp/server" figma-console-mcp@1.40.9
 ```
 
-README описывает запуск пакета через `npx` и альтернативную сборку из Git; здесь пакет закреплён локально ради прямого
-Node-запуска. Нужны Node.js 18+ и Figma Desktop. В конфиге **OpenCode V2** ниже замените placeholder
-абсолютным путём к установленному `local.js`, а PAT заранее передайте через окружение процесса OpenCode.
-Не вставляйте значение токена в JSON. Официальный remote оставлен с `disabled: true`: включайте его только после
-проверки поддержки клиента и готовности пройти OAuth; для console он не требуется.
-([Настройка сервера](https://github.com/southleft/figma-console-mcp/blob/v1.40.9/docs/setup.md),
-[формат OpenCode V2](https://opencode.ai/v2/docs/mcp-servers))
+Нужны Node.js 18+ и Figma Desktop. Замените placeholder абсолютным путём к установленному `local.js`;
+значение `FIGMA_ACCESS_TOKEN` заранее передайте в окружение процесса OpenCode.
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
   "mcp": {
     "servers": {
-      "figma": {
-        "type": "remote",
-        "url": "https://mcp.figma.com/mcp",
-        "disabled": true
-      },
-      "figma-desktop": {
-        "type": "remote",
-        "url": "http://127.0.0.1:3845/mcp"
-      },
       "figma-console": {
         "type": "local",
-        "command": ["node", "<абсолютный путь к local.js>"],
+        "command": [
+          "node",
+          "<абсолютный путь к local.js>"
+        ],
         "environment": {
           "FIGMA_ACCESS_TOKEN": "{env:FIGMA_ACCESS_TOKEN}"
         }
@@ -354,85 +528,87 @@ Node-запуска. Нужны Node.js 18+ и Figma Desktop. В конфиге 
 }
 ```
 
-Для официального `figma-desktop` отдельно включите **Dev Mode → Enable desktop MCP server** в Figma Desktop.
-Доступность зависит от плана и seat. Для стороннего console после запуска сервера открыть нужный файл:
-**Plugins → Development → Import plugin from manifest…**,
-выбрать стабильный `~/.figma-console-mcp/plugin/manifest.json`, затем запустить **Figma Desktop Bridge** в этом файле.
-Официальный desktop MCP на порту 3845 для работы этого моста не требуется.
+В Figma Desktop: открыть файл → **Plugins → Development → Import plugin from manifest…** →
+`~/.figma-console-mcp/plugin/manifest.json` → запустить **Figma Desktop Bridge**.
+Проверка — `figma_get_status({ probe: true })` с `pluginConnected: true`.
+После `figma_execute` — `figma_take_screenshot` и визуальная проверка.
+Официальный `use_figma` и сторонний `figma_execute` — разные API.
+([Настройка 1.40.9](https://github.com/southleft/figma-console-mcp/blob/v1.40.9/docs/setup.md))
 
-Дальше проверить `figma_get_status({ probe: true })`: важно получить **`pluginConnected: true`** именно от сервера,
-которым пользуется текущий агент. После изменения через `figma_execute` — сделать `figma_take_screenshot` и проверить
-результат. Официальный **`use_figma` и сторонний `figma_execute` — разные API**, не взаимозаменяемые названия.
-([Инструменты Figma](https://developers.figma.com/docs/figma-mcp-server/tools-and-prompts/))
+Адаптация: прямой Node-запуск и восстановление связи с bridge
 
-При `no plugin connected` или бесконечном `Loading Figma Desktop Bridge…` нужно сверять текущий инстанс,
-`transport.websocket.port`, открытый документ и импортированный manifest. При обновлениях учитывать кэш плагина.
-Нельзя объяснять всё правилом «bridge видит только первый порт»: версия 1.40.9 поддерживает несколько серверов.
-И точно не стоит лечить это массовой остановкой всех Node-процессов.
-([Устройство bridge](https://github.com/southleft/figma-console-mcp/blob/v1.40.9/docs/setup.md))
+Точная первоначальная команда установки не сохранилась. Подтверждены локальный пакет и итоговый прямой запуск
+`node .../node_modules/figma-console-mcp/dist/local.js`, не через `npx`: в этом Windows-окружении наблюдались
+осиротевшие процессы. Это обходной путь конкретного случая, не общий запрет на `npx`.
 
-</details>
+При `no plugin connected` или бесконечном `Loading Figma Desktop Bridge…` я сверял текущий MCP-инстанс и порт,
+разбирался с лишними экземплярами и заново открывал плагин. Проверкой стало `pluginConnected: true`, а не наличие
+Node-процесса. Сверять нужно `transport.websocket.port`, открытый файл и импортированный manifest; при обновлении
+учитывать кэш плагина.
 
-<details>
-<summary>Промпт: попросить агента настроить запись в Figma</summary>
+В общем я пару раз просил его поправить, пока не добился работоспособности.
+
+### REA — Reverse Engineer Anything
+
+**Описание.** [`rea`](https://github.com/morluto/rea) связывает агента со средствами исследования приложений:
+декомпиляторами, анализом файлов и наблюдениями во время выполнения. Цель — получить доказательства поведения,
+а не угадать устройство программы или восстановить исходники один в один.
+
+В [ролике Swag](https://www.youtube.com/watch?v=5AhuSmReTOk) автор рассказывает об исследовании Screen Brush
+и создании [ScreenInk](https://github.com/volyx/ScreenInk). Это его заявленный опыт, не мой эксперимент.
+
+Подключение через промпт
 
 ```text
-Мне нужна запись на холст Figma из OpenCode V2, а не только чтение макета.
-Сначала проверь актуальные официальные варианты и поддержку моего клиента.
-Если remote недоступен, предложи southleft/figma-console-mcp с Desktop Bridge;
-воспроизводи описанный кейс на 1.40.9 только если я выберу эту версию.
-Объясни права стороннего плагина, предложи план и diff; дождись подтверждения.
-Установку за пределами проекта согласуй отдельно. Сохрани остальные подключения.
-Токен я передам через FIGMA_ACCESS_TOKEN; не проси его в чате и не сохраняй в git.
-Для локального запуска найди абсолютный путь к dist/local.js и используй node.
-Дай мне шаги импорта manifest и запуска bridge в выбранном Figma-файле.
-Проверь статус именно текущего инстанса: pluginConnected должен быть true.
-После моего согласия создай тестовый фрейм, сделай скриншот и проверь результат.
-Не чисти чужие процессы и не меняй существующие экраны ради теста.
+Подключи REA из morluto/rea к этому проекту OpenCode V2. Для примера
+используй опубликованный rea-agents@6.8.0 и проверь требования Node.js.
+Покажи проектный JSON с запуском MCP, сохрани остальные настройки.
+Не запускай общий setup молча: он может менять пользовательские
+конфиги и устанавливать skills; эти действия согласуй отдельно.
+Проверь connected и каталог инструментов, затем доступность нужного
+провайдера анализа. Целевую программу пока не запускай и не исследуй.
 ```
 
-</details>
+Подключение через JSON
 
-**Проверка готовности:** для чтения — полученный контекст макета; для записи — подключённый bridge
-и согласованный контрольный объект на холсте, а не просто зелёный процесс.
+Пример **для Windows**, по официальной форме launcher. Для Linux/macOS уберите `cmd.exe`, `/d`, `/c`.
+У опубликованного `rea-agents@6.8.0` требования Node: **22.x ≥22.23.4, 24.x ≥24.22.1 либо ≥26.12.1**.
+([Установка и ручная регистрация](https://github.com/morluto/rea/blob/main/docs/installation.md))
 
-<a id="rea"></a>
+```json
+{
+  "mcp": {
+    "servers": {
+      "rea": {
+        "type": "local",
+        "command": [
+          "cmd.exe",
+          "/d",
+          "/c",
+          "npx",
+          "-y",
+          "rea-agents@6.8.0",
+          "mcp"
+        ]
+      }
+    }
+  }
+}
+```
 
-### REA: сначала исследовать поведение, потом писать
+Нативный анализ требует отдельно подготовленного Hopper, Ghidra или IDA; статический JavaScript-анализ — нет.
+Готовый MCP launcher не устанавливает все движки и не заменяет соответствующие workflow-инструкции.
 
-**[REA — Reverse Engineer Anything](https://github.com/morluto/rea)** — MCP для исследования приложений: декомпиляторы,
-наблюдения во время выполнения и агентный цикл. Вместо попытки угадать устройство программы агент получает сведения
-из специализированных инструментов, проверяет гипотезу действием и уточняет вывод.
-
-В [ролике Swag](https://www.youtube.com/watch?v=5AhuSmReTOk) автор рассказывает, как исследовал Screen Brush и написал
-альтернативу [ScreenInk](https://github.com/volyx/ScreenInk) для рисования поверх экрана. Это **заявление автора
-о своём опыте**, а не мой эксперимент или обещание повторить результат с любым приложением.
-
-Полезные авторские главы: [00:20 — что такое REA](https://www.youtube.com/watch?v=5AhuSmReTOk&t=20s),
-[02:09 — демо Screen Ink](https://www.youtube.com/watch?v=5AhuSmReTOk&t=129s),
-[03:15 — устройство REA](https://www.youtube.com/watch?v=5AhuSmReTOk&t=195s).
-
-Практическая задача здесь — разобраться в конкретном поведении: какие есть состояния, что меняется после действия,
-чем подтверждается правило. Это полезнее установки «восстанови весь проект». Декомпиляция не гарантирует получение
-исходников один в один.
-
-Исследовать нужно ПО, которое разрешено анализировать, с учётом лицензий и прав. REA не выдаёт лицензии на чужие
-декомпиляторы и не превращает копирование платного софта в универсально разрешённую операцию. Локальный анализ также
-не означает, что извлечённые данные не попадут подключённой облачной модели.
-([Описание и ограничения проекта](https://github.com/morluto/rea#disclaimer))
-
-[↑ К оглавлению](#toc)
+Исследуйте только ПО, которое разрешено анализировать, с учётом лицензий и прав. REA не выдаёт лицензии на чужие
+декомпиляторы. Локальный анализ также не означает, что результаты не попадут подключённой облачной модели.
+([Ограничения проекта](https://github.com/morluto/rea#disclaimer))
 
 ---
 
-<a id="planning"></a>
-
-## 3. От идеи до проверяемого интерфейса
+## От идеи до проверяемого интерфейса
 
 **Когда читать:** агент умеет вызывать инструменты, но задача пока звучит как «сделай удобно».
 Здесь три шага: обсудить решения, записать требования, проверить UX.
-
-<a id="grill-me"></a>
 
 ### grill-me: вскрыть допущения до написания кода
 
@@ -442,53 +618,29 @@ skill для уточнения плана, не MCP и не генератор 
 
 Агент строит **дерево решений**: ответ о пользователе определяет следующие вопросы о сценарии. В раунде задаёт вопросы,
 предпосылки которых уже согласованы, предлагает рекомендации и ждёт ответов. Так последовательно вскрываются допущения,
-а не выдаётся анкета на пятьдесят пунктов. **Факты о проекте агент проверяет сам; продуктовые решения принимает владелец**.
-Реализация начинается только после подтверждения общего понимания.
+а не выдаётся анкета на пятьдесят пунктов. **Факты о проекте агент проверяет сам; продуктовые решения принимает владелец
+**. Реализация начинается только после подтверждения общего понимания.
 ([Механика интервью](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md))
 
 В проверенной версии `grill-me` — пользовательская точка входа: она вызывает `grilling`, поэтому хосту должны быть
 доступны оба skill.
 
-<details>
-<summary>Установить grill-me и забрать пример промпта</summary>
-
 Точные команды из карточек skills.sh; вторая — для зависимого `grilling`, если он ещё недоступен хосту:
 
 ```sh
 npx skills add https://github.com/mattpocock/skills --skill grill-me
-npx skills add https://github.com/mattpocock/skills --skill grilling
 ```
 
-Это рецепт, не выполненная здесь установка. Вызов через меню skills или `/grill-me` зависит от host:
-одинаковая slash-команда во всех клиентах не гарантируется.
-([grill-me](https://skills.sh/mattpocock/skills/grill-me), [grilling](https://skills.sh/mattpocock/skills/grilling))
-
-Наш учебный запрос, не запись проведённого интервью:
+Далее просто говорите:
 
 ```text
-Хочу в git-ai-dashboard фильтр по периоду. Примени grill-me,
-но пока не пиши код. Уточни: зачем фильтр и кто им пользуется,
-что входит в выборку, как показывать неполные данные и ошибки stats,
-по каким критериям примем результат. Устройство проекта исследуй сам.
-Спрашивай раундами с рекомендациями; дождись моих решений
-и подтверждения общего понимания.
+Примени grill-me. Хочу сделать ***.
 ```
-
-</details>
-
-Согласованные ответы затем передаются в OpenSpec proposal/specs. Это наша связка инструментов, не автоматическая
-интеграция. Интервью уменьшает число молчаливых допущений, но не устраняет все ошибки и не заменяет проверки.
-
-<a id="openspec"></a>
 
 ### OpenSpec: сохранить договорённости в проекте
 
-Когда инструменты подключены, остаётся вопрос: что именно они должны сделать? **[OpenSpec](https://github.com/Fission-AI/OpenSpec/blob/v1.15.0/README.md)**
-выносит требования из чата в версионируемые файлы. Это CLI и рабочие инструкции для агента, **не MCP-сервер**.
-На дату проверки, 25 октября 2026 года, актуальный стабильный релиз —
-**[1.15.0](https://github.com/Fission-AI/OpenSpec/releases/tag/v1.15.0)**.
-
-Для npm-варианта нужен Node.js **>=20.19.0**. Установка и инициализация в терминале:
+[OpenSpec](https://github.com/Fission-AI/OpenSpec/blob/v1.15.0/README.md) выносит требования из чата в версионируемые
+файлы. Это CLI и рабочие инструкции для агента, **не MCP-сервер**.
 
 ```sh
 npm install -g @fission-ai/openspec@1.15.0
@@ -496,136 +648,86 @@ openspec init
 ```
 
 `init` предлагает интеграции с агентами и создаёт структуру проекта. Основной современный цикл:
-**`/opsx:propose` → review человеком → `/opsx:apply` → тесты и review → `/opsx:archive`**.
-Это команды **в чате**, не shell; конкретное написание зависит от клиента и выводится при настройке.
-([Quickstart](https://openspec.dev/docs/quickstart),
-[команды 1.15.0](https://github.com/Fission-AI/OpenSpec/blob/v1.15.0/docs/commands.md))
 
-<details>
-<summary>Пример: поставить через OpenSpec задачу на кнопку копирования кода</summary>
+* `/opsx:propose` → review человеком →
+* → `/opsx:apply` → тесты и review →
+* → `/opsx:archive`.
 
-Небольшое изменение для существующего блога:
+Пример:
 
 ```text
 /opsx:propose add-code-copy
-
-Добавь кнопку «Скопировать» у блоков кода. Копируется только код,
-без подписи языка и текста кнопки. При отказе копирования показываем
-ошибку, а не успех. Выделение текста не ломаем. Новых зависимостей
-без согласования не добавляем. Сейчас подготовь только план.
+Добавь кнопку «Скопировать» у блоков кода.
 ```
 
-</details>
+* `add-code-copy` название таски, можно не указывать тогда система добавит название сама.
 
-`proposal.md` объясняет зачем и что меняем; `specs` описывают поведение; `design.md` — технические решения,
-когда они нужны; `tasks.md` — задачи. Важное различие: **`openspec/specs/` — текущие согласованные требования**,
-а `openspec/changes/add-code-copy/specs/` — изменения требований, не вторая полная копия документации.
-([Структура](https://openspec.dev/docs/setup))
+Получаем файлы:
+
+* `proposal.md` объясняет зачем и что меняем;
+* `specs` описывают поведение;
+* `design.md` — технические решения, когда они нужны;
+* `tasks.md` — задачи.
+
+Важное различие: **`openspec/specs/` — текущие согласованные требования**, а `openspec/changes/add-code-copy/specs/` —
+изменения требований ([Структура](https://openspec.dev/docs/setup)).
 
 Человек читает план и уточняет сценарии: что произойдёт при запрещённом доступе к буферу, повторном клике, работе
 с клавиатуры? Только затем отдельным запросом запускается `/opsx:apply add-code-copy`. После реализации — реальные
 проверки и ревью, затем `/opsx:archive add-code-copy` с обновлением основных specs.
 
-`openspec validate add-code-copy --strict` проверяет **форму артефактов, не правильность кнопки**.
-Галочки в задачах не заменяют запуск приложения и проверку отказного сценария.
-([CLI validate](https://openspec.dev/docs/cli))
-
-<a id="ux"></a>
-
-### UX: работающая кнопка ещё не означает удобный интерфейс
-
-#### Что удалось извлечь из доклада
+### Проверка хорошего дизайна UX
 
 В [докладе Михаила Проскурина «Минимально жизнеспособный дизайн: UX для каждого»](https://www.youtube.com/watch?v=Y6q7z3rbbgs)
-эвристики Нильсена предлагаются как практическая проверка для фронтендера.
+эвристики Нильсена предлагаются как практическая проверка для фронтендера. Десять эвристик Jakob Nielsen, описаны в его
+[статье](https://www.nngroup.com/articles/ten-usability-heuristics/).
 
-В поисковых выдержках расшифровки блока **19:23–19:44 и его продолжения** есть вопросы: сохранятся ли данные при
-переходе на другую страницу, можно ли восстановить удалённое, повторить действие и вернуться назад. Это смысловой
-пересказ текстового фрагмента, не аудиосверенная цитата.
-([Начало блока](https://www.youtube.com/watch?v=Y6q7z3rbbgs&t=1163s))
-
-Полный авторский чек-лист, Markdown-файл и слайды недоступны в собранных материалах. Поэтому ниже **это моя адаптация
-по NN/g, а не полный список вопросов Проскурина**. Основа — десять эвристик Jakob Nielsen, общие принципы,
-а не гарантия хорошего UX. ([Официальный NN/g](https://www.nngroup.com/articles/ten-usability-heuristics/))
-
-#### Рабочая адаптация для проверки интерфейса
-
-| Принцип | Практические вопросы |
-|---|---|
-| Видимость состояния | Видно ли, что действие принято и выполняется? Понятен ли результат? |
-| Соответствие реальному миру | Понятны ли слова пользователю без внутреннего жаргона? Соответствует ли порядок информации его задаче? |
-| Контроль и свобода | Можно ли выйти из сценария и отменить ошибочное действие? Сохраняется ли нужный ввод? |
-| Согласованность и стандарты | Одинаково ли работают одинаково названные действия? Соблюдены ли привычные соглашения платформы? |
-| Предотвращение ошибок | Можно ли убрать условия ошибки заранее? Есть ли уместная защита опасного действия? |
-| Узнавание вместо запоминания | Видны ли варианты в момент выбора? Не приходится ли помнить данные с предыдущего экрана? |
-| Гибкость и эффективность | Есть ли понятный путь для новичка и быстрый для опытного? Удобны ли повторяющиеся операции? |
-| Эстетика и минимализм | Что отвлекает от главной задачи? Нужна ли вся показанная информация именно сейчас? |
-| Помощь при ошибках | Объясняет ли сообщение конкретную проблему человеческим языком? Предлагает ли выполнимое исправление? |
-| Помощь и документация | Можно ли быстро найти подсказку по текущей задаче? Есть ли конкретные шаги? |
+| Принцип                      | Практические вопросы                                                                                   |
+|------------------------------|--------------------------------------------------------------------------------------------------------|
+| Видимость состояния          | Видно ли, что действие принято и выполняется? Понятен ли результат?                                    |
+| Соответствие реальному миру  | Понятны ли слова пользователю без внутреннего жаргона? Соответствует ли порядок информации его задаче? |
+| Контроль и свобода           | Можно ли выйти из сценария и отменить ошибочное действие? Сохраняется ли нужный ввод?                  |
+| Согласованность и стандарты  | Одинаково ли работают одинаково названные действия? Соблюдены ли привычные соглашения платформы?       |
+| Предотвращение ошибок        | Можно ли убрать условия ошибки заранее? Есть ли уместная защита опасного действия?                     |
+| Узнавание вместо запоминания | Видны ли варианты в момент выбора? Не приходится ли помнить данные с предыдущего экрана?               |
+| Гибкость и эффективность     | Есть ли понятный путь для новичка и быстрый для опытного? Удобны ли повторяющиеся операции?            |
+| Эстетика и минимализм        | Что отвлекает от главной задачи? Нужна ли вся показанная информация именно сейчас?                     |
+| Помощь при ошибках           | Объясняет ли сообщение конкретную проблему человеческим языком? Предлагает ли выполнимое исправление?  |
+| Помощь и документация        | Можно ли быстро найти подсказку по текущей задаче? Есть ли конкретные шаги?                            |
 
 Такой список полезно дать агенту вместе со сценарием, а не просить «сделай красиво». Браузерный MCP поможет пройти
 экраны; человек проверит, действительно ли поведение понятно и безопасно.
 
-[↑ К оглавлению](#toc)
+Также отмечу сайт - [21st.dev](https://21st.dev) — заготовки интерфейсов. Можно использовать как старт UI.
 
 ---
 
-<a id="video"></a>
+## Видеоролики
 
-## 4. Видео и другие полезные находки
+Если нужен ролик, анимация или заготовки для интерфейса. Начните с выбора результата: кодовая motion-графика, монтаж
+существующей съёмки и генерация видео — не одно и то же.
 
-**Когда читать:** нужен ролик, анимация или заготовки для интерфейса. Начните с выбора результата:
-кодовая motion-графика, монтаж существующей съёмки и генерация видео — не одно и то же.
+Скилл [vizavi_motion](https://vizavi.academy/lesson-motion) - дает стиль, раскадровка,
+референсы и проверка экспорта, выбор стиля и глубины сцены, референсы, изображения и 3D-модели.
 
-### Что взять из трёх роликов
-
-| Что хотите получить | С чего начать | На что обратить внимание |
-|---|---|---|
-| Кодовую motion-графику | [Визави: vizavi_motion](https://www.youtube.com/watch?v=L4MM8BQ9dTM) | Стиль, раскадровка, референсы и проверка экспорта |
-| Промо, анимацию или короткий формат | [ИИ МАСТОДОНТ: HyperFrames и Claude Code](https://www.youtube.com/watch?v=yEpN_s9UkAE) | В ролике семь разных форматов, а не один pipeline |
-| Монтаж исходной съёмки и motion | [Try CGI: монтаж и After Effects](https://www.youtube.com/watch?v=umKxRXX4-Mg) | Первая версия, адресные правки, проверка движения и звука |
-
-<details>
-<summary>Что подтверждено материалами трёх роликов и где взять скилл</summary>
-
-**[Визави](https://www.youtube.com/watch?v=L4MM8BQ9dTM)** — `vizavi_motion`, выбор стиля и глубины сцены, референсы,
-изображения и 3D-модели. На [странице материалов](https://vizavi.academy/lesson-motion/) доступен скилл;
-в проверенном архиве **v1.6.1** есть инструкции по раскадровке, короткой пробе, просмотру и экспорту.
-Это текущие материалы, не доказательство версии скилла в момент записи.
-([ZIP](https://vizavi.academy/lesson-motion/downloads/vizavi_motion-v1.6.1.zip))
-
-Архив скилла импортируется в Claude через **Customize → Skills → + → Upload a skill**. Это подключение инструкции:
-оно само по себе не создаёт готовый MP4.
-
-**[ИИ МАСТОДОНТ](https://www.youtube.com/watch?v=yEpN_s9UkAE)** перечисляет семь форматов: мем, motion-ролик,
-мультфильм, промо запуска, вертикальный шортс, монтаж говорящей головы и музыкальный клип. HyperFrames явно привязан
-к промо запуска в [главе 05:07](https://www.youtube.com/watch?v=yEpN_s9UkAE&t=307s), но не доказан для всех семи примеров.
-Монтаж снятого человека — не то же самое, что генерация человека по тексту.
-
-**[Try CGI](https://www.youtube.com/watch?v=umKxRXX4-Mg)** — монтаж, 2D motion, заявленный 3D tracking и создание проекта
-After Effects. Полезна последовательность авторских глав:
-[первая версия, 21:40](https://www.youtube.com/watch?v=umKxRXX4-Mg&t=1300s) →
-[правки, 22:30](https://www.youtube.com/watch?v=umKxRXX4-Mg&t=1350s).
-Точный движок монтажа и API управления AE не установлены; приписывать этому примеру конкретный MCP или renderer нельзя.
-
-</details>
+[HyperFrames](https://github.com/heygen-com/hyperframes) - отличная штука для генерации motion-роликов.
 
 ### Общий рабочий процесс
 
-Это моя сборка процесса по описаниям и материалам, не последовательность команд из видео:
-
 1. **Бриф.** Аудитория, сюжет, длительность, размер кадра, стиль, обязательные надписи, звук и конечные файлы.
-2. **Раскадровка.** Сцены, действие, переходы и ритм. Проверить, что агент действительно получил референс, а не только URL.
-3. **Ассеты и лицензии.** Подготовить реальные файлы, проверить форматы, авторство и условия использования музыки, картинок, моделей.
+2. **Раскадровка.** Сцены, действие, переходы и ритм. Проверить, что агент действительно получил референс, а не только
+   URL.
+3. **Ассеты и лицензии.** Подготовить реальные файлы, проверить форматы, авторство и условия использования музыки,
+   картинок, моделей.
 4. **Короткая проба.** Сначала самый рискованный эффект или переход, потом весь ролик.
-5. **Анимация или монтаж.** Для кодовой графики — управляемый таймлайн; для исходной съёмки — отдельно поставленные монтажные задачи.
-6. **Просмотр и правки.** Смотреть движение и слушать звук. Замечание: интервал → дефект → нужное изменение → повторная проверка.
-7. **Экспорт.** Проверить именно финальный MP4: длительность, параметры, начало, конец, переходы и синхронизацию звука, если он есть. Сохранить исходники.
+5. **Анимация или монтаж.** Для кодовой графики — управляемый таймлайн; для исходной съёмки — отдельно поставленные
+   монтажные задачи.
+6. **Просмотр и правки.** Смотреть движение и слушать звук. Замечание: интервал → дефект → нужное изменение → повторная
+   проверка.
+7. **Экспорт.** Проверить именно финальный MP4: длительность, параметры, начало, конец, переходы и синхронизацию звука,
+   если он есть. Сохранить исходники.
 
-<details>
-<summary>Промпт: заказать двенадцатисекундный ролик про MCP</summary>
-
-Мой пример запроса, не цитата из роликов:
+Мой пример запроса промпта: заказать двенадцатисекундный ролик про MCP
 
 ```text
 Сделай объяснение MCP на 12 секунд: 1920×1080, 30 fps, MP4 H.264,
@@ -636,58 +738,15 @@ After Effects. Полезна последовательность авторс�
 Проверь экспорт и отдай MP4 вместе с редактируемыми исходниками.
 ```
 
-</details>
-
-<a id="hyperframes"></a>
-
 ### HyperFrames: локальный CLI отдельно от облачного MCP
 
-Для локального кодового видео [HyperFrames](https://github.com/heygen-com/hyperframes) превращает HTML/CSS и медиа
-в MP4. **Локальный путь — исходники и собственный рендер; облачный MCP — аккаунт HeyGen, авторизация и внешний сервис.**
-
-<details>
-<summary>Локальный путь: CLI, skills и экспорт</summary>
-
-Нужны **Node.js 22+ и FFmpeg**. Минимальный путь из README:
-
-```sh
-npx hyperframes init my-video
-cd my-video
-npx hyperframes preview
-npx hyperframes render
-```
-
-Между созданием проекта и рендером нужно подготовить композицию и проверить preview. Эти команды сверены по
-документации, а не исполнены здесь как видеопроизводственный эксперимент. `npx hyperframes skills update` — отдельная
-установка/обновление инструкций агента, **не команда рендера**. ([Quickstart](https://hyperframes.heygen.com/quickstart))
-
-</details>
-
-Есть и другой маршрут: **hosted HyperFrames MCP в beta через HeyGen**. Он требует авторизации, отправляет материалы
-внешнему сервису и имеет собственные лимиты. Это не локальный CLI с другим названием и не подтверждённая конфигурация
-из перечисленных видео. Перед подключением надо решить, какие данные можно передавать.
+**Описание.** [HyperFrames](https://github.com/heygen-com/hyperframes) превращает HTML/CSS и медиа в MP4.
+**Локальный путь — исходники и собственный рендер; облачный MCP `hyperframes` — аккаунт HeyGen и внешний сервис.**
+Hosted connector находится в beta, требует авторизации и имеет свои лимиты. Это не подтверждённая конфигурация
+из перечисленных видео; до подключения решите, какие материалы можно передавать.
 ([MCP guide](https://hyperframes.heygen.com/guides/mcp.md))
 
-<details>
-<summary>Облачный путь: код подключения и промпт агенту</summary>
-
-Добавьте в `mcp.servers` своего OpenCode V2; локальный HyperFrames CLI для этого маршрута не требуется:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "servers": {
-      "hyperframes": {
-        "type": "remote",
-        "url": "https://mcp.heygen.com/mcp/hyperframes/"
-      }
-    }
-  }
-}
-```
-
-Или поручите настройку агенту:
+Подключение через промпт
 
 ```text
 Подключи hosted HyperFrames MCP к проектному OpenCode V2 по официальной
@@ -699,125 +758,142 @@ npx hyperframes render
 и не запускай рендер до моего согласия на передачу данных и возможные затраты.
 ```
 
-</details>
+Подключение через JSON
 
-<a id="more-tools"></a>
+```json
+{
+  "mcp": {
+    "servers": {
+      "hyperframes": {
+        "type": "remote",
+        "url": "https://mcp.heygen.com/mcp/hyperframes/"
+      }
+    }
+  }
+}
+```
 
-### Что ещё взять из подборки инструментов
+Альтернатива без MCP: локальный CLI, skills и экспорт. Нужны **Node.js 22+ и FFmpeg**. Минимальный путь из README:
 
-Из [подборки «Тут про планирование»](https://www.youtube.com/watch?v=le-WtDYAiSI) полезно выделить три направления:
-[21st.dev](https://21st.dev) — заготовки интерфейсов, [HyperFrames](https://github.com/heygen-com/hyperframes) —
-программное видео, [REA](https://github.com/morluto/rea) — исследование приложений.
+```sh
+npx hyperframes init my-video
+cd my-video
+npx hyperframes preview
+npx hyperframes render
+```
 
-Первые можно использовать как старт UI, но красивая заготовка не гарантирует доступность и хороший UX.
-Два остальных уже разобраны выше: выбирать стоит по задаче, а не устанавливать всю подборку сразу. Например,
-взять компонент, описать его состояния в требованиях и пройти отказные сценарии из UX-проверки.
-
-[↑ К оглавлению](#toc)
-
----
-
-<a id="metrics"></a>
-
-## 5. Замеры: что считает git-ai-dashboard
-
-**Коротко:** происхождение добавленных строк — не продуктивность разработчика.
-
-<figure>
-  <div class="blogImage_container"><img src="ai-metrics.svg" width="800" height="420" style="height: auto;" loading="lazy" decoding="async" alt="Учебный пример: 60 AI, 20 human и 20 unknown строк дают 60 процентов AI и 80 процентов покрытия"></div>
-  <figcaption><em>Учебная арифметика, не рабочая статистика проекта.</em></figcaption>
-</figure>
-
-В замерах важно разделять три слоя. **Официальный [git-ai](https://usegitai.com/docs/get-started/how-git-ai-works)**
-получает события агента, делает checkpoints и сохраняет атрибуцию коммитов в `refs/notes/ai`. Это **не AI-детектор**,
-угадывающий происхождение по стилю кода.
-
-**Локальный адаптер OpenCode V2** доставляет события в git-ai. **`git-ai-dashboard`** — статические HTML и CSV поверх истории,
-notes и `git ai stats`; собственного распознавания AI-кода у него нет.
-
-### Что означает доля AI
-
-В dashboard **AI** — строки с AI-атрибуцией, **human** — с известной человеческой атрибуцией,
-**unknown** — без установленного происхождения. Нет note — **не значит «написал человек»**: причиной бывает старая
-история, недоставленные notes или сломанная интеграция. При отсутствии note или ошибке stats dashboard относит
-добавления в unknown. ([Поля commit stats](https://usegitai.com/docs/get-started/commit-stats))
-
-Основная доля считается так: **`SUM(AI additions) / SUM(additions)` по выбранной non-merge истории**.
-Это не среднее процентов отдельных коммитов и не доля AI в текущем дереве. Переписанная в нескольких коммитах строка
-может участвовать в сумме несколько раз.
-
-Учебный пример, не рабочая статистика: **60 AI + 20 human + 20 unknown = 100 добавленных строк**.
-Доля AI — **60%**, покрытие строк атрибуцией — **80%**. Делить только на известные 80 строк и объявлять 75%
-основной долей было бы сменой знаменателя.
-
-Отдельно считается **coverage по коммитам: коммиты с note / все выбранные non-merge-коммиты**.
-Это не покрытие строк: даже при наличии note часть строк может остаться unknown. Для сравнения замеров нужны одинаковые
-границы истории, правила исключения файлов и доступные notes.
-
-Ещё ловушка — `ai_accepted`. В текущем описании git-ai это AI-строки, принятые в коммит без ручной правки;
-поле указано как равное `ai_additions`. Простое суммирование commit stats **не измеряет выживание строк после последующих изменений**.
-Называть это durability или «осталось в коде через месяц» нельзя.
-([Определение полей](https://usegitai.com/docs/get-started/commit-stats))
-
-<a id="git-ai-fix"></a>
-
-<details>
-<summary>История починки: почему сначала получалось 0% AI, а затем unknown model</summary>
-
-Исторический локальный случай: **git-ai 1.7.5, OpenCode 2.0.27, Windows**. Плагин с V1-entrypoint — функцией,
-возвращающей hooks, — не загружался в V2. Не было hooks, значит, не было checkpoints. Нулевой процент говорил
-о неисправном сборе, а не об отсутствии AI-правок.
-
-В локальном patch entrypoint перенесён на definition с `id` и `setup`, а обработчики зарегистрированы через
-`ctx.tool.hook("execute.before")` и `ctx.tool.hook("execute.after")`. События переводятся в ожидаемый git-ai формат
-и вызывают checkpoint. ([Миграция плагинов V2](https://opencode.ai/v2/docs/build/plugins/migrate-v1))
-
-Следующей проблемой стала **unknown model**: поиск данных шёл по неподходящему Windows-пути и ожидал legacy-схему БД.
-Локальное решение — получить модель через session API, создать отдельную маленькую SQLite bridge-БД с совместимой
-схемой и передать её каталог через `GIT_AI_OPENCODE_STORAGE_PATH`. **Оригинальную БД OpenCode не мигрировали**.
-Публичный [issue о Windows lookup](https://github.com/git-ai-project/git-ai/issues/2119) описывает проблему пути;
-это не подтверждение всего локального решения.
-
-Неизвестная модель и unknown-происхождение строк — разные вещи: AI-атрибуция может работать, даже когда имя модели
-не определилось.
-
-Историческая проверка включала `git ai status --json` с `is_human: false` и заполненной моделью, затем blame и stats.
-Это зафиксированный локальный результат, **не свежий end-to-end прогон и не универсальная инструкция**.
-Patch не является официальным релизом. `install-hooks` или обновление могут его перезаписать; после обновления нужно
-повторить всю цепочку от контрольной правки агентом до атрибуции коммита, а не только сравнить файлы плагина.
-
-</details>
-
-Эти проценты не показывают ускорение и не подходят для ранжирования сотрудников. Постановка задачи, архитектура,
-ревью и отладка не превращаются в human additions автоматически. Для продуктивности нужны отдельные данные
-о времени, сопоставимых задачах, качестве и переделках.
-
-[↑ К оглавлению](#toc)
+Между созданием проекта и рендером нужно подготовить композицию и проверить preview. Эти команды сверены по
+документации, а не исполнены здесь как видеопроизводственный эксперимент. `npx hyperframes skills update` — отдельная
+установка/обновление инструкций агента, **не команда рендера
+**. ([Quickstart](https://hyperframes.heygen.com/quickstart))
 
 ---
 
-<a id="checklist"></a>
+## 4. ArcEngine: разработка игр с AI-агентом
 
-## 6. Короткий маршрут на каждый день
+**[ArcEngine](https://github.com/xaidan777/ArcEngine)** — стартовый набор для браузерных 3D-игр,
+спроектированный под LLM-кодинг. Агент пишет JavaScript, а готовая основа на **Babylon.js** даёт сцену,
+камеру, свет, тени, загрузку моделей, звук и редактор. Это не самостоятельная нейросеть, генерирующая игру
+по кнопке, и **не MCP-сервер**: работа идёт через файлы игрового проекта.
 
-Полный цикл теперь выглядит так: **grill-me → согласованные решения → OpenSpec proposal/specs → apply → UX/тесты
-→ замеры**. На каждом переходе нужен понятный результат, а не просто ещё один вызванный skill.
+Идея автора — не учить агента управлять большим интерфейсом движка, а дать небольшой проект с понятными
+правилами. Логику меняет агент, а объекты, параметры, звук и UI можно донастраивать в веб-редакторе.
+Авторский [анонс](https://t.me/tearevo/339) и [демонстрация](https://www.youtube.com/watch?v=QpsV96WBWBA).
+Речь именно о `xaidan777/ArcEngine`, не об одноимённом Python-движке ARC Prize.
 
-1. Выберите минимальный набор MCP и проверьте по одной реальной операции каждого.
-2. Обсудите неизвестные решения через grill-me, а не молча отдавайте их агенту.
-3. Сохраните требования в OpenSpec; только после согласования переходите к реализации.
-4. Для интерфейса пройдите UX-сценарии, для ролика просмотрите именно экспорт, для Figma проверьте холст.
-5. Перед выводами о доле AI проверьте checkpoints, модель и полноту notes.
+### Как начать
 
-**У каждого инструмента должен быть критерий, что он действительно сработал.** Подключение, авторизация,
-плагин, реализация и сбор метрик — разные уровни; отдельно проверенный шаг проще починить.
+Создайте **отдельный игровой проект**, а не устанавливайте движок внутрь рабочего приложения.
+По [README](https://github.com/xaidan777/ArcEngine#readme) для запуска нужен Node.js;
+Babylon.js лежит локально в `libs/`, установка npm-зависимостей игры не требуется.
+
+Пример для PowerShell:
+
+```powershell
+git clone https://github.com/xaidan777/ArcEngine.git my-game
+cd my-game
+.\run.bat
+```
+
+Откройте папку `my-game` в своём кодинг-агенте. Перед первой правкой попросите прочитать `CLAUDE.md`
+и подходящие инструкции из `claude/skills/`, даже если работаете не через Claude Code.
+Эти скиллы в самом наборе читаются как файлы — не нужно считать, что клиент автоматически их зарегистрировал.
+
+Полезные команды текущей версии:
+
+| Задача                              | Команда в папке игры   |
+|-------------------------------------|------------------------|
+| Открыть игру                        | `.\run.bat`            |
+| Открыть редактор сцены и интерфейса | `.\editor.bat`         |
+| Проверить типы и тесты              | `node tools/check.mjs` |
+| Собрать архив игры в `dist/`        | `.\build.bat`          |
+
+Это рецепты из [инструкции проекта](https://github.com/xaidan777/ArcEngine/blob/main/CLAUDE.md),
+не выполненный здесь запуск игры. Проверка типов может использовать TypeScript через `npx`;
+«нет npm-зависимостей игры» не означает, что любая проверка всегда проходит без сети.
+
+### Промпт для агента
+
+Лучше начинать с одного законченного игрового цикла, а не заказывать сразу большую RPG.
+Ниже мой учебный пример, не промпт из авторского видео.
 
 <details>
-<summary>О версиях, источниках и границах проверки</summary>
+<summary>Сделать небольшой игровой прототип на ArcEngine</summary>
 
-Срез статьи — 25 октября 2026 года. По видео использованы авторские описания, главы и доступные материалы,
-а не полные стенограммы. Таймкоды глав помогают найти нужный блок, но не подтверждают каждую реплику.
-Учебные промпты написаны для статьи; команды подключения сверены с документацией, но не выдаются за мои
-исторические shell-команды или новый end-to-end прогон всех серверов. Ограничения UX-чек-листа отмечены отдельно.
+```text
+Работай в этой папке ArcEngine. Сначала прочитай README.md, CLAUDE.md
+и нужные файлы из claude/skills/, составь короткий план и дождись согласия.
+Не меняй движок и стек, не добавляй npm-зависимости без обсуждения.
+
+Сделай браузерную 3D-игру: за 60 секунд собрать 10 кристаллов на одной карте.
+Управление WASD, камера следует за персонажем. Нужны счётчик кристаллов,
+таймер, победа, проигрыш по времени, перезапуск и выключение звука.
+Сначала используй простую геометрию и существующие ассеты без платных API.
+Проверь, что набор уже умеет, а что потребуется реализовать:
+не считай физику, коллизии и контроллер игрока готовыми по умолчанию.
+
+Соблюдай правила набора: логика — в Game.js, параметры — в Constants.js,
+интерфейс — через UILayout.js и UI API, объекты получай по тегам.
+Сначала реализуй минимальный цикл, затем займись внешним видом.
+Запусти node tools/check.mjs и проверь игру в браузере:
+движение, сбор, победу, тайм-аут, перезапуск и звук. Одного скриншота мало.
+При правках рендера выполни Debug3D.lint(). Сообщи, что реально проверено,
+а что заблокировано. Временные материалы складывай в .temp/.
+```
 
 </details>
+
+<a id="arcengine-checks"></a>
+
+### Что проверить перед публикацией
+
+**Готовая 3D-сцена ещё не означает готовую игру.** В инструкции текущего набора прямо перечислены отсутствующие
+возможности: физика и коллизии, готовые контроллеры игрока и противников, несколько уровней и сохранение прогресса.
+`Game.js` — образец места для логики, а не готовый жанровый шаблон.
+
+- **Геймплей:** можно ли действительно выиграть и проиграть, не ломается ли повторный запуск?
+- **Ввод и рендер:** работают ли управление, камера и интерфейс в браузере? Штатные тесты проверяют логику,
+  но не заменяют проверку картинки и ввода.
+- **Производительность:** нет ли пропавших объектов, ошибок консоли, избыточных мешей и неприемлемой цены кадра?
+- **Ассеты и лицензии:** код набора — под [MIT](https://github.com/xaidan777/ArcEngine/blob/main/LICENSE),
+  права на добавленные модели, музыку и текстуры нужно проверять отдельно.
+
+---
+
+## Замеры: что считает git-ai-dashboard
+
+![ai-metrics.svg](ai-metrics.svg)
+
+**Официальный [git-ai](https://usegitai.com/docs/get-started/how-git-ai-works)**
+
+1. ставит плагины в ряд Harness: Cursor, Codex, Calude, Opencode (правда для v2 придется попросить агента поправить
+   плагин) и др.
+2. ставит плагины в VsCode, Idea, Cursor и др. (блокнот н другие текстовые редакторы не трогает, так что через них
+   изменения обычно попадают в unknown)
+3. когда агент в Harness (ai отметка) или человек в IDE (human) меняет строки это записывается `refs/notes/ai`,
+   получается типа JsMap.
+
+Далее по каждому коммиту можно построить статистку
+
+
+
