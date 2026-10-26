@@ -1,0 +1,37 @@
+"src/pages/2026/MCP и полезные AI инструменты/index.md"
+  s_4fb29315c914ac::t_0506f7b11bb625 900-906,909-917,919,921
+  s_4fb29315c914ac::t_5a15d6055085f8 39-40,48
+  h_06e01297fc405a 879,881-884,899,908,920
+  s_6ace9bb270656b::t_3ab292f6d9eee1 880
+package.json
+  h_06e01297fc405a 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4c62434b38ed0dc3059fad948480a6944b29651f",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_4fb29315c914ac": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e86df0fc3ffdk1VVfJmlhyNpt4",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6ace9bb270656b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e8c4420cfffdO4Hxdp32Drz7Lm",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
