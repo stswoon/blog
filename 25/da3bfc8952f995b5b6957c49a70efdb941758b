@@ -1,0 +1,19 @@
+"src/pages/2026/MCP для создания видео/index.md"
+  s_4ca12bb60774cc::t_e941b359fa4eae 151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "25da3bfc8952f995b5b6957c49a70efdb941758b",
+  "prompts": {},
+  "sessions": {
+    "s_4ca12bb60774cc": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e697ba2a8ffeG2vnfaAMpvayU0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
