@@ -1,0 +1,31 @@
+"src/pages/2026/MCP для создания видео/index.md"
+  s_4ca12bb60774cc::t_4a4c442dc480fb 24-25,29-30,32-34,96-97,106,111-113,115,137,153,157-159,165,170-171,178
+  s_4ca12bb60774cc::t_b629c323a744dc 73
+  h_06e01297fc405a 47,49,60,72,101-104,121-125,133-135,151,189
+  s_4ca12bb60774cc::t_8d612beb81daa5 22,26,53-59,61-71,74-88,117
+  s_4ca12bb60774cc::t_e52158802ac58d 179
+  h_06e01297fc405a 46,48,50-52,150,190-191
+package.json
+  h_06e01297fc405a 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "88555f9edec70480ed9f8f28765bac0f5ade5d13",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_4ca12bb60774cc": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e697ba2a8ffeG2vnfaAMpvayU0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
