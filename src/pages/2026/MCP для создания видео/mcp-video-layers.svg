@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="layers-title layers-desc">
+  <title id="layers-title">Кто за что отвечает при создании видео</title>
+  <desc id="layers-desc">Skill задаёт порядок работы AI-агенту. Локальная ветка: агент пишет и меняет исходники, рендерер строит из них кадры, полученный MP4 проверяют как файл и воспроизводят. От агента отдельно ответвляется необязательный доступ к внешним инструментам через MCP или API. Внешние инструменты не являются обязательным этапом локального рендера.</desc>
+  <defs>
+    <linearGradient id="layers-bg" x2="1" y2="1">
+      <stop stop-color="#08162f"/>
+      <stop offset="1" stop-color="#152d4b"/>
+    </linearGradient>
+    <radialGradient id="layers-halo">
+      <stop stop-color="#1f8eab" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#1f8eab" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="layers-glass" x2="1" y2="1">
+      <stop stop-color="#233f5e"/>
+      <stop offset="1" stop-color="#142841"/>
+    </linearGradient>
+    <linearGradient id="layers-paper" x2="1" y2="1">
+      <stop stop-color="#eef5ff"/>
+      <stop offset="1" stop-color="#cdd9f4"/>
+    </linearGradient>
+    <linearGradient id="layers-gem" x2="1" y2="1">
+      <stop stop-color="#84eff7"/>
+      <stop offset="1" stop-color="#a994fb"/>
+    </linearGradient>
+    <marker id="layers-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="m2 2 8 4-8 4" fill="none" stroke="#65dfed" stroke-width="2" stroke-linejoin="round"/>
+    </marker>
+    <marker id="layers-coral-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="m2 2 8 4-8 4" fill="none" stroke="#ffac9d" stroke-width="2" stroke-linejoin="round"/>
+    </marker>
+    <marker id="layers-lilac-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="m2 2 8 4-8 4" fill="none" stroke="#c7b9ff" stroke-width="2" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      text { font-family: 'Segoe UI', Arial, sans-serif; fill: #edf5ff; }
+      .kicker { font-size: 25px; font-weight: 600; letter-spacing: 2px; fill: #7ee7f0; }
+      .title { font-size: 52px; font-weight: 700; letter-spacing: -.8px; }
+      .subtitle { font-size: 28px; fill: #b9cce3; }
+      .heading { font-size: 34px; font-weight: 650; }
+      .body { font-size: 28px; fill: #d4e2f2; }
+      .small { font-size: 26px; fill: #b9cce3; }
+      .outline { stroke: #47627f; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" rx="36" fill="url(#layers-bg)"/>
+  <ellipse cx="1260" cy="440" rx="620" ry="400" fill="url(#layers-halo)"/>
+  <path d="M1238 0v900M1350 0v900M1462 0v900" stroke="#a9c9f0" stroke-opacity=".035"/>
+  <text x="64" y="69" class="kicker">ВИДЕО · РОЛИ И ГРАНИЦЫ</text>
+  <text x="64" y="133" class="title">Кто за что отвечает</text>
+  <text x="64" y="180" class="subtitle">Локальный рендер и внешние инструменты — два разных маршрута.</text>
+
+  <!-- The method guides the agent; it is not a rendering stage. -->
+  <rect x="64" y="232" width="332" height="174" rx="24" fill="#292c50" stroke="#7c75a8" stroke-width="1.5"/>
+  <text x="94" y="279" class="heading" fill="#e1d8ff">Skill</text>
+  <text x="94" y="322" class="body">Порядок работы</text>
+  <text x="94" y="360" class="small">и критерии готовности</text>
+  <g fill="none" stroke="#c7b9ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m329 261 5 5 9-11m-14 27 5 5 9-11M351 261h16m-16 21h16"/>
+    <path d="M230 406v76" stroke-dasharray="7 8" marker-end="url(#layers-lilac-arrow)"/>
+  </g>
+  <text x="253" y="455" class="small" style="fill:#d3c8f6">направляет</text>
+
+  <!-- Optional access is a separate branch, not the local pipeline. -->
+  <path d="M396 538h42V341q0-22 22-22h126" fill="none" stroke="#ffac9d" stroke-width="3" stroke-dasharray="9 9" marker-end="url(#layers-coral-arrow)"/>
+  <circle cx="396" cy="538" r="7" fill="#ffac9d"/>
+  <text x="470" y="445" class="small" style="fill:#ffc4b8">по задаче</text>
+  <rect x="598" y="232" width="300" height="174" rx="24" fill="url(#layers-glass)" class="outline"/>
+  <text x="628" y="279" class="heading">MCP / API</text>
+  <text x="628" y="322" class="body">Доступ к внешним</text>
+  <text x="628" y="360" class="body">инструментам</text>
+  <path d="M908 319h92" fill="none" stroke="#ffac9d" stroke-width="3" stroke-dasharray="9 9" marker-end="url(#layers-coral-arrow)"/>
+
+  <rect x="1014" y="232" width="522" height="174" rx="24" fill="url(#layers-glass)" class="outline"/>
+  <text x="1046" y="279" class="heading">Внешние инструменты</text>
+  <text x="1046" y="326" class="body">Генерация медиа</text>
+  <text x="1046" y="365" class="body">и другие сервисы</text>
+  <g transform="translate(1377 311)">
+    <rect width="58" height="63" rx="12" fill="#1f5470" stroke="#65dfed" stroke-width="2" transform="rotate(-10 29 31)"/>
+    <path d="m7 45 15-19 12 13 8-9 11 15" fill="none" stroke="#a4f0f5" stroke-width="2.5"/>
+    <circle cx="41" cy="17" r="5" fill="#ffac9d"/>
+    <rect x="65" y="10" width="58" height="63" rx="12" fill="#3a3862" stroke="#b8a6f1" stroke-width="2" transform="rotate(8 94 41)"/>
+    <path d="M78 42v8m8-20v30m8-39v46m8-34v22m8-16v9" stroke="#e0d5ff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <text x="822" y="461" class="kicker" style="font-size:25px;letter-spacing:1.5px">ЛОКАЛЬНЫЙ РЕНДЕР</text>
+  <g stroke="#65dfed" stroke-width="3" fill="none" marker-end="url(#layers-arrow)">
+    <path d="M408 612h48"/>
+    <path d="M760 612h48"/>
+    <path d="M1112 612h48"/>
+  </g>
+
+  <rect x="64" y="494" width="332" height="250" rx="26" fill="#212e4d" stroke="#8c83b7" stroke-width="1.5"/>
+  <g transform="translate(230 552)">
+    <circle r="41" fill="#c7b9ff"/>
+    <rect x="-25" y="-17" width="50" height="34" rx="12" fill="#293050"/>
+    <circle cx="-10" cy="-1" r="4" fill="#a4f2f4"/>
+    <circle cx="10" cy="-1" r="4" fill="#a4f2f4"/>
+    <path d="M-9 9H9M0-26v-9" stroke="#e2d9ff" stroke-width="3" stroke-linecap="round"/>
+    <circle cy="-37" r="4" fill="#ffac9d"/>
+  </g>
+  <text x="230" y="631" class="heading" text-anchor="middle">AI-агент</text>
+  <text x="230" y="678" class="body" text-anchor="middle">Пишет и меняет</text>
+  <text x="230" y="714" class="body" text-anchor="middle">проект</text>
+
+  <rect x="470" y="494" width="278" height="250" rx="26" fill="url(#layers-glass)" class="outline"/>
+  <g transform="translate(579 513)">
+    <path d="M0 0h42l22 22v60H0Z" fill="#c8d1f6"/>
+    <path d="M42 0v22h22" fill="#a195d4"/>
+    <path d="m23 38-10 9 10 9m18-18 10 9-10 9m-7-23-6 28" fill="none" stroke="#344366" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M10 70h43" stroke="#8496bb" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="609" y="631" class="heading" text-anchor="middle">Исходники</text>
+  <text x="609" y="678" class="body" text-anchor="middle">Код, сцены</text>
+  <text x="609" y="714" class="body" text-anchor="middle">и ассеты</text>
+
+  <rect x="822" y="494" width="278" height="250" rx="26" fill="url(#layers-glass)" class="outline"/>
+  <g transform="translate(907 516)">
+    <rect x="9" y="-7" width="99" height="70" rx="8" fill="#263c63" stroke="#7e8da8" stroke-width="2"/>
+    <rect width="99" height="70" rx="8" fill="#143c52" stroke="#65dfed" stroke-width="2"/>
+    <circle cx="66" cy="25" r="15" fill="#ffac9d"/>
+    <path d="m12 56 24-32 25 32Z" fill="url(#layers-gem)"/>
+    <path d="M25 80h63" stroke="#6b95b7" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="961" y="631" class="heading" text-anchor="middle">Рендерер</text>
+  <text x="961" y="678" class="body" text-anchor="middle">Строит кадры</text>
+  <text x="961" y="714" class="body" text-anchor="middle">по композиции</text>
+
+  <rect x="1174" y="494" width="362" height="250" rx="26" fill="url(#layers-paper)"/>
+  <g transform="translate(1303 515)">
+    <rect width="105" height="78" rx="14" fill="#294064"/>
+    <path d="m44 22 30 17-30 17Z" fill="#84eff7"/>
+    <path d="M12 13h6m69 0h6M12 65h6m69 0h6" stroke="#7087a9" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="105" cy="68" r="21" fill="#ffac9d" stroke="#e8effd" stroke-width="4"/>
+    <path d="m95 68 7 7 13-15" fill="none" stroke="#284363" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="1355" y="631" class="heading" text-anchor="middle" style="fill:#233653">Финальный MP4</text>
+  <text x="1355" y="678" class="body" text-anchor="middle" style="fill:#354f70">Проверяем файл</text>
+  <text x="1355" y="714" class="body" text-anchor="middle" style="fill:#354f70">и воспроизведение</text>
+
+  <rect x="64" y="786" width="1472" height="78" rx="20" fill="#152d48" stroke="#355775" stroke-width="1.5"/>
+  <circle cx="105" cy="825" r="16" fill="none" stroke="#7ee7f0" stroke-width="2.5"/>
+  <path d="M105 824v10m0-20v1" stroke="#7ee7f0" stroke-width="3" stroke-linecap="round"/>
+  <text x="143" y="835" style="font-size:29px;fill:#dceaf7">Локальный MP4 можно собрать без внешних tools и без MCP.</text>
+</svg>
