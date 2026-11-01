@@ -26,8 +26,6 @@
     - [opus-video-skills: кодовые шаблоны](#opus-video-skills)
 - [Как использовать референсы](#references)
 - [HyperFrames: локально или через MCP](#hyperframes)
-    - [Локальный путь: композиция → preview → MP4](#hyperframes-local)
-    - [Hosted MCP: рендер на стороне HeyGen](#hyperframes-hosted)
 - [Генеративные клипы, голос и музыка](#media)
     - [Polza: административный MCP отдельно от Media API](#polza)
     - [ElevenLabs](#elevenlabs)
@@ -150,7 +148,7 @@ npx hyperframes init mcp-video --non-interactive --skip-skills
 Здесь `--skip-skills` оставлен намеренно: создание проекта не должно незаметно менять установку инструкций агента.
 Отдельная команда `npx hyperframes skills update` обновляет skills.
 
-<a id="hyperframes-hosted"></a>
+<a id="media"></a>
 
 ## Генеративные клипы, голос и музыка
 
