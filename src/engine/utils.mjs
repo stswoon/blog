@@ -96,3 +96,15 @@ export function appendVersionToHtmlImages(html, version) {
         return `${prefix}${appendVersionToStaticUrl(src, version)}${suffix}`;
     });
 }
+
+/**
+ * A table's min-content width easily exceeds a phone viewport, and a plain
+ * `overflow-x` on the table itself would drop the table semantics. Wrap every
+ * table in a scroll container instead. Covers both markdown tables and raw
+ * HTML tables pasted into an article.
+ */
+export function wrapTablesInScrollContainer(html) {
+    return html.replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, (table) => {
+        return `<div class="table-scroll">${table}</div>`;
+    });
+}

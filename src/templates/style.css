@@ -138,6 +138,10 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     transition: box-shadow var(--transition), transform var(--transition);
+    /* Article titles and descriptions contain long unbreakable tokens
+       (ERR_CERT_AUTHORITY_INVALID, pasted URLs). Without this they overflow
+       the card and give the whole page a horizontal scrollbar. */
+    overflow-wrap: break-word;
 }
 
 .blogEngine .content .papers .paper-item:not(.showMore):not(.ad):hover {
@@ -313,6 +317,10 @@
     font-family: var(--font-serif);
     font-weight: 400;
     font-size: 1.0625rem;
+    /* Flex item: min-width:auto would keep a min-content floor and push the
+       page into horizontal scrolling. The wrapping itself is inherited from
+       .paper-item. */
+    min-width: 0;
 }
 
 .paper-text p {
@@ -421,6 +429,21 @@
     margin-top: 1rem;
 }
 
+.paper-text .table-scroll {
+    overflow-x: auto;
+}
+
+.paper-text .table-scroll > table {
+    margin: 0;
+}
+
+/* Embedded maps/players carry a fixed width in the article markup. */
+.paper-text iframe {
+    max-width: 100%;
+    height: auto;
+    border: 0;
+}
+
 .paper-text table {
     width: 100%;
     border-collapse: collapse;
@@ -498,6 +521,12 @@
 /* ----- RESPONSIVE ----- */
 
 @media (max-width: 768px) {
+    .blogEngine .search {
+        /* same 16px gutter as the cards below it; without this the field runs
+           edge to edge once the layout viewport is the real device width */
+        padding: 0 16px;
+    }
+
     .blogEngine .content .papers {
         padding: 24px 16px 36px;
     }
@@ -508,6 +537,9 @@
 
     .paper-item > .paper-item-content {
         flex-direction: column;
+        /* flex-start would size the column children to fit-content, which
+           cannot go below their min-content width. */
+        align-items: stretch;
     }
 
     .paper-item > .paper-item-content > .short-image {

@@ -1,12 +1,12 @@
 {
   "name": "myblog",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "private": true,
   "scripts": {
     "prepare": "node -e \"try{require('child_process').execSync('git rev-parse --git-dir',{stdio:'ignore'});require('child_process').execSync('git config core.hooksPath .githooks',{stdio:'inherit'})}catch(e){}\"",
     "build:prod": "node blogengine.mjs --open=false && npm run test",
     "build": "node blogengine.mjs",
-    "serve": "node --watch-path=./src blogengine.mjs --open=true",
+    "serve": "node scripts/serve.mjs",
     "test": "jasmine",
     "docs:toc": "npx doctoc ./src/pages/2026/low-code-ui/index.md"
   },

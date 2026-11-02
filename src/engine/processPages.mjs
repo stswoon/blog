@@ -11,7 +11,8 @@ import {
     readFileSync,
     removeTags,
     resolveMacrosAuto,
-    writeFile
+    writeFile,
+    wrapTablesInScrollContainer
 } from "./utils.mjs";
 import fsp from "node:fs/promises";
 import {JSDOM} from "jsdom";
@@ -46,15 +47,15 @@ function readPages() {
     }));
 }
 
-function writePages() {
-    return Promise.all(BLOG.pages.map(page => {
+async function writePages() {
+    await Promise.all(BLOG.pages.map(async page => {
         console.log(`write ${page.raw.buildPageFileName}`);
         if (page.meta.draft) {
-            return Promise.resolve();
+            return;
         }
-        fsp.mkdir(page.raw.buildPageDirName, {recursive: true})
-            .then(() => copyStaticAssets(page.raw.srcPageDirName, page.raw.buildPageDirName))
-            .then(() => writeFile(page.pageHtml, page.raw.buildPageFileName))
+        await fsp.mkdir(page.raw.buildPageDirName, {recursive: true});
+        await copyStaticAssets(page.raw.srcPageDirName, page.raw.buildPageDirName);
+        await writeFile(page.pageHtml, page.raw.buildPageFileName);
     }));
 }
 
@@ -144,7 +145,7 @@ function fillHtml(page, pageTemplateHtml) {
     page.meta.firstImageSrc = getSafeImgLink(jsDomDocument.querySelector('img')?.src, page.link);
     page.meta.date = jsDomDocument.querySelector('.language-blogEnginePageDate')?.innerHTML;
 
-    const pageContentHtml = appendVersionToHtmlImages(pageContentHtmlRaw, BLOG.version);
+    const pageContentHtml = appendVersionToHtmlImages(wrapTablesInScrollContainer(pageContentHtmlRaw), BLOG.version);
 
     page.pageHtml = resolveMacrosAuto(pageTemplateHtml, {
         ...BLOG,

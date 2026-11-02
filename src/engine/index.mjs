@@ -36,6 +36,7 @@ export const runBlogEngine = async () => {
         console.info(styleText('green', "runBlogEngine: SUCCESS"));
     } catch (e) {
         console.error(styleText('red', "Fail to execute runBlogEngine()"), e);
+        process.exitCode = 1;
     }
 };
 
