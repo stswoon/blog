@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=0.6"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>{@blogEngine:GEN_page.meta.title}</title>
     <meta name="description" content="{@blogEngine:GEN_page.meta.description}"/>
@@ -29,24 +29,27 @@
 <div class="layout">
     <div class="content">
         <div class="header-background">
-            <img src="../../../assets/background-original.webp?v={@blogEngine:version}" alt="" class="header-background_image"/>
+            <img src="../../../assets/background-original.webp?v={@blogEngine:version}" alt=""
+                 class="header-background_image" width="1798" height="1390" fetchpriority="high"/>
         </div>
 
         <div class="header-title">
             <a class="home-link" href="/">← My <s>Class</s> Blog</a>
         </div>
 
-        <div class="papers">
-            <div class="paper-item paper-item__full">
-                <div class="paper-text">
-                    {@blogEngine:GEN_page.pageContentHtml}
+        <main>
+            <div class="papers">
+                <div class="paper-item paper-item__full">
+                    <div class="paper-text">
+                        {@blogEngine:GEN_page.pageContentHtml}
+                    </div>
+                </div>
+
+                <div class="paper-item ad">
+                    {@blogEngine:ad.adBlockHtml}
                 </div>
             </div>
-
-            <div class="paper-item ad">
-                {@blogEngine:ad.adBlockHtml}
-            </div>
-        </div>
+        </main>
     </div>
 
     <div class="footer">{@blogEngine:footerHtml}</div>

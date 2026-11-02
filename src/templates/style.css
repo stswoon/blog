@@ -1,15 +1,13 @@
 :root {
-    --blog-min-width: 540px;
-
     --color-bg: #f5f0eb;
     --color-bg-elevated: #ffffff;
     --color-bg-muted: #ebe4dc;
     --color-text: #1c1917;
     --color-text-muted: #57534e;
     --color-text-subtle: #78716c;
-    --color-accent: #c2410c;
+    --color-accent: #b1390a;
     --color-accent-hover: #9a3412;
-    --color-accent-soft: rgba(194, 65, 12, 0.1);
+    --color-accent-soft: rgba(177, 57, 10, 0.1);
     --color-footer-bg: #1c1917;
     --color-footer-text: #d6d3d1;
     --color-border: rgba(28, 25, 23, 0.08);
@@ -38,7 +36,6 @@
     background: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
-    min-width: var(--blog-min-width);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
 }
@@ -103,6 +100,14 @@
 
 .blogEngine .content {
     grid-area: content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* main landmark: keeps the same layout the .papers block had as a direct child */
+.blogEngine .content > main {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -248,6 +253,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    appearance: none;
     color: var(--color-accent);
     padding: 10px 20px;
     font-size: 0.95rem;
@@ -257,6 +263,7 @@
     border: none;
     border-radius: var(--radius-full);
     background: var(--color-accent-soft);
+    cursor: pointer;
     transition: background var(--transition), color var(--transition), transform var(--transition);
 }
 
@@ -372,7 +379,7 @@
 
 .paper-text a {
     color: var(--color-accent);
-    text-decoration-color: rgba(194, 65, 12, 0.4);
+    text-decoration-color: rgba(177, 57, 10, 0.4);
     text-underline-offset: 3px;
     transition: color var(--transition);
 }
@@ -441,14 +448,18 @@
     align-items: flex-start;
 }
 
+/* Fixed 11/9 box (the previous 220x180 maximum) so the browser reserves the
+   space before the image arrives: no layout shift, no "unsized image". */
 .paper-item > .paper-item-content > .short-image {
     flex-shrink: 0;
-    max-height: 180px;
-    max-width: 220px;
-    width: 100%;
+    width: 220px;
+    max-width: 100%;
+    aspect-ratio: 11 / 9;
+    height: auto;
     object-fit: cover;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
+    background: var(--color-bg-muted);
 }
 
 .paper-item > .paper-item-content > .paper-text {
@@ -500,12 +511,8 @@
     }
 
     .paper-item > .paper-item-content > .short-image {
-        max-width: 100%;
+        width: 100%;
         max-height: 220px;
-    }
-
-    .blogEngine .header-background {
-        min-width: var(--blog-min-width);
     }
 }
 

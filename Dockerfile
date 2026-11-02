@@ -12,6 +12,7 @@ COPY --from=builder /app/build ./usr/share/nginx/html
 # EXPOSE 80
 # CMD ["nginx", "-g", "daemon off;"]
 COPY start.sh /etc/nginx/
+COPY nginx/ /etc/nginx/snippets/
 RUN chmod +x /etc/nginx/start.sh
 ARG NGINX_PORT
 EXPOSE $NGINX_PORT

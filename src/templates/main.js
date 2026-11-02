@@ -58,6 +58,4 @@ function showMore() {
         el.classList.remove("hidden");
     });
     document.getElementById('showMoreButton').classList.add("hidden");
-    //e.preventDefault();
-    return false;
 }
