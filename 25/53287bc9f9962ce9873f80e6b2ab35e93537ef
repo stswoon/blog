@@ -1,0 +1,39 @@
+start.sh
+  s_749627bbfe217f::t_e360f63f99f078 8-11
+  s_749627bbfe217f::t_ce239553373403 12-13
+src/templates/index_short-page-list-item.html
+  s_749627bbfe217f::t_cc26fa45d6d85e 7-8
+nginx/cache.conf
+  s_749627bbfe217f::t_a529d1f372ef09 9-14
+  s_749627bbfe217f::t_63df7d71b29762 1-8,15,21-23
+  s_749627bbfe217f::t_6d5966fa0100fd 16-20
+Dockerfile
+  s_749627bbfe217f::t_c7cb66d13fb4df 15
+src/templates/style.css
+  s_749627bbfe217f::t_6f1aa75c246d98 256,266
+  s_749627bbfe217f::t_429d365cb15162 382
+src/templates/index.html
+  s_749627bbfe217f::t_6b61be4d38a826 32-33
+  s_749627bbfe217f::t_151ec9f3c06302 49-51,53-55,57-59,61
+src/templates/index-page.html
+  s_749627bbfe217f::t_56a11fffb37a34 40-45,48-50,52
+  s_749627bbfe217f::t_17f0fa4b5547f9 32-33
+nginx/gzip.conf
+  s_749627bbfe217f::t_cf220f51557717 1-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2553287bc9f9962ce9873f80e6b2ab35e93537ef",
+  "prompts": {},
+  "sessions": {
+    "s_749627bbfe217f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e67a6d494ffeW6T5C2lhBeB6dN",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
