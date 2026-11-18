@@ -1,0 +1,18 @@
+src/pages/2026/agents-to-game/index.md
+  h_06e01297fc405a 1-267
+package.json
+  h_06e01297fc405a 3
+src/pages/2026/agents-to-game/assets/how-i-trained-agents.pdf
+  h_06e01297fc405a 1-271
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "306cc0ed4e88a78eca65640678a60c4da99fef86",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
