@@ -1,0 +1,20 @@
+src/pages/2026/agents-to-game/index.md
+  s_00c7625b344d1c::t_97b8f76c963205 262
+  s_00c7625b344d1c::t_264edeb4e53b13 55,83,110,141,164,219
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "ff1210f39490c92ec8f3a90f891e7462cf5ef33d",
+  "prompts": {},
+  "sessions": {
+    "s_00c7625b344d1c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1074eb40ffe4JLTBQ93XmxVKL",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
